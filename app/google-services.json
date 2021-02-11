@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "358242027840",
+    "project_id": "wapsutd-e0016",
+    "storage_bucket": "wapsutd-e0016.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:358242027840:android:658fdcfcf860c800ab92a5",
+        "android_client_info": {
+          "package_name": "com.example.wap"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "358242027840-c6i7epu9q18tu8ifp661smrle8hhvg6o.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCTwGxZkXsTmFYC5QwVTIr_ID2frssIRME"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "358242027840-c6i7epu9q18tu8ifp661smrle8hhvg6o.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

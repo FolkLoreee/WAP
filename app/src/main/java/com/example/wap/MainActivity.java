@@ -24,6 +24,10 @@ import android.widget.Toast;
 
 import java.util.List;
 
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.firestore.FirebaseFirestore;
+
 public class MainActivity extends AppCompatActivity {
 
     private static final String LOG_TAG = "WAP";
@@ -40,6 +44,12 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // Access a Cloud Firestore instance from your Activity
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        // Write a message to the database
+
+        // Link the variables to the XML elements
         wifiScan = findViewById(R.id.wifiScan);
         wifiResults = findViewById(R.id.wifiResults);
 
