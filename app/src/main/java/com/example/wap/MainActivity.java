@@ -14,6 +14,8 @@ import android.content.pm.PackageManager;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
+import android.net.wifi.rtt.RangingRequest;
+import android.net.wifi.rtt.WifiRttManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -22,6 +24,8 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import com.google.firebase.database.DatabaseReference;
@@ -34,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int MY_REQUEST_CODE = 123;
 
     Button wifiScan;
+    Button mapPage;
     TextView wifiResults;
 
     WifiManager wifiManager;
@@ -52,6 +57,16 @@ public class MainActivity extends AppCompatActivity {
         // Link the variables to the XML elements
         wifiScan = findViewById(R.id.wifiScan);
         wifiResults = findViewById(R.id.wifiResults);
+        mapPage = findViewById(R.id.mapPage);
+
+        // Set up function to transit to mapping page
+        mapPage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this, MappingActivity.class);
+                startActivity(intent);
+            }
+        });
 
         wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
 
@@ -107,6 +122,11 @@ public class MainActivity extends AppCompatActivity {
         super.onStop();
     }
 
+    public double calculateDistance(double signalLevelInDb, double freqInMHz) {
+        double exp = (27.55 - (20 * Math.log10(freqInMHz)) + Math.abs(signalLevelInDb)) / 20.0;
+        return Math.pow(10.0, exp);
+    }
+
     // Define class to listen to broadcasts
     class WifiBroadcastReceiver extends BroadcastReceiver  {
         @Override
@@ -121,10 +141,18 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(LOG_TAG, "Scan OK");
 
                 List<ScanResult> list = wifiManager.getScanResults();
+//                HashMap<String, Double> networkDistance = new HashMap<>();
+
+                StringBuilder sb = new StringBuilder();
 
                 for (ScanResult result: list) {
-                    System.out.println(result);
+                    double distance = calculateDistance(result.level, result.frequency);
+//                    networkDistance.put(result.SSID, distance);
+                    System.out.println(result.SSID + " : " + distance + " m");
+                    sb.append(result.SSID + ": " + distance + " m" + "\n");
                 }
+
+                wifiResults.setText(sb.toString());
 
             }  else {
                 Log.d(LOG_TAG, "Scan not OK");
