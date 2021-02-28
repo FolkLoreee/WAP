@@ -64,8 +64,8 @@ public class MappingActivity extends AppCompatActivity implements View.OnTouchLi
     Button submit;
     TextView coordinatesText;
 
-    private final String locationID = "CampusCentre1";
-    Location currentLocation = new Location("CampusCentre1", "Campus Centre");
+    private final String locationID = "DebugLocation1";
+    Location currentLocation = new Location("DebugLocation1", "Debug Location");
 
 
     // These matrices will be used to move and zoom image
