@@ -117,6 +117,7 @@ public class MappingActivity extends AppCompatActivity implements View.OnTouchLi
         // Set up the map of level 1 by default
         mapImage = (ImageView) findViewById(R.id.mapImage);
         mapImage.setBackground(getResources().getDrawable(R.drawable.black));
+        drawable = getResources().getDrawable(floor);
 
         //original height and width of the bitmap
         intrinsicHeight = drawable.getIntrinsicHeight();
