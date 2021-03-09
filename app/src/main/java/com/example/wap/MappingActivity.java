@@ -46,6 +46,9 @@ import com.example.wap.models.MapPoint;
 import com.example.wap.models.Signal;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+
+import java.lang.reflect.Array;
+import java.util.HashMap;
 import java.util.List;
 import org.w3c.dom.Text;
 import java.util.ArrayList;
@@ -101,6 +104,10 @@ public class MappingActivity extends AppCompatActivity implements View.OnTouchLi
     int floor = R.drawable.floor_wap_1;
     Drawable drawable;
 
+    // Wifi Data and Scans
+    int numOfScans;
+    HashMap<String, ArrayList> allSignals;
+    HashMap<String, String> ssids;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -208,6 +215,10 @@ public class MappingActivity extends AppCompatActivity implements View.OnTouchLi
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                numOfScans = 0;
+                // re-initialise hash map each time the button is pressed
+                allSignals = new HashMap<>();
+                ssids = new HashMap<>();
                 askAndStartScanWifi();
             }
         });
@@ -370,11 +381,38 @@ public class MappingActivity extends AppCompatActivity implements View.OnTouchLi
             }
             Log.d(LOG_TAG, "Permissions Already Granted");
         }
-        doStartScanWifi();
+
+        wifiManager.startScan();
     }
 
-    private void doStartScanWifi()  {
-        wifiManager.startScan();
+    private Integer calculateAverage (ArrayList<Integer> readings) {
+        Integer sum = 0;
+        for (Integer reading: readings) {
+            sum += reading;
+        }
+        Integer average = sum / readings.size();
+        return average;
+    }
+
+    private Integer calculateStandardDeviation(ArrayList<Integer> readings, int average) {
+        Integer sum = 0;
+        for (Integer reading: readings) {
+            sum += (reading - average);
+        }
+        sum /= readings.size();
+        double sd = Math.sqrt((double) sum);
+        return (int) sd;
+    }
+
+    // error handling on the original average wifi signal
+    private Integer calculateProcessedAverage (Integer average) {
+        int offset = 0;
+        // systematic error
+        int result = average + offset;
+        // gross error
+
+        // random error
+        return result;
     }
 
     @Override
@@ -383,65 +421,92 @@ public class MappingActivity extends AppCompatActivity implements View.OnTouchLi
         super.onStop();
     }
 
-    public double calculateDistance(double signalLevelInDb, double freqInMHz) {
-        double exp = (27.55 - (20 * Math.log10(freqInMHz)) + Math.abs(signalLevelInDb)) / 20.0;
-        return Math.pow(10.0, exp);
-    }
-
     // Define class to listen to broadcasts
     class WifiBroadcastReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.d(LOG_TAG, "onReceive()");
 
-            Toast.makeText(MappingActivity.this, "Scan Complete!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(MappingActivity.this, "Scan " + numOfScans + " Complete!", Toast.LENGTH_SHORT).show();
 
-            boolean ok = intent.getBooleanExtra(WifiManager.EXTRA_RESULTS_UPDATED, false);
+            boolean resultsReceived = intent.getBooleanExtra(WifiManager.EXTRA_RESULTS_UPDATED, false);
 
-            if (ok) {
-                Log.d(LOG_TAG, "Scan OK");
+            if (resultsReceived) {
+                Log.d(LOG_TAG, "Result of Scan " + numOfScans);
 
                 List<ScanResult> list = wifiManager.getScanResults();
-//                HashMap<String, Double> networkDistance = new HashMap<>();
 
-                StringBuilder sb = new StringBuilder();
-                WAPFirebase<Signal> signalWAPFirebase = new WAPFirebase<>(Signal.class, "signals");
-                WAPFirebase<MapPoint> pointWAPFirebase = new WAPFirebase<>(MapPoint.class, "points");
-                ArrayList<Signal> signals = new ArrayList<>();
-                WAPFirebase<Location> locationWAPFirebase = new WAPFirebase<>(Location.class, "locations");
-
-                        for (ScanResult result : list) {
-                            double distance = calculateDistance(result.level, result.frequency);
-                            //                    networkDistance.put(result.SSID, distance);
-                            System.out.println(result.SSID + " : " + distance + " m");
-                            sb.append(result.SSID + ": " + distance + " m" + "\n");
-                            //posting the result to firebase:
-                            String signalID = "SG-" + locationID + "-" + (int) (Math.random() * 10000);
-                            Signal signal = new Signal(signalID, locationID, result.SSID, result.frequency, result.level, 10);
-                            Log.d(LOG_TAG, "LEVEL :"+result.level);
-                            signals.add(signal);
-                            point.addSignalID(signalID);
+                for (ScanResult result : list) {
+                    if (numOfScans == 0) {
+                        // TODO: should have a list of approved signals
+                        ArrayList<Integer> signals = new ArrayList<>();
+                        signals.add(result.level);
+                        allSignals.put(result.BSSID, signals);
+                        ssids.put(result.BSSID, result.SSID);
+                    }
+                    else {
+                        if (allSignals.containsKey(result.BSSID)) {
+                            allSignals.get(result.BSSID).add(result.level);
                         }
-                        pointWAPFirebase.create(point,point.getPointID()).addOnSuccessListener(new OnSuccessListener<Void>() {
+                    }
+                    Log.d(LOG_TAG, "MAC Address: " + result.BSSID + " , SSID: " + result.SSID + " , Wifi Signal: " + result.level);
+                }
+
+                Log.d(LOG_TAG, allSignals.toString());
+
+                // all scans completed, send data to firebase
+                if (numOfScans == 3) {
+                    // initialise for firebase
+                    WAPFirebase<Signal> signalWAPFirebase = new WAPFirebase<>(Signal.class, "signals");
+                    WAPFirebase<MapPoint> pointWAPFirebase = new WAPFirebase<>(MapPoint.class, "points");
+                    ArrayList<Signal> signals = new ArrayList<>();
+                    WAPFirebase<Location> locationWAPFirebase = new WAPFirebase<>(Location.class, "locations");
+
+                    for (String macAddress : allSignals.keySet()) {
+
+                        // get the average wifi signal if the BSSID exists
+                        ArrayList<Integer> readings = allSignals.get(macAddress);
+                        int averageSignal = calculateAverage(readings);
+                        int stdDevSignal = calculateStandardDeviation(readings, averageSignal);
+                        int averageSignalProcessed = calculateProcessedAverage(averageSignal);
+
+                        Log.d(LOG_TAG, "MAC Address: " + macAddress + " , Wifi Signal: " + averageSignal + " , Wifi Signal (SD): " + stdDevSignal);
+
+                        // posting the result to firebase
+                        String signalID = "SG-" + locationID + "-" + (int) (Math.random() * 10000);
+                        Signal signal = new Signal(signalID, locationID, macAddress, ssids.get(macAddress), stdDevSignal, averageSignal, averageSignalProcessed, 10);
+                        signals.add(signal);
+                        point.addSignalID(signalID);
+                    }
+
+                    pointWAPFirebase.create(point,point.getPointID()).addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Log.d("FIREBASE","map point successfully posted");
+                        }
+                    });
+                    for (Signal signal : signals) {
+                        signalWAPFirebase.create(signal, signal.getSignalID()).addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {
-                                Log.d("FIREBASE","map point successfully posted");
+                                Toast.makeText(MappingActivity.this, "Successfully created a point", Toast.LENGTH_SHORT).show();
+                                currentLocation.incrementSignalCounter();
+                                Log.d("FIREBASE", "signal successfully posted");
+                                locationWAPFirebase.update(currentLocation, locationID);
                             }
                         });
-                        for (Signal signal : signals) {
-                            signalWAPFirebase.create(signal, signal.getSignalID()).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                @Override
-                                public void onSuccess(Void aVoid) {
-                                    Toast.makeText(MappingActivity.this, "Successfully created a point", Toast.LENGTH_SHORT).show();
-                                    currentLocation.incrementSignalCounter();
-                                    Log.d("FIREBASE", "signal successfully posted");
-                                    locationWAPFirebase.update(currentLocation, locationID);
-                                }
-                            });
-                        }
-
+                    }
+                }
             } else {
-                Log.d(LOG_TAG, "Scan not OK");
+                Log.d(LOG_TAG, "Scan has issues");
+            }
+
+            // continue scanning if it has not reached 10 scans + increase numOfScans
+            numOfScans++;
+            if (numOfScans < 4) {
+                Log.d(LOG_TAG, String.valueOf(numOfScans));
+                Log.d(LOG_TAG, "Started another scan");
+                wifiManager.startScan();
             }
         }
     }
