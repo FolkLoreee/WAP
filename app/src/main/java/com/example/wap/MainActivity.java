@@ -152,45 +152,45 @@ public class MainActivity extends AppCompatActivity {
 
                 StringBuilder sb = new StringBuilder();
 
-                for (ScanResult result: list) {
-                    Log.d("RESULT", "test result");
-                    double distance = calculateDistance(result.level, result.frequency);
-//                    networkDistance.put(result.SSID, distance);
-                    System.out.println(result.SSID + " : " + distance + " m");
-                    sb.append(result.SSID + ": " + distance + " m" + "\n");
-                    //posting the result to firebase:
-                    String locationID = "CampusCentre1";
-                    WAPFirebase<Location> locationWAPFirebase = new WAPFirebase<>(Location.class, "locations");
-                    locationWAPFirebase.query(locationID).addOnSuccessListener(new OnSuccessListener<Location>() {
-                        @Override
-                        public void onSuccess(Location location) {
-                            if(location != null){
-                                currentLocation = location;
-                            }
-                            else{
-                                //TODO currentLocation is hardcoded
-                                currentLocation = new Location(locationID,"Campus Centre");
-                            }
-                        }
-                    }).addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Log.w("DB","Error in fetching location from database");
-                        }
-                    });
-                    WAPFirebase<Signal> signalWAPFirebase = new WAPFirebase<>(Signal.class, "signals");
-                    String signalID = "SG-"+locationID+"-"+"0";
-                    Signal signal = new Signal(signalID,locationID,result.SSID,result.frequency,result.level,10);
-                    signalWAPFirebase.create(signal, signalID).addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            Toast.makeText(MainActivity.this, "Successfully created a point",Toast.LENGTH_SHORT).show();
-                            currentLocation.incrementSignalCounter();
-                            Log.d("FIREBASE","point successfully posted");
-                            locationWAPFirebase.update(currentLocation,locationID);
-                        }
-                    });
-                }
+//                for (ScanResult result: list) {
+//                    Log.d("RESULT", "test result");
+//                    double distance = calculateDistance(result.level, result.frequency);
+////                    networkDistance.put(result.SSID, distance);
+//                    System.out.println(result.SSID + " : " + distance + " m");
+//                    sb.append(result.SSID + ": " + distance + " m" + "\n");
+//                    //posting the result to firebase:
+//                    String locationID = "CampusCentre1";
+//                    WAPFirebase<Location> locationWAPFirebase = new WAPFirebase<>(Location.class, "locations");
+//                    locationWAPFirebase.query(locationID).addOnSuccessListener(new OnSuccessListener<Location>() {
+//                        @Override
+//                        public void onSuccess(Location location) {
+//                            if(location != null){
+//                                currentLocation = location;
+//                            }
+//                            else{
+//                                //TODO currentLocation is hardcoded
+//                                currentLocation = new Location(locationID,"Campus Centre");
+//                            }
+//                        }
+//                    }).addOnFailureListener(new OnFailureListener() {
+//                        @Override
+//                        public void onFailure(@NonNull Exception e) {
+//                            Log.w("DB","Error in fetching location from database");
+//                        }
+//                    });
+//                    WAPFirebase<Signal> signalWAPFirebase = new WAPFirebase<>(Signal.class, "signals");
+//                    String signalID = "SG-"+locationID+"-"+"0";
+//                    Signal signal = new Signal(signalID,locationID,result.SSID,result.frequency,result.level,10);
+//                    signalWAPFirebase.create(signal, signalID).addOnSuccessListener(new OnSuccessListener<Void>() {
+//                        @Override
+//                        public void onSuccess(Void aVoid) {
+//                            Toast.makeText(MainActivity.this, "Successfully created a point",Toast.LENGTH_SHORT).show();
+//                            currentLocation.incrementSignalCounter();
+//                            Log.d("FIREBASE","point successfully posted");
+//                            locationWAPFirebase.update(currentLocation,locationID);
+//                        }
+//                    });
+//                }
 
                 wifiResults.setText(sb.toString());
 
