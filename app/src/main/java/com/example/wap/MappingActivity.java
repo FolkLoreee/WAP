@@ -248,8 +248,8 @@ public class MappingActivity extends AppCompatActivity implements View.OnTouchLi
                 relativeY = (event.getY() - values[5]) / values[4];
                 mPath.addCircle(relativeX, relativeY, 10, Path.Direction.CW);
 
-                String pointID = "MP-"+currentLocation.getLocationID()+"-"+(int)(relativeX)+"-"+(int)(relativeY);
-                point = new MapPoint(pointID,new Coordinate(relativeX,relativeY),currentLocation.getLocationID());
+                //String pointID = "MP-"+currentLocation.getLocationID()+"-"+(int)(relativeX)+"-"+(int)(relativeY);
+                //point = new MapPoint(pointID,new Coordinate(relativeX,relativeY),currentLocation.getLocationID());
 
                 if (drag){
                     Log.i("path added", "path added");
@@ -267,12 +267,12 @@ public class MappingActivity extends AppCompatActivity implements View.OnTouchLi
                         mapImage.setImageBitmap(bitmap);
                         paths.clear();
                         mPath.addCircle(relativeX, relativeY, 10, Path.Direction.CW);
-
+                        Toast.makeText(MappingActivity.this, "drawn", Toast.LENGTH_SHORT).show();
                         canvas.drawPath(mPath, paint);
                         mPath = new Path();
                         hasPath = true;
                     }
-
+                    Toast.makeText(MappingActivity.this, "drawn", Toast.LENGTH_SHORT).show();
                     canvas.drawPath(mPath, paint);
                     mPath = new Path();
 //                    paths.add(mPath);
