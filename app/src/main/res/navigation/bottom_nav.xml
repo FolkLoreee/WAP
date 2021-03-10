@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/bottom_nav"
+    app:startDestination="@id/mainActivity">
+
+    <activity
+        android:id="@+id/mainActivity"
+        android:name="com.example.wap.MainActivity"
+        android:label="activity_main"
+        tools:layout="@layout/activity_main" />
+    <activity
+        android:id="@+id/mappingActivity"
+        android:name="com.example.wap.MappingActivity"
+        android:label="activity_mapping"
+        tools:layout="@layout/activity_mapping" />
+    <activity
+        android:id="@+id/trackingActivity"
+        android:name="com.example.wap.TrackingActivity"
+        android:label="activity_tracking"
+        tools:layout="@layout/activity_tracking" />
+</navigation>

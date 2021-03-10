@@ -20,6 +20,7 @@ import android.net.wifi.rtt.WifiRttManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -34,6 +35,7 @@ import com.example.wap.models.Location;
 import com.example.wap.models.Signal;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -56,6 +58,29 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_nav);
+        bottomNavigationView.setSelectedItemId(R.id.mainActivity);
+        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                switch(item.getItemId()){
+                    case R.id.trackingActivity:
+                        startActivity(new Intent(getApplicationContext(),TrackingActivity.class));
+                        overridePendingTransition(0,0);
+                        return true;
+                    case R.id.mappingActivity:
+                        startActivity(new Intent(getApplicationContext(),MappingActivity.class));
+                        overridePendingTransition(0,0);
+                        return true;
+                    case R.id.mainActivity:
+
+                        return true;
+                }
+                return false;
+            }
+        });
+
 
         // Access a Cloud Firestore instance from your Activity
         FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -100,6 +125,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
     }
+
 
     private void askAndStartScanWifi()  {
 
