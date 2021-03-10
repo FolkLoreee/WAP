@@ -14,6 +14,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class TestingActivity extends AppCompatActivity {
 
@@ -22,12 +23,12 @@ public class TestingActivity extends AppCompatActivity {
     ArrayList<Integer> targetData;
     ArrayList<Coordinate> fingerprintCoordinate;
     //for average, process-average, standard deviation calculations
-    ArrayList<Integer> fingerprintDataIK;
-    ArrayList<Integer> targetDataK;
+    List<Integer> fingerprintDataIK;
+    List<Integer> targetDataK;
     //create an arraylist to store the euclidean distance di values
-    ArrayList<Double> euclideanArray;
+    ArrayList<Double> euclideanArray = new ArrayList<>();
     //create an arraylist to store the jointprob i values
-    ArrayList<Double> jointProbArray;
+    ArrayList<Double> jointProbArray = new ArrayList<>();
     //firebase
     FirebaseFirestore db;
     String TAG = "i";
@@ -44,6 +45,8 @@ public class TestingActivity extends AppCompatActivity {
         //firestore for fingerprint
         db = FirebaseFirestore.getInstance();
         //if the user is in level 1 (Have to add if-else condition)
+
+        //Hard-code
         db.collection("signals")
                 .whereEqualTo("locationID", "CampusCenter1")
                 .get()
@@ -65,10 +68,9 @@ public class TestingActivity extends AppCompatActivity {
 
     }
 
-    private Coordinate euclideanDistance() {
+    public Coordinate euclideanDistance() {
         // TODO: Euclidean distance positioning algorithm (Hannah)
         //Coordinate position = new Coordinate(0,0);
-        
         double numeratorX = 0;
         double numeratorY = 0;
         double denominatorPart = 0;
@@ -76,16 +78,14 @@ public class TestingActivity extends AppCompatActivity {
         //euclidean distance
         double euclideanDis = 0;
 
-        for (int i = 1; i <fingerprintData.size()+1 ; i++){
-            for (int k = 1; k < targetData.size()+1; k++ ){
-                //Deep copy of the targetData and FingerprintData until k-th
-                for (int j = 0; j < k; j++){
-                    targetDataK.set(j, targetData.get(j));
-                    if (j < i){
-                        fingerprintDataIK.set(j, fingerprintDataIK.get(j));
-                    }
 
-                }
+        for (int i = 1; i <fingerprintData.size()+1 ; i++) {
+            //System.out.println(i);
+
+            for (int k = 1; k < targetData.size() + 1; k++) {
+                targetDataK = targetData.subList(0, k);
+                fingerprintDataIK = fingerprintData.subList(0, i);
+
                 //PAVG, DEV of k-th wifi signals at the target place
                 Integer avgTarget = calculateAverage(targetDataK);
                 Integer pavgTarget = calculateProcessedAverage(avgTarget);
@@ -99,14 +99,17 @@ public class TestingActivity extends AppCompatActivity {
                 Integer absPavg = Math.abs(pavgTarget - pavgFingerprint);
                 double sqauredValue = Math.pow(absPavg + devTarget + devFingerprint, 2);
                 //sum it
-                euclideanDis += sqauredValue ;
+                euclideanDis += sqauredValue;
+
             }
+
             euclideanDis = Math.sqrt(euclideanDis);
-            euclideanArray.set(i-1, euclideanDis);
+            euclideanArray.add(euclideanDis);
         }
 
         //calculate the coordinate
         for (int j = 1; j < fingerprintCoordinate.size()+1 ; j++) {
+
             //find x and y multiplied by omega and sum all
             numeratorX += calculateXEuclidean(euclideanArray.get(j - 1), fingerprintCoordinate.get(j - 1));
             numeratorY += calculateYEuclidean(euclideanArray.get(j - 1), fingerprintCoordinate.get(j - 1));
@@ -115,14 +118,17 @@ public class TestingActivity extends AppCompatActivity {
         }
         double x = numeratorX / denominatorPart;
         double y = numeratorY / denominatorPart;
-        //clear the array to be reusable
-        euclideanArray.clear();
-        return new Coordinate(x, y);
+
+        Coordinate position = new Coordinate(x, y);
+
+        return position;
+
+
     }
 
-    private Coordinate jointProbability() {
+    public Coordinate jointProbability() {
         // TODO: joint probability positioning algorithm (Hannah)
-        Coordinate position = new Coordinate(0,0);
+        //Coordinate position = new Coordinate(0,0);
         double Pik = 1;
         double jointProbi = 1;
 
@@ -132,14 +138,8 @@ public class TestingActivity extends AppCompatActivity {
 
         for (int i = 1; i <fingerprintData.size()+1 ; i++){
             for (int k = 1; k < targetData.size()+1; k++ ){
-                //Deep copy of the targetData and FingerprintData until k-th
-                for (int j = 0; j < k; j++){
-                    targetDataK.set(j, targetData.get(j));
-                    if (j < i){
-                        fingerprintDataIK.set(j, fingerprintDataIK.get(j));
-                    }
-
-                }
+                targetDataK = targetData.subList(0, k);
+                fingerprintDataIK = fingerprintData.subList(0, i);
                 //AVGk, DEV of k-th wifi signals at the target place
                 //x value
                 Integer avgTarget = calculateAverage(targetDataK);
@@ -147,19 +147,20 @@ public class TestingActivity extends AppCompatActivity {
                 Integer avgFingerprint = calculateAverage(fingerprintDataIK);
                 //sigma
                 Integer devFingerprint = calculateStandardDeviation(fingerprintDataIK, avgFingerprint);
-
                 //calculate Pik
                 Pik = calculateJointProb(avgTarget, avgFingerprint, devFingerprint);
                 //Pi = Pi1 * Pi2 * Pi3 * ... *Pik
                 jointProbi = jointProbi * Pik;
             }
-            jointProbArray.set(i-1, jointProbi);
+            jointProbArray.add(jointProbi);
         }
+        System.out.println(jointProbArray);
+
         //calculate the coordinate
         for (int j = 1; j < fingerprintCoordinate.size()+1 ; j++) {
             //find x and y multiplied by omega and sum all
             numeratorX += calculateXJointProb(jointProbArray.get(j - 1), fingerprintCoordinate.get(j - 1));
-            numeratorY += calculateYEuclidean(jointProbArray.get(j - 1), fingerprintCoordinate.get(j - 1));
+            numeratorY += calculateYJointProb(jointProbArray.get(j - 1), fingerprintCoordinate.get(j - 1));
             //omega
             denominatorPart += omegaJointProb(jointProbArray.get(j-1));
         }
@@ -168,22 +169,22 @@ public class TestingActivity extends AppCompatActivity {
         //clear the array to be reusable
         jointProbArray.clear();
         return new Coordinate(x, y);
-
     }
 
-    private Coordinate cosineSimilarity() {
+    public Coordinate cosineSimilarity() {
         // TODO: cosine similarity positioning algorithm (Sherene)
         Coordinate position = new Coordinate(0,0);
         return position;
     }
 
-    private Coordinate weightedFusion() {
+    public Coordinate weightedFusion() {
         // TODO: add different weights to each algorithm (Sherene)
         Coordinate position = new Coordinate(0,0);
         return position;
     }
     //helper method to calculate joint probability
     private double calculateJointProb(Integer x, Integer mu, Integer sigma){
+        //further improvement >> exception when sigma is zero
         double p1 = 1 / (sigma * Math.sqrt(2* Math.PI));
         double numerator = Math.pow(x- mu, 2);
         double denominator = 2* Math.pow(sigma, 2);
@@ -235,10 +236,10 @@ public class TestingActivity extends AppCompatActivity {
     }
 
     private double omegaJointProb(double probability){
-        return Math.log(probability);
+        return Math.log10(probability);
     }
 
-    private Integer calculateAverage (ArrayList<Integer> readings) {
+    private Integer calculateAverage (List<Integer> readings) {
         Integer sum = 0;
         for (Integer reading: readings) {
             sum += reading;
@@ -247,7 +248,7 @@ public class TestingActivity extends AppCompatActivity {
         return average;
     }
 
-    private Integer calculateStandardDeviation(ArrayList<Integer> readings, int average) {
+    private Integer calculateStandardDeviation(List<Integer> readings, int average) {
         Integer sum = 0;
         for (Integer reading: readings) {
             sum += (reading - average);
