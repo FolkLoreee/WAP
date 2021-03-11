@@ -53,8 +53,6 @@ import java.util.List;
 import org.w3c.dom.Text;
 import java.util.ArrayList;
 
-
-
 public class MappingActivity extends AppCompatActivity implements View.OnTouchListener {
     //WIFI Stuff
     private static final int MY_REQUEST_CODE = 123;
