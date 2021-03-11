@@ -453,6 +453,7 @@ public class MappingActivity extends AppCompatActivity implements View.OnTouchLi
                     WAPFirebase<MapPoint> pointWAPFirebase = new WAPFirebase<>(MapPoint.class, "points");
                     ArrayList<Signal> signals = new ArrayList<>();
                     WAPFirebase<Location> locationWAPFirebase = new WAPFirebase<>(Location.class, "locations");
+                    int signalCounter = 0;
 
                     for (String macAddress : allSignals.keySet()) {
 
@@ -465,10 +466,11 @@ public class MappingActivity extends AppCompatActivity implements View.OnTouchLi
                         Log.d(LOG_TAG, "MAC Address: " + macAddress + " , Wifi Signal: " + averageSignal + " , Wifi Signal (SD): " + stdDevSignal);
 
                         // posting the result to firebase
-                        String signalID = "SG-" + locationID + "-" + (int) (Math.random() * 10000);
+                        String signalID = "SG-" + locationID + "-" + signalCounter;
                         Signal signal = new Signal(signalID, locationID, macAddress, ssids.get(macAddress), stdDevSignal, averageSignal, averageSignalProcessed, 10);
                         signals.add(signal);
                         point.addSignalID(signalID);
+                        signalCounter++;
                     }
 
                     pointWAPFirebase.create(point,point.getPointID()).addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -489,44 +491,6 @@ public class MappingActivity extends AppCompatActivity implements View.OnTouchLi
                         });
                     }
                 }
-//                HashMap<String, Double> networkDistance = new HashMap<>();
-
-                StringBuilder sb = new StringBuilder();
-                ArrayList<Signal> signals = new ArrayList<>();
-                int signalCounter = 0;
-
-                for (ScanResult result : list) {
-                    double distance = calculateDistance(result.level, result.frequency);
-                    //                    networkDistance.put(result.SSID, distance);
-                    System.out.println(result.SSID + " : " + distance + " m");
-                    sb.append(result.SSID + ": " + distance + " m" + "\n");
-                    //posting the result to firebase:
-                    String signalID = "SG-" + locationID + "-" + signalCounter;
-                    Signal signal = new Signal(signalID, locationID, result.SSID, result.frequency, result.level, 10);
-                    Log.d(LOG_TAG, "LEVEL :" + result.level);
-                    signals.add(signal);
-                    point.addSignalID(signalID);
-                    signalCounter++;
-                }
-                pointWAPFirebase.create(point, point.getPointID()).addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d("FIREBASE", "map point successfully posted");
-                    }
-                });
-                for (Signal signal : signals) {
-                    signalWAPFirebase.create(signal, signal.getSignalID()).addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            currentLocation.incrementSignalCounter();
-                            Log.d("FIREBASE", "signal successfully posted");
-                            locationWAPFirebase.update(currentLocation, locationID);
-                        }
-                    });
-                }
-                Toast.makeText(MappingActivity.this, "Successfully created points", Toast.LENGTH_SHORT).show();
-
-
             } else {
                 Toast.makeText(MappingActivity.this, "Scan failed!", Toast.LENGTH_SHORT).show();
                 Log.d(LOG_TAG, "Scan has issues");
