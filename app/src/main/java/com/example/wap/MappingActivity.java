@@ -136,6 +136,7 @@ public class MappingActivity extends AppCompatActivity implements View.OnTouchLi
         mapImage.setBackground(getResources().getDrawable(R.drawable.black));
         drawable = getResources().getDrawable(floor);
 
+        drawable = getResources().getDrawable(floor);
         //original height and width of the bitmap
         intrinsicHeight = drawable.getIntrinsicHeight();
         intrinsicWidth = drawable.getIntrinsicWidth();
@@ -288,12 +289,12 @@ public class MappingActivity extends AppCompatActivity implements View.OnTouchLi
                         mapImage.setImageBitmap(bitmap);
                         paths.clear();
                         mPath.addCircle(relativeX, relativeY, 10, Path.Direction.CW);
-
+                        Toast.makeText(MappingActivity.this, "drawn", Toast.LENGTH_SHORT).show();
                         canvas.drawPath(mPath, paint);
                         mPath = new Path();
                         hasPath = true;
                     }
-
+                    Toast.makeText(MappingActivity.this, "drawn", Toast.LENGTH_SHORT).show();
                     canvas.drawPath(mPath, paint);
                     mPath = new Path();
 //                    paths.add(mPath);
