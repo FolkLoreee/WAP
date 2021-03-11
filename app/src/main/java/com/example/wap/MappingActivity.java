@@ -50,9 +50,10 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import java.lang.reflect.Array;
 import java.util.HashMap;
 import java.util.List;
-import org.w3c.dom.Text;
-import java.util.ArrayList;
 
+import org.w3c.dom.Text;
+
+import java.util.ArrayList;
 
 
 public class MappingActivity extends AppCompatActivity implements View.OnTouchListener {
@@ -72,9 +73,14 @@ public class MappingActivity extends AppCompatActivity implements View.OnTouchLi
     Button submit;
     TextView coordinatesText;
 
+    //TODO: locationID will follow the locationID from the previous screen
     private final String locationID = "DebugLocation1";
     Location currentLocation = new Location("DebugLocation1", "Debug Location");
 
+    //Firebase
+    WAPFirebase<Signal> signalWAPFirebase;
+    WAPFirebase<MapPoint> pointWAPFirebase;
+    WAPFirebase<Location> locationWAPFirebase;
     // These matrices will be used to move and zoom image
     Matrix matrix = new Matrix();
     Matrix savedMatrix = new Matrix();
@@ -115,6 +121,9 @@ public class MappingActivity extends AppCompatActivity implements View.OnTouchLi
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_mapping);
 
+        signalWAPFirebase = new WAPFirebase<>(Signal.class, "signals");
+        pointWAPFirebase = new WAPFirebase<>(MapPoint.class, "points");
+        locationWAPFirebase = new WAPFirebase<>(Location.class, "locations");
         coordinatesText = (TextView) findViewById(R.id.coordinatesText);
         level1Btn = (Button) findViewById(R.id.level1Btn);
         level2Btn = (Button) findViewById(R.id.level2Btn);
@@ -135,7 +144,7 @@ public class MappingActivity extends AppCompatActivity implements View.OnTouchLi
         bitmap = Bitmap.createBitmap((int) intrinsicWidth, (int) intrinsicHeight, Bitmap.Config.ARGB_8888);
         canvas = new Canvas(bitmap);
         mPath = new Path();
-        canvas.drawBitmap(BitmapFactory.decodeResource(getResources(),R.drawable.floor_wap_1),0,0,null);
+        canvas.drawBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.floor_wap_1), 0, 0, null);
         paint = new Paint();
         paint.setColor(Color.RED);
         mapImage.setImageBitmap(bitmap);
@@ -163,7 +172,7 @@ public class MappingActivity extends AppCompatActivity implements View.OnTouchLi
                 bitmap = Bitmap.createBitmap((int) intrinsicWidth, (int) intrinsicHeight, Bitmap.Config.ARGB_8888);
                 canvas = new Canvas(bitmap);
                 mPath = new Path();
-                canvas.drawBitmap(BitmapFactory.decodeResource(getResources(),floor),0,0,null);
+                canvas.drawBitmap(BitmapFactory.decodeResource(getResources(), floor), 0, 0, null);
                 paint = new Paint();
                 paint.setColor(Color.RED);
                 mapImage.setImageBitmap(bitmap);
@@ -189,7 +198,7 @@ public class MappingActivity extends AppCompatActivity implements View.OnTouchLi
                 canvas = new Canvas(bitmap);
                 mPath = new Path();
                 paths.add(mPath);
-                canvas.drawBitmap(BitmapFactory.decodeResource(getResources(),floor),0,0,null);
+                canvas.drawBitmap(BitmapFactory.decodeResource(getResources(), floor), 0, 0, null);
                 paint = new Paint();
                 paint.setColor(Color.RED);
                 mapImage.setImageBitmap(bitmap);
@@ -203,11 +212,11 @@ public class MappingActivity extends AppCompatActivity implements View.OnTouchLi
         undo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.i("undo","undo");
-                if(paths.size() > 0){
-                    undonePaths.add(paths.remove(paths.size()-1));
-                }
-                else {
+
+                Log.i("undo", "undo");
+                if (paths.size() > 0) {
+                    undonePaths.add(paths.remove(paths.size() - 1));
+                } else {
                     Toast.makeText(MappingActivity.this, "nothing to undo", Toast.LENGTH_SHORT).show();
                 }
             }
@@ -261,20 +270,19 @@ public class MappingActivity extends AppCompatActivity implements View.OnTouchLi
                 relativeY = (event.getY() - values[5]) / values[4];
                 mPath.addCircle(relativeX, relativeY, 10, Path.Direction.CW);
 
-                String pointID = "MP-"+currentLocation.getLocationID()+"-"+(int)(relativeX)+"-"+(int)(relativeY);
-                point = new MapPoint(pointID,new Coordinate(relativeX,relativeY),currentLocation.getLocationID());
+                String pointID = "MP-" + currentLocation.getLocationID() + "-" + (int) (relativeX) + "-" + (int) (relativeY);
+                point = new MapPoint(pointID, new Coordinate(relativeX, relativeY), currentLocation.getLocationID());
 
-                if (drag){
+                if (drag) {
                     Log.i("path added", "path added");
                     mPath = new Path();
                     drag = false;
-                }
-                else{
-                    if(hasPath){
+                } else {
+                    if (hasPath) {
                         bitmap = Bitmap.createBitmap((int) intrinsicWidth, (int) intrinsicHeight, Bitmap.Config.ARGB_8888);
                         canvas = new Canvas(bitmap);
                         mPath = new Path();
-                        canvas.drawBitmap(BitmapFactory.decodeResource(getResources(),floor),0,0,null);
+                        canvas.drawBitmap(BitmapFactory.decodeResource(getResources(), floor), 0, 0, null);
                         paint = new Paint();
                         paint.setColor(Color.RED);
                         mapImage.setImageBitmap(bitmap);
@@ -301,18 +309,14 @@ public class MappingActivity extends AppCompatActivity implements View.OnTouchLi
 
             case MotionEvent.ACTION_MOVE:
 
-                if(mode == DRAG)
-                {
+                if (mode == DRAG) {
                     Log.i("become drag", "became drag");
                     matrix.set(savedMatrix);
                     matrix.postTranslate(event.getX() - start.x, event.getY() - start.y);
                     drag = true;
 
 
-                }
-
-                else if(mode == ZOOM)
-                {
+                } else if (mode == ZOOM) {
                     float newDist = spacing(event);
                     if (newDist > 10f) {
                         matrix.set(savedMatrix);
@@ -345,14 +349,18 @@ public class MappingActivity extends AppCompatActivity implements View.OnTouchLi
         return true;
     }
 
-    /** Determine the space between the first two fingers */
+    /**
+     * Determine the space between the first two fingers
+     */
     private float spacing(MotionEvent event) {
         float x = event.getX(0) - event.getX(1);
         float y = event.getY(0) - event.getY(1);
         return (float) Math.sqrt(x * x + y * y);
     }
 
-    /** Calculate the mid point of the first two fingers */
+    /**
+     * Calculate the mid point of the first two fingers
+     */
     private void midPoint(PointF point, MotionEvent event) {
         float x = event.getX(0) + event.getX(1);
         float y = event.getY(0) + event.getY(1);
@@ -360,9 +368,49 @@ public class MappingActivity extends AppCompatActivity implements View.OnTouchLi
     }
 
     @Override
-    protected void onStop()  {
+    protected void onStop() {
         this.unregisterReceiver(this.wifiReceiver);
         super.onStop();
+    }
+
+    public double calculateDistance(double signalLevelInDb, double freqInMHz) {
+        double exp = (27.55 - (20 * Math.log10(freqInMHz)) + Math.abs(signalLevelInDb)) / 20.0;
+        return Math.pow(10.0, exp);
+    }
+
+    public void removeSignals(String pointID) {
+        Log.d(LOG_TAG, "Attempting to remove signals");
+        pointWAPFirebase.query(pointID).addOnSuccessListener(mapPoint -> {
+            Log.d(LOG_TAG, "Map point is: " + mapPoint.getPointID());
+            ArrayList<String> signalIDs = mapPoint.getSignalIDs();
+            for (String signalID : signalIDs) {
+                signalWAPFirebase.delete(signalID).addOnSuccessListener(aVoid -> Log.d(LOG_TAG, "Successfully removed signal: " + signalID)).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w(LOG_TAG, "Failure to remove signal" + signalID);
+
+                    }
+                });
+            }
+            pointWAPFirebase.delete(pointID).addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    Log.d(LOG_TAG, "Successfully removed map point" + pointID);
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Log.w(LOG_TAG, "Failure to remove map point" + pointID);
+                }
+            });
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.e(LOG_TAG,e.toString());
+                Log.w(LOG_TAG, "Failure to fetch map point: " + pointID);
+            }
+        });
+
     }
 
     // Define class to listen to broadcasts
@@ -441,6 +489,44 @@ public class MappingActivity extends AppCompatActivity implements View.OnTouchLi
                         });
                     }
                 }
+//                HashMap<String, Double> networkDistance = new HashMap<>();
+
+                StringBuilder sb = new StringBuilder();
+                ArrayList<Signal> signals = new ArrayList<>();
+                int signalCounter = 0;
+
+                for (ScanResult result : list) {
+                    double distance = calculateDistance(result.level, result.frequency);
+                    //                    networkDistance.put(result.SSID, distance);
+                    System.out.println(result.SSID + " : " + distance + " m");
+                    sb.append(result.SSID + ": " + distance + " m" + "\n");
+                    //posting the result to firebase:
+                    String signalID = "SG-" + locationID + "-" + signalCounter;
+                    Signal signal = new Signal(signalID, locationID, result.SSID, result.frequency, result.level, 10);
+                    Log.d(LOG_TAG, "LEVEL :" + result.level);
+                    signals.add(signal);
+                    point.addSignalID(signalID);
+                    signalCounter++;
+                }
+                pointWAPFirebase.create(point, point.getPointID()).addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d("FIREBASE", "map point successfully posted");
+                    }
+                });
+                for (Signal signal : signals) {
+                    signalWAPFirebase.create(signal, signal.getSignalID()).addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            currentLocation.incrementSignalCounter();
+                            Log.d("FIREBASE", "signal successfully posted");
+                            locationWAPFirebase.update(currentLocation, locationID);
+                        }
+                    });
+                }
+                Toast.makeText(MappingActivity.this, "Successfully created points", Toast.LENGTH_SHORT).show();
+
+
             } else {
                 Toast.makeText(MappingActivity.this, "Scan failed!", Toast.LENGTH_SHORT).show();
                 Log.d(LOG_TAG, "Scan has issues");
