@@ -15,7 +15,9 @@ public class MapPoint {
 
 
     public ArrayList<String> signalIDs;
+
     public MapPoint(){}
+
     public MapPoint(String pointID, Coordinate coordinate, String locationID) {
         this.coordinate = coordinate;
         this.locationID = locationID;
@@ -23,8 +25,6 @@ public class MapPoint {
         this.pointID = pointID;
         this.signalIDs = new ArrayList<>();
     }
-
-    public MapPoint() {}
 
     public String getPointID() {
         return pointID;

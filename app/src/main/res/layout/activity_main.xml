@@ -6,12 +6,12 @@
     android:layout_height="match_parent"
     android:background="@drawable/gradient"
     tools:context=".MainActivity">
+
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_nav_bar"
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:background="@color/white"
-
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="1.0"
@@ -22,66 +22,11 @@
         android:id="@+id/mapPage"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="1dp"
+        android:layout_marginTop="72dp"
         android:text="Mapping"
         app:backgroundTint="#C6F63FB9"
-        app:layout_constraintBottom_toTopOf="@+id/wifiScan"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.916"
-        tools:ignore="MissingConstraints" />
-
-    <Button
-        android:id="@+id/mapPage2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="1dp"
-        android:text="Mapping"
-        app:backgroundTint="#C6F63FB9"
-        app:layout_constraintBottom_toTopOf="@+id/wifiScan"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.916"
-        tools:ignore="MissingConstraints" />
-
-    <Button
-        android:id="@+id/wifiScan"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="#C6F63FB9"
-        android:text="Wifi Scan"
-        app:backgroundTint="#C6F63FB9"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:ignore="MissingConstraints" />
-
-    <Button
-        android:id="@+id/wifiScan2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="#C6F63FB9"
-        android:text="Track Assets"
-        app:backgroundTint="#C6F63FB9"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/wifiScan"
-        app:layout_constraintVertical_bias="0.081"
-        tools:ignore="MissingConstraints" />
-
-    <Button
-        android:id="@+id/mapPage"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="80dp"
-        android:text="Mapping"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.509"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:ignore="MissingConstraints" />
@@ -93,6 +38,7 @@
         android:layout_marginTop="24dp"
         android:text="Testing"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/mapPage"
         tools:ignore="MissingConstraints" />
@@ -101,15 +47,12 @@
         android:id="@+id/wifiResults"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
         android:text="Wifi Results"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/wifiScan"
+        app:layout_constraintTop_toBottomOf="@+id/testPage"
         app:layout_constraintVertical_bias="0.231" />
-
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>
