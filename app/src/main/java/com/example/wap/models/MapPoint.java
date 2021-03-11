@@ -5,20 +5,22 @@ package com.example.wap.models;
 import java.util.ArrayList;
 
 public class MapPoint {
-    private final static String TAG="Map Point operations";
+    private final static String TAG = "Map Point operations";
 
 
     private String pointID;
     private Coordinate coordinate;
     private String locationID;
+    private int signalCount;
 
 
-    public  ArrayList<String> signalIDs;
-    public MapPoint(String pointID, Coordinate coordinate, String locationID){
+    public ArrayList<String> signalIDs;
+    public MapPoint(){}
+    public MapPoint(String pointID, Coordinate coordinate, String locationID) {
         this.coordinate = coordinate;
         this.locationID = locationID;
         //id is MP-locationID-location.pointCounter
-        this.pointID= pointID;
+        this.pointID = pointID;
         this.signalIDs = new ArrayList<>();
     }
 
@@ -49,11 +51,13 @@ public class MapPoint {
     public ArrayList<String> getSignalIDs() {
         return signalIDs;
     }
-    public void addSignalID(String signalID){
+
+    public void addSignalID(String signalID) {
         this.signalIDs.add(signalID);
     }
 
     public void setSignalIDs(ArrayList<String> signalIDs) {
         this.signalIDs = signalIDs;
     }
+
 }

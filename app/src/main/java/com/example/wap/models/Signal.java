@@ -13,6 +13,7 @@ public class Signal {
     //the measured distance from the map
     private double mapDistance;
 
+    public Signal(){}
     public Signal(String signalID, String locationID, String wifiSSID, double frequency, int signalStrength, double mapDistance){
         this.locationID = locationID;
         this.wifiSSID = wifiSSID;

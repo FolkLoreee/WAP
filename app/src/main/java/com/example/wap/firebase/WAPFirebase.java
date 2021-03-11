@@ -136,7 +136,13 @@ public class WAPFirebase<TEntity>{
     public Task<Void> delete (String uuid){
         final String uuidString = uuid;
         DocumentReference docRef = collectionRef.document(uuidString);
-        return docRef.delete().addOnFailureListener(new OnFailureListener() {
+        return docRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Log.d(TAG,"Successful in deleting document: "+uuidString);
+            }
+        })
+                .addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
                 Log.w(TAG,"Error in deleting document: "+uuidString);
