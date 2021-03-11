@@ -56,12 +56,14 @@ import java.util.ArrayList;
 
 
 public class MappingActivity extends AppCompatActivity implements View.OnTouchListener {
-    //WIFI Stuff
+    
+    // Wifi Stuff
     private static final int MY_REQUEST_CODE = 123;
     private final static String LOG_TAG = "Mapping Activity";
     WifiManager wifiManager;
     WifiBroadcastReceiver wifiReceiver;
     MapPoint point;
+    
     // XML Elements
     ImageView mapImage;
     Button level1Btn;
@@ -72,7 +74,6 @@ public class MappingActivity extends AppCompatActivity implements View.OnTouchLi
 
     private final String locationID = "DebugLocation1";
     Location currentLocation = new Location("DebugLocation1", "Debug Location");
-
 
     // These matrices will be used to move and zoom image
     Matrix matrix = new Matrix();
@@ -219,7 +220,8 @@ public class MappingActivity extends AppCompatActivity implements View.OnTouchLi
                 // re-initialise hash map each time the button is pressed
                 allSignals = new HashMap<>();
                 ssids = new HashMap<>();
-                askAndStartScanWifi();
+                WifiScan.askAndStartScanWifi(LOG_TAG, MY_REQUEST_CODE, MappingActivity.this);
+                wifiManager.startScan();
             }
         });
 
@@ -357,64 +359,6 @@ public class MappingActivity extends AppCompatActivity implements View.OnTouchLi
         point.set(x / 2, y / 2);
     }
 
-    private void askAndStartScanWifi()  {
-
-        // With Android Level >= 23, you have to ask the user
-        // for permission to Call.
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) { // 23
-            int permission1 = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION);
-
-            // Check for permissions
-            if (permission1 != PackageManager.PERMISSION_GRANTED) {
-
-                Log.d(LOG_TAG, "Requesting Permissions");
-
-                // Request permissions
-                ActivityCompat.requestPermissions(this,
-                        new String[] {
-                                Manifest.permission.ACCESS_COARSE_LOCATION,
-                                Manifest.permission.ACCESS_FINE_LOCATION,
-                                Manifest.permission.ACCESS_WIFI_STATE,
-                                Manifest.permission.ACCESS_NETWORK_STATE
-                        }, MY_REQUEST_CODE);
-                return;
-            }
-            Log.d(LOG_TAG, "Permissions Already Granted");
-        }
-
-        wifiManager.startScan();
-    }
-
-    private Integer calculateAverage (ArrayList<Integer> readings) {
-        Integer sum = 0;
-        for (Integer reading: readings) {
-            sum += reading;
-        }
-        Integer average = sum / readings.size();
-        return average;
-    }
-
-    private Integer calculateStandardDeviation(ArrayList<Integer> readings, int average) {
-        Integer sum = 0;
-        for (Integer reading: readings) {
-            sum += (reading - average);
-        }
-        sum /= readings.size();
-        double sd = Math.sqrt((double) sum);
-        return (int) sd;
-    }
-
-    // error handling on the original average wifi signal
-    private Integer calculateProcessedAverage (Integer average) {
-        int offset = 0;
-        // systematic error
-        int result = average + offset;
-        // gross error
-
-        // random error
-        return result;
-    }
-
     @Override
     protected void onStop()  {
         this.unregisterReceiver(this.wifiReceiver);
@@ -427,11 +371,11 @@ public class MappingActivity extends AppCompatActivity implements View.OnTouchLi
         public void onReceive(Context context, Intent intent) {
             Log.d(LOG_TAG, "onReceive()");
 
-            Toast.makeText(MappingActivity.this, "Scan " + numOfScans + " Complete!", Toast.LENGTH_SHORT).show();
-
             boolean resultsReceived = intent.getBooleanExtra(WifiManager.EXTRA_RESULTS_UPDATED, false);
 
             if (resultsReceived) {
+                Toast.makeText(MappingActivity.this, "Scan " + numOfScans + " Complete!", Toast.LENGTH_SHORT).show();
+
                 Log.d(LOG_TAG, "Result of Scan " + numOfScans);
 
                 List<ScanResult> list = wifiManager.getScanResults();
@@ -466,9 +410,9 @@ public class MappingActivity extends AppCompatActivity implements View.OnTouchLi
 
                         // get the average wifi signal if the BSSID exists
                         ArrayList<Integer> readings = allSignals.get(macAddress);
-                        int averageSignal = calculateAverage(readings);
-                        int stdDevSignal = calculateStandardDeviation(readings, averageSignal);
-                        int averageSignalProcessed = calculateProcessedAverage(averageSignal);
+                        int averageSignal = WifiScan.calculateAverage(readings);
+                        int stdDevSignal = WifiScan.calculateStandardDeviation(readings, averageSignal);
+                        int averageSignalProcessed = WifiScan.calculateProcessedAverage(averageSignal);
 
                         Log.d(LOG_TAG, "MAC Address: " + macAddress + " , Wifi Signal: " + averageSignal + " , Wifi Signal (SD): " + stdDevSignal);
 
@@ -498,6 +442,7 @@ public class MappingActivity extends AppCompatActivity implements View.OnTouchLi
                     }
                 }
             } else {
+                Toast.makeText(MappingActivity.this, "Scan failed!", Toast.LENGTH_SHORT).show();
                 Log.d(LOG_TAG, "Scan has issues");
             }
 

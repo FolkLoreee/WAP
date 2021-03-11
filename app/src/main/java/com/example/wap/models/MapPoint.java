@@ -22,6 +22,8 @@ public class MapPoint {
         this.signalIDs = new ArrayList<>();
     }
 
+    public MapPoint() {}
+
     public String getPointID() {
         return pointID;
     }

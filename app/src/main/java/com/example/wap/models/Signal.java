@@ -28,6 +28,8 @@ public class Signal {
         this.signalID = signalID;
     }
 
+    public Signal() {
+    }
 
     public String getSignalID() {
         return signalID;
