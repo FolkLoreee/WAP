@@ -10,10 +10,11 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class WifiScan {
 
-    public static Integer calculateAverage(ArrayList<Integer> readings) {
+    public static Integer calculateAverage(List<Integer> readings) {
         Integer sum = 0;
         for (Integer reading : readings) {
             sum += reading;
@@ -22,7 +23,7 @@ public class WifiScan {
         return average;
     }
 
-    public static Integer calculateStandardDeviation(ArrayList<Integer> readings, int average) {
+    public static Integer calculateStandardDeviation(List<Integer> readings, int average) {
         Integer sum = 0;
         for (Integer reading : readings) {
             sum += (reading - average);

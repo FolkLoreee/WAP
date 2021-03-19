@@ -8,20 +8,20 @@ public class Signal {
     private int signalStrengthSD;
     private String locationID;
     //strength of the signal
-    private int signalStrengthOriginal;
+    private int signalStrength;
     private int signalStrengthProcessed;
     //the actual distance calculated by the algorithm
     private double calculatedDistance;
     //the measured distance from the map
     private double mapDistance;
 
-    public Signal(String signalID, String locationID, String wifiBSSID, String wifiSSID, int signalStrengthSD, int signalStrengthOriginal, int signalStrengthProcessed, double mapDistance){
+    public Signal(String signalID, String locationID, String wifiBSSID, String wifiSSID, int signalStrengthSD, int signalStrength, int signalStrengthProcessed, double mapDistance){
         this.locationID = locationID;
         this.wifiBSSID = wifiBSSID;
         this.wifiSSID = wifiSSID;
         this.signalStrengthSD = signalStrengthSD;
         this.mapDistance = mapDistance;
-        this.signalStrengthOriginal = signalStrengthOriginal;
+        this.signalStrength = signalStrength;
         this.signalStrengthProcessed = signalStrengthProcessed;
         //id is SG-locationID-location.signalCounter
         // e.g. CampusCentre01-1, CampusCentre01-2, etc.
@@ -29,6 +29,10 @@ public class Signal {
     }
 
     public Signal() {
+    }
+
+    public String getWifiBSSID() {
+        return wifiBSSID;
     }
 
     public String getSignalID() {
@@ -47,8 +51,8 @@ public class Signal {
         return locationID;
     }
 
-    public int getSignalStrengthOriginal() {
-        return signalStrengthOriginal;
+    public int getSignalStrength() {
+        return signalStrength;
     }
 
     public int getSignalStrengthProcessed() {
@@ -83,8 +87,8 @@ public class Signal {
         this.wifiSSID = wifiSSID;
     }
 
-    public void setSignalStrengthOriginal(int signalStrengthOriginal) {
-        this.signalStrengthOriginal = signalStrengthOriginal;
+    public void setSignalStrengthOriginal(int signalStrength) {
+        this.signalStrength = signalStrength;
     }
 
     public void setSignalStrengthProcessed(int signalStrengthProcessed) {
