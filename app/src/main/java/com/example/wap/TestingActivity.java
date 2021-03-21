@@ -114,6 +114,7 @@ public class TestingActivity extends AppCompatActivity {
         signalStrengthSDFB = new HashMap<>();
         signalStrengthOriginalFB = new HashMap<>();
 
+        fingerprintOriginalAvgSignal = new HashMap<>();
         fingerprintAvgSignal = new HashMap<>();
         fingerprintStdDevSignal = new HashMap<>();
         targetMacAdd = new ArrayList<>();
