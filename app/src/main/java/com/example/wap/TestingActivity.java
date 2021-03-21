@@ -143,35 +143,6 @@ public class TestingActivity extends AppCompatActivity {
                 ssids = new HashMap<>();
                 WifiScan.askAndStartScanWifi(LOG_TAG, MY_REQUEST_CODE, TestingActivity.this);
                 wifiManager.startScan();
-
-                // TODO: Not sure if wifiManager.startScan() is an asynchronous task or not, if it is, then the following code cannot be placed here
-                // pre-matching fingerprints
-                preMatching();
-
-                // weighted fusion
-                Coordinate calculatedPoint1 = euclideanDistance();
-                Coordinate calculatedPoint2 = jointProbability();
-                Coordinate finalPoint = weightedFusion();
-
-                StringBuilder sb = new StringBuilder();
-                sb.append("Euclidean Distance results: x = ");
-                sb.append(calculatedPoint1.getX());
-                sb.append(", y = ");
-                sb.append(calculatedPoint1.getY());
-                sb.append("\n");
-
-                sb.append("Joint Probability results: x = ");
-                sb.append(calculatedPoint2.getX());
-                sb.append(", y = ");
-                sb.append(calculatedPoint2.getY());
-                sb.append("\n");
-
-                sb.append("Weighted Fusion results: x = ");
-                sb.append(finalPoint.getX());
-                sb.append(", y = ");
-                sb.append(finalPoint.getY());
-
-                calculatedPointData.setText(sb);
             }
         });
     }
@@ -188,6 +159,7 @@ public class TestingActivity extends AppCompatActivity {
                     ArrayList<String> signalsIDs = point.getSignalIDs();
                     pointsFB.put(pointID, signalsIDs);
                     pointsCoordinatesFB.put(pointID, point.getCoordinate());
+                    Log.d("FIREBASE POINTS", pointID + "(" + point.getCoordinate().getX() + ", " + point.getCoordinate().getY() + ")" + " - " + signalsIDs.toString());
                 }
             }
         });
@@ -202,6 +174,7 @@ public class TestingActivity extends AppCompatActivity {
                     int signalStrength = signal.getSignalStrength();
                     signalStrengthFB.put(signalID, signalStrength);
                     signalStrengthOriginalFB.put(signalID, signalStrength); // TODO: change accordingly after database is set up properly
+                    Log.d("FIREBASE SIGNAL", signalID + " - " + signalStrength);
                     // signalStrengthSDFB.put(signalID, signalStrengthSD);
                     // signalBSSIDFB.put(signalID, bssid);
                 }
@@ -240,7 +213,7 @@ public class TestingActivity extends AppCompatActivity {
                             allSignals.get(result.BSSID).add(result.level);
                         }
                     }
-                    // Log.d(LOG_TAG, "MAC Address: " + result.BSSID + " , SSID: " + result.SSID + " , Wifi Signal: " + result.level);
+                    Log.d("WIFI SCAN", "MAC Address: " + result.BSSID + " , SSID: " + result.SSID + " , Wifi Signal: " + result.level);
                 }
 
                 Log.d(LOG_TAG, allSignals.toString());
@@ -261,8 +234,36 @@ public class TestingActivity extends AppCompatActivity {
                         targetMacAdd.add(macAddress);
                         targetStdDev.add(stdDevSignal);
 
-                        // Log.d(LOG_TAG, "MAC Address: " + macAddress + " , Wifi Signal: " + averageSignal + " , Wifi Signal (SD): " + stdDevSignal);
+                        Log.d("WIFI SCAN (FINAL)", "MAC Address: " + macAddress + " , Wifi Signal: " + averageSignal + " , Wifi Signal (SD): " + stdDevSignal);
                         Toast.makeText(TestingActivity.this, "Scan Complete!", Toast.LENGTH_SHORT).show();
+
+                        // pre-matching fingerprints
+                        preMatching();
+
+                        // weighted fusion
+                        Coordinate calculatedPoint1 = euclideanDistance();
+                        Coordinate calculatedPoint2 = jointProbability();
+                        Coordinate finalPoint = weightedFusion();
+
+                        StringBuilder sb = new StringBuilder();
+                        sb.append("Euclidean Distance results: x = ");
+                        sb.append(calculatedPoint1.getX());
+                        sb.append(", y = ");
+                        sb.append(calculatedPoint1.getY());
+                        sb.append("\n");
+
+                        sb.append("Joint Probability results: x = ");
+                        sb.append(calculatedPoint2.getX());
+                        sb.append(", y = ");
+                        sb.append(calculatedPoint2.getY());
+                        sb.append("\n");
+
+                        sb.append("Weighted Fusion results: x = ");
+                        sb.append(finalPoint.getX());
+                        sb.append(", y = ");
+                        sb.append(finalPoint.getY());
+
+                        calculatedPointData.setText(sb);
                     }
                 }
             } else {
