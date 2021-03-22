@@ -5,10 +5,14 @@ public class Coordinate {
     private double y;
     private double  distance;
 
+
+    public Coordinate(){}
+
     public Coordinate(double x, double y){
         this.x = x;
         this.y = y;
     }
+
     public double getX(){
         return x;
     }

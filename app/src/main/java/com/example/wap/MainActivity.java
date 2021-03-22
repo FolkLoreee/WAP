@@ -20,6 +20,7 @@ import android.net.wifi.rtt.WifiRttManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -34,6 +35,7 @@ import com.example.wap.models.Location;
 import com.example.wap.models.Signal;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -43,12 +45,10 @@ public class MainActivity extends AppCompatActivity {
     private static final String LOG_TAG = "WAP";
     private static final int MY_REQUEST_CODE = 123;
 
-    Button wifiScan;
+    Button testPage;
     Button mapPage;
     TextView wifiResults;
-
-    WifiManager wifiManager;
-    WifiBroadcastReceiver wifiReceiver;
+    Button tracking;
 
     Location currentLocation;
     @Override
@@ -56,13 +56,36 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+//        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_nav);
+//        bottomNavigationView.setSelectedItemId(R.id.mainActivity);
+//        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+//            @Override
+//            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+//                switch(item.getItemId()){
+//                    case R.id.trackingActivity:
+//                        startActivity(new Intent(getApplicationContext(),TrackingActivity.class));
+//                        overridePendingTransition(0,0);
+//                        return true;
+//                    case R.id.mappingActivity:
+//                        startActivity(new Intent(getApplicationContext(),MappingActivity.class));
+//                        overridePendingTransition(0,0);
+//                        return true;
+//                    case R.id.mainActivity:
+//
+//                        return true;
+//                }
+//                return false;
+//            }
+//        });
+
+
         // Access a Cloud Firestore instance from your Activity
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
         // Write a message to the database
 
         // Link the variables to the XML elements
-        wifiScan = findViewById(R.id.wifiScan);
+        testPage = findViewById(R.id.testPage);
         wifiResults = findViewById(R.id.wifiResults);
         mapPage = findViewById(R.id.mapPage);
 
@@ -70,134 +93,21 @@ public class MainActivity extends AppCompatActivity {
         mapPage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, ImageUploadAcitivity.class);
+                Intent intent = new Intent(MainActivity.this, MapViewActivity.class);
+//                Intent intent = new Intent(MainActivity.this, ImageUploadAcitivity.class);
                 startActivity(intent);
             }
         });
 
-        wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-
-        // Instantiate broadcast receiver
-        wifiReceiver = new WifiBroadcastReceiver();
-
-        // Register the receiver
-        registerReceiver(wifiReceiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
-
-        wifiScan.setOnClickListener(new View.OnClickListener() {
+        // Set up function to transit to testing page
+        testPage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                askAndStartScanWifi();
+                Intent intent = new Intent(MainActivity.this, TestingActivity.class);
+                startActivity(intent);
             }
         });
 
-    }
-
-    private void askAndStartScanWifi()  {
-
-        // With Android Level >= 23, you have to ask the user
-        // for permission to Call.
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) { // 23
-            int permission1 = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION);
-
-            // Check for permissions
-            if (permission1 != PackageManager.PERMISSION_GRANTED) {
-
-                Log.d(LOG_TAG, "Requesting Permissions");
-
-                // Request permissions
-                ActivityCompat.requestPermissions(this,
-                        new String[] {
-                                Manifest.permission.ACCESS_COARSE_LOCATION,
-                                Manifest.permission.ACCESS_FINE_LOCATION,
-                                Manifest.permission.ACCESS_WIFI_STATE,
-                                Manifest.permission.ACCESS_NETWORK_STATE
-                        }, MY_REQUEST_CODE);
-                return;
-            }
-            Log.d(LOG_TAG, "Permissions Already Granted");
-        }
-        doStartScanWifi();
-    }
-
-    private void doStartScanWifi()  {
-        wifiManager.startScan();
-    }
-
-    @Override
-    protected void onStop()  {
-        this.unregisterReceiver(this.wifiReceiver);
-        super.onStop();
-    }
-
-    public double calculateDistance(double signalLevelInDb, double freqInMHz) {
-        double exp = (27.55 - (20 * Math.log10(freqInMHz)) + Math.abs(signalLevelInDb)) / 20.0;
-        return Math.pow(10.0, exp);
-    }
-
-    // Define class to listen to broadcasts
-    class WifiBroadcastReceiver extends BroadcastReceiver  {
-        @Override
-        public void onReceive(Context context, Intent intent)   {
-            Log.d(LOG_TAG, "onReceive()");
-
-            Toast.makeText(MainActivity.this, "Scan Complete!", Toast.LENGTH_SHORT).show();
-
-            boolean ok = intent.getBooleanExtra(WifiManager.EXTRA_RESULTS_UPDATED, false);
-
-            if (ok)  {
-                Log.d(LOG_TAG, "Scan OK");
-
-                List<ScanResult> list = wifiManager.getScanResults();
-//                HashMap<String, Double> networkDistance = new HashMap<>();
-
-                StringBuilder sb = new StringBuilder();
-
-//                for (ScanResult result: list) {
-//                    Log.d("RESULT", "test result");
-//                    double distance = calculateDistance(result.level, result.frequency);
-////                    networkDistance.put(result.SSID, distance);
-//                    System.out.println(result.SSID + " : " + distance + " m");
-//                    sb.append(result.SSID + ": " + distance + " m" + "\n");
-//                    //posting the result to firebase:
-//                    String locationID = "CampusCentre1";
-//                    WAPFirebase<Location> locationWAPFirebase = new WAPFirebase<>(Location.class, "locations");
-//                    locationWAPFirebase.query(locationID).addOnSuccessListener(new OnSuccessListener<Location>() {
-//                        @Override
-//                        public void onSuccess(Location location) {
-//                            if(location != null){
-//                                currentLocation = location;
-//                            }
-//                            else{
-//                                //TODO currentLocation is hardcoded
-//                                currentLocation = new Location(locationID,"Campus Centre");
-//                            }
-//                        }
-//                    }).addOnFailureListener(new OnFailureListener() {
-//                        @Override
-//                        public void onFailure(@NonNull Exception e) {
-//                            Log.w("DB","Error in fetching location from database");
-//                        }
-//                    });
-//                    WAPFirebase<Signal> signalWAPFirebase = new WAPFirebase<>(Signal.class, "signals");
-//                    String signalID = "SG-"+locationID+"-"+"0";
-//                    Signal signal = new Signal(signalID,locationID,result.SSID,result.frequency,result.level,10);
-//                    signalWAPFirebase.create(signal, signalID).addOnSuccessListener(new OnSuccessListener<Void>() {
-//                        @Override
-//                        public void onSuccess(Void aVoid) {
-//                            Toast.makeText(MainActivity.this, "Successfully created a point",Toast.LENGTH_SHORT).show();
-//                            currentLocation.incrementSignalCounter();
-//                            Log.d("FIREBASE","point successfully posted");
-//                            locationWAPFirebase.update(currentLocation,locationID);
-//                        }
-//                    });
-//                }
-
-                wifiResults.setText(sb.toString());
-
-            }  else {
-                Log.d(LOG_TAG, "Scan not OK");
-            }
-        }
     }
 }
 
