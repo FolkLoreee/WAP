@@ -9,8 +9,12 @@ import android.provider.MediaStore;
 import android.util.DisplayMetrics;
 import android.view.ContextThemeWrapper;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.Spinner;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -79,6 +83,7 @@ public class ImageUploadAcitivity extends AppCompatActivity {
         }
     }
 
+
     private void splitImage(ImageView image) {
 
         //For the number of rows and columns of the grid to be displayed
@@ -111,4 +116,6 @@ public class ImageUploadAcitivity extends AppCompatActivity {
         Intent intent = new Intent(ImageUploadAcitivity.this, MapViewActivity.class);
         startActivity(intent);
     }
+
+
 }
