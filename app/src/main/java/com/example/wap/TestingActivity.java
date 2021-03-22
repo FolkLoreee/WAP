@@ -79,9 +79,9 @@ public class TestingActivity extends AppCompatActivity {
     ArrayList<Coordinate> fingerprintCoordinate;
 
     // NEWLY ADDED FOR DATA CREATED AFTER PRE-MATCHING
-    HashMap<Coordinate, HashMap<String, Integer>> fingerprintOriginalAvgSignal;
-    HashMap<Coordinate, HashMap<String, Integer>> fingerprintAvgSignal;
-    HashMap<Coordinate, HashMap<String, Integer>> fingerprintStdDevSignal;
+    HashMap<String, HashMap<String, Integer>> fingerprintOriginalAvgSignal;
+    HashMap<String, HashMap<String, Integer>> fingerprintAvgSignal;
+    HashMap<String, HashMap<String, Integer>> fingerprintStdDevSignal;
 
     // for average, process-average, standard deviation calculations
     List<Integer> fingerprintDataIK;
@@ -325,6 +325,13 @@ public class TestingActivity extends AppCompatActivity {
                 Coordinate coordinates = pointsCoordinatesFB.get(pointID);
                 fingerprintCoordinate.add(coordinates);
 
+                // convert coordinates to string to store as key values for the hashmaps
+                StringBuilder str = new StringBuilder();
+                str.append(coordinates.getX());
+                str.append(", ");
+                str.append(coordinates.getY());
+                String coordinatesStr = str.toString();
+
                 // create a hashmap for each mac address and corresponding signal strength at this fingerprint
                 HashMap<String, Integer> avgSignalFingerprint = new HashMap<>();
                 HashMap<String, Integer> stdDevSignalFingerprint = new HashMap<>();
@@ -334,9 +341,9 @@ public class TestingActivity extends AppCompatActivity {
                     avgSignalFingerprint.put(signalBSSIDFB.get(signalID), signalStrengthFB.get(signalID));
                     stdDevSignalFingerprint.put(signalBSSIDFB.get(signalID), signalStrengthSDFB.get(signalID));
                 }
-                fingerprintOriginalAvgSignal.put(coordinates, originalAvgSignalFingerprint);
-                fingerprintAvgSignal.put(coordinates, avgSignalFingerprint);
-                fingerprintStdDevSignal.put(coordinates, stdDevSignalFingerprint);
+                fingerprintOriginalAvgSignal.put(coordinatesStr, originalAvgSignalFingerprint);
+                fingerprintAvgSignal.put(coordinatesStr, avgSignalFingerprint);
+                fingerprintStdDevSignal.put(coordinatesStr, stdDevSignalFingerprint);
             }
         }
     }
