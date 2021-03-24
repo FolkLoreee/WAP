@@ -440,6 +440,17 @@ public class TestingActivity extends AppCompatActivity {
                 // Log.d("SQUARED VALUE", Double.toString(sqauredValue));
                 //sum it
                 euclideanDis += sqauredValue;
+                if (subFingerprintAvgSignal.containsKey(targetMacAdd.get(k-1))){
+                    //PAVG, DEV of k-th wifi signals at the i-th fingerprint
+                    Integer pavgFingerprint = subFingerprintAvgSignal.get(targetMacAdd.get(k - 1));
+                    Integer devFingerprint = subFingerprintStdDevSignal.get(targetMacAdd.get(k - 1));
+                    //find the absolute value of pavg
+                    Integer absPavg = Math.abs(pavgTarget - pavgFingerprint);
+                    double sqauredValue = Math.pow(absPavg + devTarget + devFingerprint, 2);
+                    //sum it
+                    euclideanDis += sqauredValue;
+                }
+
             }
 
 
@@ -480,12 +491,6 @@ public class TestingActivity extends AppCompatActivity {
 
         ArrayList<String> coordinateKeyJP = new ArrayList<>();
 
-        //retrieve the keys of the fingerprint
-        for (String coorStr : fingerprintOriginalAvgSignal.keySet()){
-            coordinateKeyJP.add(coorStr);
-
-        }
-
         for (int i = 1; i <fingerprintCoordinate.size()+1 ; i++){
             HashMap<String, Integer> subFingerprintOriginalAvgSignalJP = fingerprintOriginalAvgSignal.get(coordinateKeyJP.get(i-1));
             HashMap<String, Integer> subFingerprintStdDevSignalJP = fingerprintStdDevSignal.get(coordinateKeyJP.get(i-1));
@@ -499,14 +504,17 @@ public class TestingActivity extends AppCompatActivity {
                 //AVGk, DEV of k-th wifi signals at the target place
                 //x value
                 Integer avgTarget = targetDataOriginal.get(k - 1);
-                //mu value
-                Integer avgFingerprint = subFingerprintOriginalAvgSignalJP.get(macAddFingerprintKeyJP.get(k - 1));
-                //sigma
-                Integer devFingerprint = subFingerprintStdDevSignalJP.get(macAddFingerprintKeyJP.get(k - 1));
-                //calculate Pik
-                Pik = calculateJointProb(avgTarget, avgFingerprint, devFingerprint);
-                //Pi = Pi1 * Pi2 * Pi3 * ... *Pik
-                jointProbi = jointProbi * Pik;
+                if (subFingerprintOriginalAvgSignalJP.containsKey(macAddFingerprintKeyJP.get(k - 1))){
+                    //mu value
+                    Integer avgFingerprint = subFingerprintOriginalAvgSignalJP.get(macAddFingerprintKeyJP.get(k - 1));
+                    //sigma
+                    Integer devFingerprint = subFingerprintStdDevSignalJP.get(macAddFingerprintKeyJP.get(k - 1));
+                    //calculate Pik
+                    Pik = calculateJointProb(avgTarget, avgFingerprint, devFingerprint);
+                    //Pi = Pi1 * Pi2 * Pi3 * ... *Pik
+                    jointProbi = jointProbi * Pik;
+                }
+
             }
             jointProbArray.add(jointProbi);
             macAddFingerprintKeyJP.clear();
