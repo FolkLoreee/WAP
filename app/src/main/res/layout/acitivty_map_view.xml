@@ -1,8 +1,80 @@
 <?xml version="1.0" encoding="utf-8"?>
-<GridView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/gridView"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center"
-    android:numColumns="auto_fit">
-</GridView>
+    android:orientation="vertical"
+    tools:context=".MapViewActivity">
+
+    <GridView
+        android:id="@+id/gridView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:numColumns="auto_fit"
+        android:horizontalSpacing="5dp"
+        android:verticalSpacing="5dp">
+
+    </GridView>
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:layout_below="@+id/gridView">
+
+        <Button
+            android:id="@+id/up"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_centerHorizontal="true"
+           >
+        </Button>
+
+        <Button
+            android:id="@+id/down"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_below="@+id/up"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="80dp">
+        </Button>
+
+        <Button
+            android:id="@+id/right"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_below="@+id/up"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginTop="15dp"
+            android:layout_marginEnd="80dp"
+            android:layout_marginRight="371dp"></Button>
+
+        <Button
+            android:id="@+id/left"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_below="@+id/up"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentLeft="true"
+            android:layout_marginTop="15dp"
+            android:layout_marginLeft="80dp"
+            android:layout_alignParentRight="true"></Button>
+
+        <Button
+            android:id="@+id/submit"
+            android:layout_width="wrap_content"
+            android:text="submit"
+            android:layout_height="40dp"
+            android:layout_below="@+id/down"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="20dp"
+            ></Button>
+
+    </RelativeLayout>
+
+
+</RelativeLayout>
+
