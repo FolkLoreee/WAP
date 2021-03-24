@@ -1,38 +1,30 @@
 package com.example.wap;
-import android.app.AlertDialog;
-import android.app.AlertDialog.Builder;
+
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-
-import com.example.wap.R;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 
 import static com.example.wap.R.layout.activity_login;
 
 public class LoginActivity extends AppCompatActivity {
+    //MainApplication mApplication;
+
     EditText etId,etPassword;
     Button loginBtn;
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(activity_login);
-        etId = (EditText) etId.findViewById(R.id.loginfield);
-        etPassword = (EditText) etPassword.findViewById(R.id.passwordfield);
-        loginBtn = (Button) loginBtn.findViewById(R.id.login_button);
+        etId = (EditText) findViewById(R.id.loginfield);
+        etPassword = (EditText) findViewById(R.id.passwordfield);
+        loginBtn = (Button) findViewById(R.id.login_button);
 
         loginBtn.setOnClickListener(new View.OnClickListener() {
             @Override
