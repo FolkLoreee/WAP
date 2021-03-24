@@ -73,8 +73,11 @@ public class MapViewActivity extends AppCompatActivity {
     WAPFirebase<Location> locationWAPFirebase;
 
     //TODO: locationID will follow the locationID from the previous screen
-    private final String locationID = "DebugLocation1";
-    Location currentLocation = new Location("DebugLocation1", "Debug Location");
+    public static String locationID;
+    public static String locationName;
+
+
+    Location currentLocation;
 
 
     @Override
@@ -94,6 +97,8 @@ public class MapViewActivity extends AppCompatActivity {
         grid = (GridView) findViewById(R.id.gridView);
         grid.setAdapter(imageAdapter);
         grid.setNumColumns((int) Math.sqrt(imageChunks.size()));
+
+        currentLocation = new Location(locationID, locationName);
 
         signalWAPFirebase = new WAPFirebase<>(Signal.class, "signals");
         pointWAPFirebase = new WAPFirebase<>(MapPoint.class, "points");
