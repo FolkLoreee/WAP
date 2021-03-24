@@ -8,7 +8,7 @@ public class Location {
     private String name;
     private int pointCounter;
     private int signalCounter;
-    private Bitmap mapImage;
+    private String mapImage;
     private Address address;
 
     public Location(String locationID, String name){
@@ -34,11 +34,11 @@ public class Location {
         this.name = name;
     }
 
-    public Bitmap getMapImage() {
+    public String getMapImage() {
         return mapImage;
     }
 
-    public void setMapImage(Bitmap mapImage) {
+    public void setMapImage(String mapImage) {
         this.mapImage = mapImage;
     }
 

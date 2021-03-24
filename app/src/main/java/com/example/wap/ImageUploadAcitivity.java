@@ -7,19 +7,53 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.ContextThemeWrapper;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 
+import android.widget.Spinner;
+import android.widget.TextView;
+
+import android.widget.TextView;
+import android.widget.Toast;
+
+
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.wap.firebase.WAPFirebase;
+import com.example.wap.models.Location;
+import com.google.android.gms.tasks.Continuation;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import java.io.IOException;
 import java.util.ArrayList;
 
+import static android.graphics.Bitmap.createBitmap;
+
 public class ImageUploadAcitivity extends AppCompatActivity {
+
     public static final String KEY_User_Document1 = "doc1";
+    private final String TAG = "Image Upload Activity";
+    FirebaseStorage storage;
+    StorageReference storageRef;
+    String locationName;
+    String locationID;
+    WAPFirebase<Location> locationWAPFirebase;
     ImageView uploadImg;
+    EditText locationIDText,locationNameText;
     Button uploadBtn;
     Uri filePath;
     private final int PICK_IMAGE_REQUEST = 71;
@@ -31,8 +65,15 @@ public class ImageUploadAcitivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_image_upload);
 
+        locationWAPFirebase = new WAPFirebase<>(Location.class,"locations");
+        storage = FirebaseStorage.getInstance();
+        storageRef = storage.getReference();
+
         uploadImg = (ImageView) findViewById(R.id.imageUpload);
         uploadBtn = (Button) findViewById(R.id.UploadBtn);
+
+        locationIDText = findViewById(R.id.locationIDEditText);
+        locationNameText = findViewById(R.id.locationNameEditText);
 
         DisplayMetrics displayMetrics = new DisplayMetrics();
         int height = displayMetrics.heightPixels;
@@ -48,7 +89,8 @@ public class ImageUploadAcitivity extends AppCompatActivity {
         uploadBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //firebase linkage
+                locationID = locationIDText.getText().toString();
+                locationName = locationNameText.getText().toString();
                 splitImage(uploadImg);
             }
         });
@@ -79,6 +121,16 @@ public class ImageUploadAcitivity extends AppCompatActivity {
         }
     }
 
+    private ArrayList<Bitmap> makeDeepCopyInteger(ArrayList<Bitmap> old){
+        ArrayList<Bitmap> copy = new ArrayList<Bitmap>(old.size());
+        for(Bitmap i : old){
+            Bitmap deepCopy = createBitmap(i);
+            copy.add(deepCopy);
+        }
+        return copy;
+    }
+
+
     private void splitImage(ImageView image) {
 
         //For the number of rows and columns of the grid to be displayed
@@ -86,13 +138,15 @@ public class ImageUploadAcitivity extends AppCompatActivity {
         //For height and width of the small image chunks
         int chunkHeight, chunkWidth;
         //To store all the small image chunks in bitmap format in this list
+        //To store all the xy coordinate of the image chunks
         ArrayList<Bitmap> chunkedImages = new ArrayList<Bitmap>();
+        ArrayList<CoordImages> coordImages = new ArrayList<CoordImages>();
 
         //Getting the scaled bitmap of the source image
         BitmapDrawable drawable = (BitmapDrawable) image.getDrawable();
         Bitmap bitmap = drawable.getBitmap();
         Bitmap scaledBitmap = Bitmap.createScaledBitmap(bitmap, bitmap.getWidth(), bitmap.getHeight(), true);
-        rows = cols = (int) Math.sqrt(200);
+        rows = cols = (int) Math.sqrt(300);
         chunkHeight = bitmap.getHeight() / rows;
         chunkWidth = bitmap.getWidth() / cols;
 
@@ -101,14 +155,79 @@ public class ImageUploadAcitivity extends AppCompatActivity {
         for (int x = 0; x < rows; x++) {
             int xCoord = 0;
             for (int y = 0; y < cols; y++) {
-                chunkedImages.add(Bitmap.createBitmap(scaledBitmap, xCoord, yCoord, chunkWidth, chunkHeight));
+                chunkedImages.add(createBitmap(scaledBitmap, xCoord, yCoord, chunkWidth, chunkHeight));
                 xCoord += chunkWidth;
+                coordImages.add(new CoordImages(xCoord, yCoord));
+
             }
             yCoord += chunkHeight;
         }
-
+        uploadMapImage();
         MapViewActivity.imageChunks = chunkedImages;
+        MapViewActivity.imageChunksCopy = makeDeepCopyInteger(chunkedImages);
+
+        MapViewActivity.imageCoords = coordImages;
         Intent intent = new Intent(ImageUploadAcitivity.this, MapViewActivity.class);
         startActivity(intent);
     }
+
+    private void uploadMapImage(){
+
+        final StorageReference ref = storageRef.child("maps/" + locationID);
+            UploadTask uploadTask = ref.putFile(filePath);
+            // Retrieve the download url for the image uploaded to Firebase Storage
+            // Download url is to be used to store in Firestore and to display later using Picasso
+            Task<Uri> urlTask = uploadTask.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
+                @Override
+                public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
+                    if (!task.isSuccessful()) {
+                        throw task.getException();
+                    }
+
+                    // Continue with the task to get the download URL
+                    return ref.getDownloadUrl();
+                }
+            }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Uri> task) {
+                            if (task.isSuccessful()) {
+                                Uri downloadUri = task.getResult();
+                                Toast.makeText(ImageUploadAcitivity.this, "Successfully uploaded", Toast.LENGTH_SHORT).show();
+                                assert downloadUri != null;
+                                addToFirestore(downloadUri.toString());
+                            } else {
+                                Toast.makeText(ImageUploadAcitivity.this, "Upload FAILED", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
+
+    }
+    private void addToFirestore(String storageLocation) {
+        // Retrieve Item Details
+
+        final Location location = new Location(locationID,locationName);
+        location.setMapImage(storageLocation);
+        locationWAPFirebase.create(location,locationID).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Log.d(TAG,"Successfully created a new location");
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.w(TAG, "Fails to create a new location");
+                Log.e(TAG,e.toString());
+            }
+        });
+    }
+
+    class CoordImages {
+        int xcoord;
+        int ycoord;
+        CoordImages(int xcoord, int ycoord){
+            this.xcoord = xcoord;
+            this.ycoord = ycoord;
+        }
+    }
+
 }
