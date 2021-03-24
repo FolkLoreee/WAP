@@ -167,6 +167,9 @@ public class ImageUploadAcitivity extends AppCompatActivity {
         MapViewActivity.imageChunksCopy = makeDeepCopyInteger(chunkedImages);
 
         MapViewActivity.imageCoords = coordImages;
+
+        MapViewActivity.locationID = locationIDText.getText().toString();
+        MapViewActivity.locationName = locationNameText.getText().toString();
         Intent intent = new Intent(ImageUploadAcitivity.this, MapViewActivity.class);
         startActivity(intent);
     }
