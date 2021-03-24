@@ -114,6 +114,9 @@ public class TestingActivity extends AppCompatActivity {
         signalStrengthSDFB = new HashMap<>();
         signalStrengthOriginalFB = new HashMap<>();
 
+        fingerprintData = new ArrayList<>();
+        fingerprintCoordinate = new ArrayList<>();
+
         fingerprintOriginalAvgSignal = new HashMap<>();
         fingerprintAvgSignal = new HashMap<>();
         fingerprintStdDevSignal = new HashMap<>();
@@ -243,7 +246,7 @@ public class TestingActivity extends AppCompatActivity {
                         // weighted fusion
                         Coordinate calculatedPoint1 = euclideanDistance();
                         Coordinate calculatedPoint2 = jointProbability();
-                        Coordinate finalPoint = weightedFusion();
+                        Coordinate finalPoint = weightedFusion(calculatedPoint1, calculatedPoint2);
 
                         StringBuilder sb = new StringBuilder();
                         sb.append("Euclidean Distance results: x = ");
@@ -281,7 +284,6 @@ public class TestingActivity extends AppCompatActivity {
     }
 
     private void preMatching() {
-        boolean check = true;
 
         // get FLAG value
         int total = 0;
@@ -302,6 +304,7 @@ public class TestingActivity extends AppCompatActivity {
 
         // compare bssid in each fingerprint with the list of bssid from wifi scan at target location
         for (String pointID: pointsFB.keySet()) {
+            boolean check = true;
             ArrayList<String> allSignals = pointsFB.get(pointID);
             ArrayList<String> listOfBSSID = new ArrayList<>();
 
@@ -466,11 +469,8 @@ public class TestingActivity extends AppCompatActivity {
         return position;
     }
 
-    public Coordinate weightedFusion() {
-        // Get respective coordinates from each of the algorithm
-        Coordinate euclidDistPosition = euclideanDistance();
-        Coordinate jointProbPosition = jointProbability();
-        // Coordinate cosineSimPosition = cosineSimilarity();
+    public Coordinate weightedFusion(Coordinate euclidDistPosition, Coordinate jointProbPosition) {
+        // Coordinate cosineSimPosition
 
         // Calculate the final X and Y
         // + weightCosineSim * cosineSimPosition.getX()
