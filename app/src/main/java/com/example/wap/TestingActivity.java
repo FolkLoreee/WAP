@@ -72,15 +72,27 @@ public class TestingActivity extends AppCompatActivity {
     HashMap<String, HashMap<String, Integer>> fingerprintAvgSignal;
     HashMap<String, HashMap<String, Integer>> fingerprintStdDevSignal;
 
+
     // for average, process-average, standard deviation calculations
     List<Integer> fingerprintDataIK;
     List<Integer> targetDataK;
+
+    // create a hashmap for each mac address and corresponding signal strength at this fingerprint
+    HashMap<String, Integer> avgSignalFingerprint = new HashMap<>();
+    HashMap<String, Integer> stdDevSignalFingerprint = new HashMap<>();
+    HashMap<String, Integer> originalAvgSignalFingerprint = new HashMap<>();
 
     // create an arraylist to store the euclidean distance di values
     ArrayList<Double> euclideanArray = new ArrayList<>();
     // create an arraylist to store the jointprob i values
     ArrayList<Double> jointProbArray = new ArrayList<>();
 
+    //
+
+
+    //list of fingerprint mac addresses
+    ArrayList<String> macAddFingerprintKey = new ArrayList<>();
+    ArrayList<Coordinate> CoorFingerprintKey = new ArrayList<>();
     // Weights for each algorithm in the weighted fusion algorithm
     private final double weightEuclidDist = 1/3;
     private final double weightJointProb = 1/3;
@@ -125,6 +137,9 @@ public class TestingActivity extends AppCompatActivity {
         signalBSSIDFB = new HashMap<>();
         signalStrengthSDFB = new HashMap<>();
         signalStrengthOriginalFB = new HashMap<>();
+
+        fingerprintData = new ArrayList<>();
+        fingerprintCoordinate = new ArrayList<>();
 
         fingerprintOriginalAvgSignal = new HashMap<>();
         fingerprintAvgSignal = new HashMap<>();
@@ -245,6 +260,7 @@ public class TestingActivity extends AppCompatActivity {
                         targetData.add(averageSignalProcessed);
                         targetMacAdd.add(macAddress);
                         targetStdDev.add(stdDevSignal);
+                        targetDataOriginal.add(averageSignal);
 
                         Log.d("WIFI SCAN (FINAL)", "MAC Address: " + macAddress + " , Wifi Signal: " + averageSignal + " , Wifi Signal (SD): " + stdDevSignal);
                         Toast.makeText(TestingActivity.this, "Scan Complete!", Toast.LENGTH_SHORT).show();
@@ -255,7 +271,7 @@ public class TestingActivity extends AppCompatActivity {
                         // weighted fusion
                         Coordinate calculatedPoint1 = euclideanDistance();
                         Coordinate calculatedPoint2 = jointProbability();
-                        Coordinate finalPoint = weightedFusion();
+                        Coordinate finalPoint = weightedFusion(calculatedPoint1, calculatedPoint2);
 
                         StringBuilder sb = new StringBuilder();
                         sb.append("Euclidean Distance results: x = ");
@@ -293,7 +309,6 @@ public class TestingActivity extends AppCompatActivity {
     }
 
     private void preMatching() {
-        boolean check = true;
 
         // get FLAG value
         int total = 0;
@@ -314,6 +329,7 @@ public class TestingActivity extends AppCompatActivity {
 
         // compare bssid in each fingerprint with the list of bssid from wifi scan at target location
         for (String pointID: pointsFB.keySet()) {
+            boolean check = true;
             ArrayList<String> allSignals = pointsFB.get(pointID);
             ArrayList<String> listOfBSSID = new ArrayList<>();
 
@@ -351,12 +367,17 @@ public class TestingActivity extends AppCompatActivity {
                 for (String signalID: allSignals) {
                     originalAvgSignalFingerprint.put(signalBSSIDFB.get(signalID), signalStrengthOriginalFB.get(signalID));
                     avgSignalFingerprint.put(signalBSSIDFB.get(signalID), signalStrengthFB.get(signalID));
-                    stdDevSignalFingerprint.put(signalBSSIDFB.get(signalID), signalStrengthSDFB.get(signalID));
+                    stdDevSignalFingerprint.put(signalBSSIDFB.get(signalID), 1);
+                    // stdDevSignalFingerprint.put(signalBSSIDFB.get(signalID), signalStrengthSDFB.get(signalID));
                 }
                 fingerprintOriginalAvgSignal.put(coordinatesStr, originalAvgSignalFingerprint);
                 fingerprintAvgSignal.put(coordinatesStr, avgSignalFingerprint);
                 fingerprintStdDevSignal.put(coordinatesStr, stdDevSignalFingerprint);
             }
+        }
+
+        for (String coordStr: fingerprintOriginalAvgSignal.keySet()) {
+            System.out.println(fingerprintOriginalAvgSignal.get(coordStr).toString());
         }
     }
 
@@ -380,38 +401,56 @@ public class TestingActivity extends AppCompatActivity {
 
         //euclidean distance
         double euclideanDis = 0;
+        ArrayList<String> coordinateKey = new ArrayList<>();
 
+        //retrieve the keys of the fingerprint
+        for (String coorStr : fingerprintAvgSignal.keySet()){
+            coordinateKey.add(coorStr);
 
-        for (int i = 1; i <fingerprintData.size()+1 ; i++) {
-            //System.out.println(i);
+        }
+
+        //the number of coordinates
+        for (int i = 1; i <fingerprintCoordinate.size()+1 ; i++) {
+            HashMap<String, Integer> subFingerprintAvgSignal = fingerprintAvgSignal.get(coordinateKey.get(i-1));
+            HashMap<String, Integer> subFingerprintStdDevSignal = fingerprintStdDevSignal.get(coordinateKey.get(i-1));
+
+            //retrieve the unique macaddress from a particular (X,Y) coordinate
+            for (String macAddress: subFingerprintAvgSignal.keySet()){
+                macAddFingerprintKey.add(macAddress);
+            }
+
+            //the number of the values of mac addresses
 
             for (int k = 1; k < targetData.size() + 1; k++) {
-                targetDataK = targetData.subList(0, k);
-                fingerprintDataIK = fingerprintData.subList(0, i);
 
                 //PAVG, DEV of k-th wifi signals at the target place
-                Integer avgTarget = WifiScan.calculateAverage(targetDataK);
-                Integer pavgTarget = WifiScan.calculateProcessedAverage(avgTarget);
-                Integer devTarget = WifiScan.calculateStandardDeviation(targetDataK, avgTarget);
+                Integer pavgTarget = targetData.get(k - 1);
+                Integer devTarget = targetStdDev.get(k - 1);
+                // Log.d("DEVTARGET", devTarget.toString());
 
                 //PAVG, DEV of k-th wifi signals at the i-th fingerprint
-                Integer avgFingerprint = WifiScan.calculateAverage(fingerprintDataIK);
-                Integer pavgFingerprint = WifiScan.calculateProcessedAverage(avgFingerprint);
-                Integer devFingerprint = WifiScan.calculateStandardDeviation(fingerprintDataIK, avgFingerprint);
+
+                Integer pavgFingerprint = subFingerprintAvgSignal.get(macAddFingerprintKey.get(k - 1));
+                Integer devFingerprint = subFingerprintStdDevSignal.get(macAddFingerprintKey.get(k - 1));
+                // Log.d("DEVFINGERPRINT", devFingerprint.toString());
                 //find the absolute value of pavg
                 Integer absPavg = Math.abs(pavgTarget - pavgFingerprint);
+                // Log.d("ABSPAVG", absPavg.toString());
                 double sqauredValue = Math.pow(absPavg + devTarget + devFingerprint, 2);
+                // Log.d("SQUARED VALUE", Double.toString(sqauredValue));
                 //sum it
                 euclideanDis += sqauredValue;
-
             }
+
 
             euclideanDis = Math.sqrt(euclideanDis);
             euclideanArray.add(euclideanDis);
+
+            macAddFingerprintKey.clear();
         }
 
         //calculate the coordinate
-        for (int j = 1; j < fingerprintCoordinate.size()+1 ; j++) {
+        for (int j = 1; j < fingerprintCoordinate.size() + 1; j++) {
 
             //find x and y multiplied by omega and sum all
             numeratorX += calculateXEuclidean(euclideanArray.get(j - 1), fingerprintCoordinate.get(j - 1));
@@ -423,9 +462,10 @@ public class TestingActivity extends AppCompatActivity {
         double y = numeratorY / denominatorPart;
 
         Coordinate position = new Coordinate(x, y);
+        euclideanArray.clear();
+
 
         return position;
-
 
     }
 
@@ -436,26 +476,41 @@ public class TestingActivity extends AppCompatActivity {
         double numeratorX = 0;
         double numeratorY = 0;
         double denominatorPart = 0;
+        ArrayList<String> macAddFingerprintKeyJP = new ArrayList<>();
 
-        for (int i = 1; i <fingerprintData.size()+1 ; i++){
-            for (int k = 1; k < targetData.size()+1; k++ ){
-                targetDataK = targetData.subList(0, k);
-                fingerprintDataIK = fingerprintData.subList(0, i);
+        ArrayList<String> coordinateKeyJP = new ArrayList<>();
+
+        //retrieve the keys of the fingerprint
+        for (String coorStr : fingerprintOriginalAvgSignal.keySet()){
+            coordinateKeyJP.add(coorStr);
+
+        }
+
+        for (int i = 1; i <fingerprintCoordinate.size()+1 ; i++){
+            HashMap<String, Integer> subFingerprintOriginalAvgSignalJP = fingerprintOriginalAvgSignal.get(coordinateKeyJP.get(i-1));
+            HashMap<String, Integer> subFingerprintStdDevSignalJP = fingerprintStdDevSignal.get(coordinateKeyJP.get(i-1));
+            //retrieve the unique macaddress from a particular (X,Y) coordinate
+            for (String macAddress: subFingerprintOriginalAvgSignalJP.keySet()){
+                macAddFingerprintKeyJP.add(macAddress);
+            }
+
+
+            for (int k = 1; k < targetDataOriginal.size() + 1; k++) {
                 //AVGk, DEV of k-th wifi signals at the target place
                 //x value
-                Integer avgTarget = WifiScan.calculateAverage(targetDataK);
+                Integer avgTarget = targetDataOriginal.get(k - 1);
                 //mu value
-                Integer avgFingerprint = WifiScan.calculateAverage(fingerprintDataIK);
+                Integer avgFingerprint = subFingerprintOriginalAvgSignalJP.get(macAddFingerprintKeyJP.get(k - 1));
                 //sigma
-                Integer devFingerprint = WifiScan.calculateStandardDeviation(fingerprintDataIK, avgFingerprint);
+                Integer devFingerprint = subFingerprintStdDevSignalJP.get(macAddFingerprintKeyJP.get(k - 1));
                 //calculate Pik
                 Pik = calculateJointProb(avgTarget, avgFingerprint, devFingerprint);
                 //Pi = Pi1 * Pi2 * Pi3 * ... *Pik
                 jointProbi = jointProbi * Pik;
             }
             jointProbArray.add(jointProbi);
+            macAddFingerprintKeyJP.clear();
         }
-        System.out.println(jointProbArray);
 
         //calculate the coordinate
         for (int j = 1; j < fingerprintCoordinate.size()+1 ; j++) {
@@ -470,6 +525,7 @@ public class TestingActivity extends AppCompatActivity {
         //clear the array to be reusable
         jointProbArray.clear();
         return new Coordinate(x, y);
+
     }
 
     public Coordinate cosineSimilarity() {
@@ -478,11 +534,8 @@ public class TestingActivity extends AppCompatActivity {
         return position;
     }
 
-    public Coordinate weightedFusion() {
-        // Get respective coordinates from each of the algorithm
-        Coordinate euclidDistPosition = euclideanDistance();
-        Coordinate jointProbPosition = jointProbability();
-        // Coordinate cosineSimPosition = cosineSimilarity();
+    public Coordinate weightedFusion(Coordinate euclidDistPosition, Coordinate jointProbPosition) {
+        // Coordinate cosineSimPosition
 
         // Calculate the final X and Y
         // + weightCosineSim * cosineSimPosition.getX()
