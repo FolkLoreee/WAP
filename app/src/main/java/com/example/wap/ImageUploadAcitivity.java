@@ -41,6 +41,8 @@ import com.google.firebase.storage.UploadTask;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import static android.graphics.Bitmap.createBitmap;
+
 public class ImageUploadAcitivity extends AppCompatActivity {
 
     public static final String KEY_User_Document1 = "doc1";
@@ -119,6 +121,15 @@ public class ImageUploadAcitivity extends AppCompatActivity {
         }
     }
 
+    private ArrayList<Bitmap> makeDeepCopyInteger(ArrayList<Bitmap> old){
+        ArrayList<Bitmap> copy = new ArrayList<Bitmap>(old.size());
+        for(Bitmap i : old){
+            Bitmap deepCopy = createBitmap(i);
+            copy.add(deepCopy);
+        }
+        return copy;
+    }
+
 
     private void splitImage(ImageView image) {
 
@@ -127,13 +138,15 @@ public class ImageUploadAcitivity extends AppCompatActivity {
         //For height and width of the small image chunks
         int chunkHeight, chunkWidth;
         //To store all the small image chunks in bitmap format in this list
+        //To store all the xy coordinate of the image chunks
         ArrayList<Bitmap> chunkedImages = new ArrayList<Bitmap>();
+        ArrayList<CoordImages> coordImages = new ArrayList<CoordImages>();
 
         //Getting the scaled bitmap of the source image
         BitmapDrawable drawable = (BitmapDrawable) image.getDrawable();
         Bitmap bitmap = drawable.getBitmap();
         Bitmap scaledBitmap = Bitmap.createScaledBitmap(bitmap, bitmap.getWidth(), bitmap.getHeight(), true);
-        rows = cols = (int) Math.sqrt(200);
+        rows = cols = (int) Math.sqrt(300);
         chunkHeight = bitmap.getHeight() / rows;
         chunkWidth = bitmap.getWidth() / cols;
 
@@ -142,13 +155,18 @@ public class ImageUploadAcitivity extends AppCompatActivity {
         for (int x = 0; x < rows; x++) {
             int xCoord = 0;
             for (int y = 0; y < cols; y++) {
-                chunkedImages.add(Bitmap.createBitmap(scaledBitmap, xCoord, yCoord, chunkWidth, chunkHeight));
+                chunkedImages.add(createBitmap(scaledBitmap, xCoord, yCoord, chunkWidth, chunkHeight));
                 xCoord += chunkWidth;
+                coordImages.add(new CoordImages(xCoord, yCoord));
+
             }
             yCoord += chunkHeight;
         }
         uploadMapImage();
         MapViewActivity.imageChunks = chunkedImages;
+        MapViewActivity.imageChunksCopy = makeDeepCopyInteger(chunkedImages);
+
+        MapViewActivity.imageCoords = coordImages;
         Intent intent = new Intent(ImageUploadAcitivity.this, MapViewActivity.class);
         startActivity(intent);
     }
@@ -201,6 +219,15 @@ public class ImageUploadAcitivity extends AppCompatActivity {
                 Log.e(TAG,e.toString());
             }
         });
+    }
+
+    class CoordImages {
+        int xcoord;
+        int ycoord;
+        CoordImages(int xcoord, int ycoord){
+            this.xcoord = xcoord;
+            this.ycoord = ycoord;
+        }
     }
 
 }

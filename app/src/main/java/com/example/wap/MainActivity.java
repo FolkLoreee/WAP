@@ -48,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
     Button testPage;
     Button mapPage;
     TextView wifiResults;
+    BottomNavigationView bottomNavigationView;
     Button tracking;
 
     Location currentLocation;
@@ -56,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-//        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_nav);
+//        bottomNavigationView = findViewById(R.id.bottom_nav);
 //        bottomNavigationView.setSelectedItemId(R.id.mainActivity);
 //        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
 //            @Override
@@ -93,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
         mapPage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, MapViewActivity.class);
+                    Intent intent = new Intent(MainActivity.this, ImageUploadAcitivity.class);
 //                Intent intent = new Intent(MainActivity.this, ImageUploadAcitivity.class);
                 startActivity(intent);
             }
