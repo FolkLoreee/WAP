@@ -63,7 +63,6 @@ public class TestingActivity extends AppCompatActivity {
     ArrayList<Integer> targetData;
     ArrayList<Integer> targetStdDev;
     ArrayList<String> targetMacAdd;
-    ArrayList<Integer> targetDataOriginal;
 
     private final String locationID = "CampusCentre1";
 
@@ -129,8 +128,6 @@ public class TestingActivity extends AppCompatActivity {
 
         fingerprintData = new ArrayList<>();
         fingerprintCoordinate = new ArrayList<>();
-        strengthAverageTargetLoc = new HashMap<>();
-        strengthStdDevTargetLoc = new HashMap<>();
 
         fingerprintOriginalAvgSignal = new HashMap<>();
         fingerprintAvgSignal = new HashMap<>();
@@ -358,12 +355,17 @@ public class TestingActivity extends AppCompatActivity {
                 for (String signalID: allSignals) {
                     originalAvgSignalFingerprint.put(signalBSSIDFB.get(signalID), signalStrengthOriginalFB.get(signalID));
                     avgSignalFingerprint.put(signalBSSIDFB.get(signalID), signalStrengthFB.get(signalID));
-                    stdDevSignalFingerprint.put(signalBSSIDFB.get(signalID), signalStrengthSDFB.get(signalID));
+                    stdDevSignalFingerprint.put(signalBSSIDFB.get(signalID), 1);
+                    // stdDevSignalFingerprint.put(signalBSSIDFB.get(signalID), signalStrengthSDFB.get(signalID));
                 }
                 fingerprintOriginalAvgSignal.put(coordinatesStr, originalAvgSignalFingerprint);
                 fingerprintAvgSignal.put(coordinatesStr, avgSignalFingerprint);
                 fingerprintStdDevSignal.put(coordinatesStr, stdDevSignalFingerprint);
             }
+        }
+
+        for (String coordStr: fingerprintOriginalAvgSignal.keySet()) {
+            System.out.println(fingerprintOriginalAvgSignal.get(coordStr).toString());
         }
     }
 
@@ -395,10 +397,6 @@ public class TestingActivity extends AppCompatActivity {
 
         }
 
-
-
-
-
         //the number of coordinates
         for (int i = 1; i <fingerprintCoordinate.size()+1 ; i++) {
             HashMap<String, Integer> subFingerprintAvgSignal = fingerprintAvgSignal.get(coordinateKey.get(i-1));
@@ -407,29 +405,29 @@ public class TestingActivity extends AppCompatActivity {
             //retrieve the unique macaddress from a particular (X,Y) coordinate
             for (String macAddress: subFingerprintAvgSignal.keySet()){
                 macAddFingerprintKey.add(macAddress);
-
             }
-
 
             //the number of the values of mac addresses
 
             for (int k = 1; k < targetData.size() + 1; k++) {
 
-
                 //PAVG, DEV of k-th wifi signals at the target place
                 Integer pavgTarget = targetData.get(k - 1);
                 Integer devTarget = targetStdDev.get(k - 1);
+                // Log.d("DEVTARGET", devTarget.toString());
 
                 //PAVG, DEV of k-th wifi signals at the i-th fingerprint
 
                 Integer pavgFingerprint = subFingerprintAvgSignal.get(macAddFingerprintKey.get(k - 1));
                 Integer devFingerprint = subFingerprintStdDevSignal.get(macAddFingerprintKey.get(k - 1));
+                // Log.d("DEVFINGERPRINT", devFingerprint.toString());
                 //find the absolute value of pavg
                 Integer absPavg = Math.abs(pavgTarget - pavgFingerprint);
+                // Log.d("ABSPAVG", absPavg.toString());
                 double sqauredValue = Math.pow(absPavg + devTarget + devFingerprint, 2);
+                // Log.d("SQUARED VALUE", Double.toString(sqauredValue));
                 //sum it
                 euclideanDis += sqauredValue;
-
             }
 
 
