@@ -1,5 +1,6 @@
 package com.example.wap;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
@@ -9,6 +10,7 @@ import android.provider.MediaStore;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.ContextThemeWrapper;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -24,9 +26,11 @@ import android.widget.Toast;
 
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
+//import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 
 import com.example.wap.firebase.WAPFirebase;
+import com.example.wap.models.Coordinate;
 import com.example.wap.models.Location;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -41,9 +45,10 @@ import com.google.firebase.storage.UploadTask;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import static android.app.Activity.RESULT_OK;
 import static android.graphics.Bitmap.createBitmap;
 
-public class ImageUploadAcitivity extends AppCompatActivity {
+public class ImageUploadAcitivity extends Fragment {
 
     public static final String KEY_User_Document1 = "doc1";
     private final String TAG = "Image Upload Activity";
@@ -60,20 +65,32 @@ public class ImageUploadAcitivity extends AppCompatActivity {
 
     private String Document_img1 = "";
 
+    public static Context contextOfApplication;
+
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_image_upload);
+    public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.activity_image_upload, parent, false);
+    }
+
+    public static Context getContextOfApplication()
+    {
+        return contextOfApplication;
+    }
+
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
 
         locationWAPFirebase = new WAPFirebase<>(Location.class,"locations");
         storage = FirebaseStorage.getInstance();
         storageRef = storage.getReference();
 
-        uploadImg = (ImageView) findViewById(R.id.imageUpload);
-        uploadBtn = (Button) findViewById(R.id.UploadBtn);
+        uploadImg = (ImageView) view.findViewById(R.id.imageUpload);
+        uploadBtn = (Button) view.findViewById(R.id.UploadBtn);
 
-        locationIDText = findViewById(R.id.locationIDEditText);
-        locationNameText = findViewById(R.id.locationNameEditText);
+        locationIDText = view.findViewById(R.id.locationIDEditText);
+        locationNameText = view.findViewById(R.id.locationNameEditText);
+
+        contextOfApplication = getActivity().getApplicationContext();
 
         DisplayMetrics displayMetrics = new DisplayMetrics();
         int height = displayMetrics.heightPixels;
@@ -104,14 +121,14 @@ public class ImageUploadAcitivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK
                 && data != null && data.getData() != null )
         {
             filePath = data.getData();
             try {
-                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), filePath);
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(ImageUploadAcitivity.getContextOfApplication().getContentResolver(), filePath);
                 uploadImg.setImageBitmap(bitmap);
             }
             catch (IOException e)
@@ -120,6 +137,8 @@ public class ImageUploadAcitivity extends AppCompatActivity {
             }
         }
     }
+
+
 
     private ArrayList<Bitmap> makeDeepCopyInteger(ArrayList<Bitmap> old){
         ArrayList<Bitmap> copy = new ArrayList<Bitmap>(old.size());
@@ -140,7 +159,7 @@ public class ImageUploadAcitivity extends AppCompatActivity {
         //To store all the small image chunks in bitmap format in this list
         //To store all the xy coordinate of the image chunks
         ArrayList<Bitmap> chunkedImages = new ArrayList<Bitmap>();
-        ArrayList<CoordImages> coordImages = new ArrayList<CoordImages>();
+        ArrayList<Coordinate> coordImages = new ArrayList<Coordinate>();
 
         //Getting the scaled bitmap of the source image
         BitmapDrawable drawable = (BitmapDrawable) image.getDrawable();
@@ -157,7 +176,7 @@ public class ImageUploadAcitivity extends AppCompatActivity {
             for (int y = 0; y < cols; y++) {
                 chunkedImages.add(createBitmap(scaledBitmap, xCoord, yCoord, chunkWidth, chunkHeight));
                 xCoord += chunkWidth;
-                coordImages.add(new CoordImages(xCoord, yCoord));
+                coordImages.add(new Coordinate(xCoord, yCoord));
 
             }
             yCoord += chunkHeight;
@@ -170,7 +189,7 @@ public class ImageUploadAcitivity extends AppCompatActivity {
 
         MapViewActivity.locationID = locationIDText.getText().toString();
         MapViewActivity.locationName = locationNameText.getText().toString();
-        Intent intent = new Intent(ImageUploadAcitivity.this, MapViewActivity.class);
+        Intent intent = new Intent(getActivity(), MapViewActivity.class);
         startActivity(intent);
     }
 
@@ -195,11 +214,11 @@ public class ImageUploadAcitivity extends AppCompatActivity {
                         public void onComplete(@NonNull Task<Uri> task) {
                             if (task.isSuccessful()) {
                                 Uri downloadUri = task.getResult();
-                                Toast.makeText(ImageUploadAcitivity.this, "Successfully uploaded", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getActivity(), "Successfully uploaded", Toast.LENGTH_SHORT).show();
                                 assert downloadUri != null;
                                 addToFirestore(downloadUri.toString());
                             } else {
-                                Toast.makeText(ImageUploadAcitivity.this, "Upload FAILED", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getActivity(), "Upload FAILED", Toast.LENGTH_SHORT).show();
                             }
                         }
                     });

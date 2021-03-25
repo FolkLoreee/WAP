@@ -22,7 +22,8 @@
         <activity android:name=".TestingActivity"></activity>
         <activity android:name=".MappingActivity" />
         <activity android:name=".MapViewActivity" />
-        <activity android:name=".ImageUploadAcitivity" />
+        <activity android:name=".ChooseMapActivity" />
+
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

@@ -24,6 +24,7 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.example.wap.firebase.WAPFirebase;
+import com.example.wap.models.Coordinate;
 import com.example.wap.models.Location;
 import com.example.wap.models.MapPoint;
 import com.example.wap.models.Signal;
@@ -34,7 +35,7 @@ public class ImageAdapter extends BaseAdapter {
 
     private Context mContext;
     private ArrayList<Bitmap> imageChunks;
-    private ArrayList<ImageUploadAcitivity.CoordImages> imageCoords;
+    private ArrayList<Coordinate> imageCoords;
     private int imageWidth, imageHeight;
     int numOfScans;
     HashMap<String, ArrayList> allSignals;
@@ -48,7 +49,7 @@ public class ImageAdapter extends BaseAdapter {
     MapPoint point;
 
     //constructor
-    public ImageAdapter(Context c, ArrayList<Bitmap> images, ArrayList<ImageUploadAcitivity.CoordImages> coords ) {
+    public ImageAdapter(Context c, ArrayList<Bitmap> images, ArrayList<Coordinate> coords ) {
         mContext = c;
         imageChunks = images;
         imageWidth = images.get(0).getWidth();
@@ -94,8 +95,8 @@ public class ImageAdapter extends BaseAdapter {
 
         //set image of each grid
         image.setImageBitmap(imageChunks.get(position));
-        xCoord = imageCoords.get(position).xcoord;
-        yCoord = imageCoords.get(position).ycoord;
+        xCoord = (int) imageCoords.get(position).getX();
+        yCoord = (int) imageCoords.get(position).getY();
 
         image.setOnClickListener(new View.OnClickListener() {
             @Override
