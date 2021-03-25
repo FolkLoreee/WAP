@@ -5,7 +5,7 @@ public class Signal {
     private String wifiSSID;
     private String wifiBSSID;
     //frequency of the AP
-    private int signalStrengthSD;
+    private double signalStrengthSD;
     private String locationID;
     //strength of the signal
     private int signalStrength;
@@ -15,7 +15,7 @@ public class Signal {
     //the measured distance from the map
     private double mapDistance;
 
-    public Signal(String signalID, String locationID, String wifiBSSID, String wifiSSID, int signalStrengthSD, int signalStrength, int signalStrengthProcessed, double mapDistance){
+    public Signal(String signalID, String locationID, String wifiBSSID, String wifiSSID, double signalStrengthSD, int signalStrength, int signalStrengthProcessed, double mapDistance){
         this.locationID = locationID;
         this.wifiBSSID = wifiBSSID;
         this.wifiSSID = wifiSSID;
@@ -59,7 +59,7 @@ public class Signal {
         return signalStrengthProcessed;
     }
 
-    public int getSignalStrengthSD() {
+    public double getSignalStrengthSD() {
         return signalStrengthSD;
     }
 

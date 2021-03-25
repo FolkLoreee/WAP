@@ -365,7 +365,7 @@ public class MapViewActivity extends AppCompatActivity {
                         // get the average wifi signal if the BSSID exists
                         ArrayList<Integer> readings = allSignals.get(macAddress);
                         int averageSignal = WifiScan.calculateAverage(readings);
-                        int stdDevSignal = WifiScan.calculateStandardDeviation(readings, averageSignal);
+                        double stdDevSignal = WifiScan.calculateStandardDeviation(readings, averageSignal);
                         int averageSignalProcessed = WifiScan.calculateProcessedAverage(averageSignal);
 
                         Log.d(LOG_TAG, "MAC Address: " + macAddress + " , Wifi Signal: " + averageSignal + " , Wifi Signal (SD): " + stdDevSignal);

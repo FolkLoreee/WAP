@@ -23,14 +23,17 @@ public class WifiScan {
         return average;
     }
 
-    public static Integer calculateStandardDeviation(List<Integer> readings, int average) {
+    public static Double calculateStandardDeviation(List<Integer> readings, int average) {
         Integer sum = 0;
         for (Integer reading : readings) {
-            sum += (reading - average);
+            sum += Math.abs(reading - average);
         }
-        sum /= readings.size();
-        double sd = Math.sqrt((double) sum);
-        return (int) sd;
+        System.out.println("final sum: " + sum);
+        Double intermediate = (double) sum / readings.size();
+        double sd = Math.sqrt(intermediate);
+        System.out.println("sum / reading.sizes(): " + intermediate);
+        System.out.println("calculated sd: " + sd);
+        return sd;
     }
 
     // error handling on the original average wifi signal
