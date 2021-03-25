@@ -1,44 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@drawable/login">
+    android:background="@drawable/login"
+    android:layout_height="match_parent">
 
 
     <EditText
         android:id="@+id/loginfield"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginTop="483dp"
-        android:layout_marginEnd="82dp"
-        android:layout_marginRight="82dp"
-        android:layout_marginBottom="203dp"
-        android:background="#FFFFFF"
+        android:layout_marginEnd="101dp"
+        android:layout_marginRight="101dp"
+        android:layout_marginBottom="185dp"
+        android:background="@color/white"
         android:ems="10"
         android:inputType="textPersonName"
-        android:text="    Login ID" />
+        android:text="@string/login_id" />
 
     <EditText
         android:id="@+id/passwordfield"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
+        android:layout_above="@+id/login_button"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginTop="551dp"
-        android:layout_marginEnd="82dp"
-        android:layout_marginRight="82dp"
-        android:layout_marginBottom="135dp"
-        android:background="#FFFFFF"
+        android:layout_marginEnd="101dp"
+        android:layout_marginRight="101dp"
+        android:layout_marginBottom="33dp"
+        android:background="@color/white"
         android:ems="10"
-        android:inputType="textPersonName"
-        android:text="    Password" />
+        android:text="@string/password" />
 
     <Button
         android:id="@+id/login_button"
@@ -47,13 +43,15 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginEnd="139dp"
-        android:layout_marginRight="139dp"
-        android:layout_marginBottom="54dp"
+        android:layout_marginEnd="162dp"
+        android:layout_marginRight="162dp"
+        android:layout_marginBottom="79dp"
         android:background="#FFFFFF"
-        android:text="Submit"
+        android:text="@string/submit"
         android:textAllCaps="true"
         android:textColor="#020202"
         android:textColorHighlight="#000000"
-        app:backgroundTint="#FDFDFD" />
+        app:backgroundTint="#FFFFFF" />
+
+
 </RelativeLayout>

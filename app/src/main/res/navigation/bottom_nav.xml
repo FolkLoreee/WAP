@@ -16,8 +16,8 @@
         android:label="activity_mapping"
         tools:layout="@layout/activity_mapping" />
     <activity
-        android:id="@+id/trackingActivity"
-        android:name="com.example.wap.TrackingActivity"
-        android:label="activity_tracking"
-        tools:layout="@layout/activity_tracking" />
+        android:id="@+id/testingActivity"
+        android:name="com.example.wap.TestingActivity"
+        android:label="activity_testing"
+        tools:layout="@layout/activity_testing" />
 </navigation>

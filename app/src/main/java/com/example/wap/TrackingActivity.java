@@ -1,22 +1,12 @@
 package com.example.wap;
 
-import android.content.Intent;
 import android.os.Bundle;
 
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
-import com.google.android.material.tabs.TabLayout;
-
-import androidx.annotation.NonNull;
-import androidx.viewpager.widget.ViewPager;
 import androidx.appcompat.app.AppCompatActivity;
-
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
+import androidx.viewpager.widget.ViewPager;
 
 import com.example.wap.ui.main.SectionsPagerAdapter;
+import com.google.android.material.tabs.TabLayout;
 
 public class TrackingActivity extends AppCompatActivity {
 
@@ -29,7 +19,7 @@ public class TrackingActivity extends AppCompatActivity {
         viewPager.setAdapter(sectionsPagerAdapter);
         TabLayout tabs = findViewById(R.id.tabs);
         tabs.setupWithViewPager(viewPager);
-//        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_nav);
+//        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_nav_bar);
 //        bottomNavigationView.setSelectedItemId(R.id.trackingActivity);
 //        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
 //            @Override
