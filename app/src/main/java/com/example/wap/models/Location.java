@@ -18,6 +18,8 @@ public class Location {
         this.signalCounter = 0;
     }
 
+    public Location(){}
+
     public String getLocationID() {
         return locationID;
     }

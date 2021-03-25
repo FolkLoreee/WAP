@@ -41,7 +41,7 @@ public class MapViewActivity extends AppCompatActivity {
 
     public static ArrayList<Bitmap> imageChunks = new ArrayList<Bitmap>(300);
     public static ArrayList<Bitmap> imageChunksCopy;
-    public static ArrayList<ImageUploadAcitivity.CoordImages> imageCoords = new ArrayList<ImageUploadAcitivity.CoordImages>(300);
+    public static ArrayList<Coordinate> imageCoords = new ArrayList<Coordinate>(300);
     GridView grid;
     ImageAdapter imageAdapter;
 //    private final static String LOG_TAG = "Mapview Activity";
@@ -296,9 +296,9 @@ public class MapViewActivity extends AppCompatActivity {
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getApplicationContext(), String.valueOf(imageCoords.get(position).xcoord) + ", " + String.valueOf(imageCoords.get(position).ycoord) + ", Submitted", Toast.LENGTH_SHORT).show();
-                String pointID = "MP-" + currentLocation.getLocationID() + "-" + (int) (imageCoords.get(position).xcoord) + "-" + (int) (imageCoords.get(position).ycoord);
-                point = new MapPoint(pointID, new Coordinate(imageCoords.get(position).xcoord, imageCoords.get(position).ycoord), currentLocation.getLocationID());
+                Toast.makeText(getApplicationContext(), String.valueOf(imageCoords.get(position).getX()) + ", " + String.valueOf(imageCoords.get(position).getY()) + ", Submitted", Toast.LENGTH_SHORT).show();
+                String pointID = "MP-" + currentLocation.getLocationID() + "-" + (int) (imageCoords.get(position).getY()) + "-" + (int) (imageCoords.get(position).getY());
+                point = new MapPoint(pointID, new Coordinate(imageCoords.get(position).getX(), imageCoords.get(position).getY()), currentLocation.getLocationID());
 
                 numOfScans = 0;
                 // re-initialise hash map each time the button is pressed

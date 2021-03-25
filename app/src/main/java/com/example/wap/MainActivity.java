@@ -70,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
         mapPage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                    Intent intent = new Intent(MainActivity.this, ImageUploadAcitivity.class);
+                    Intent intent = new Intent(MainActivity.this, ChooseMapActivity.class);
 //                Intent intent = new Intent(MainActivity.this, ImageUploadAcitivity.class);
                 startActivity(intent);
             }
