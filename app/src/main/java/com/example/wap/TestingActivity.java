@@ -65,7 +65,7 @@ public class TestingActivity extends AppCompatActivity {
     ArrayList<Double> targetStdDev;
     ArrayList<String> targetMacAdd;
 
-    private final String locationID = "TestLocation3";
+    private final String locationID = "TestLocation5";
 
     // data from firebase
     HashMap<String, ArrayList<String>> pointsFB;
@@ -84,16 +84,6 @@ public class TestingActivity extends AppCompatActivity {
     HashMap<String, HashMap<String, Integer>> fingerprintAvgSignal;
     HashMap<String, HashMap<String, Double>> fingerprintStdDevSignal;
 
-
-    // for average, process-average, standard deviation calculations
-    List<Integer> fingerprintDataIK;
-    List<Integer> targetDataK;
-
-    // create a hashmap for each mac address and corresponding signal strength at this fingerprint
-    HashMap<String, Integer> avgSignalFingerprint = new HashMap<>();
-    HashMap<String, Integer> stdDevSignalFingerprint = new HashMap<>();
-    HashMap<String, Integer> originalAvgSignalFingerprint = new HashMap<>();
-
     // create an arraylist to store the euclidean distance di values
     ArrayList<Double> euclideanArray = new ArrayList<>();
     // create an arraylist to store the jointprob i values
@@ -102,8 +92,8 @@ public class TestingActivity extends AppCompatActivity {
     //list of fingerprint mac addresses
     ArrayList<Coordinate> CoorFingerprintKey = new ArrayList<>();
     // Weights for each algorithm in the weighted fusion algorithm
-    private final double weightEuclidDist = 1/3;
-    private final double weightJointProb = 1/3;
+    private final double weightEuclidDist = 0.5;
+    private final double weightJointProb = 0.5;
     private final double weightCosineSim = 1/3;
 
     @Override
@@ -171,7 +161,7 @@ public class TestingActivity extends AppCompatActivity {
                     ArrayList<String> signalsIDs = point.getSignalIDs();
                     pointsFB.put(pointID, signalsIDs);
                     pointsCoordinatesFB.put(pointID, point.getCoordinate());
-                    Log.d("FIREBASE POINTS", pointID + "(" + point.getCoordinate().getX() + ", " + point.getCoordinate().getY() + ")" + " - " + signalsIDs.toString());
+                    // Log.d("FIREBASE POINTS", pointID + "(" + point.getCoordinate().getX() + ", " + point.getCoordinate().getY() + ")" + " - " + signalsIDs.toString());
                 }
             }
         });
@@ -185,8 +175,8 @@ public class TestingActivity extends AppCompatActivity {
                     double signalStrengthSD = signal.getSignalStrengthSD();
                     int signalStrength = signal.getSignalStrength();
                     signalStrengthFB.put(signalID, signalStrength);
-                    signalStrengthOriginalFB.put(signalID, signalStrength); // TODO: change accordingly after database is set up properly
-                    Log.d("FIREBASE SIGNAL", signalID + " - " + signalStrength);
+                    signalStrengthOriginalFB.put(signalID, signalStrength);
+                    // Log.d("FIREBASE SIGNAL", signalID + " - " + signalStrength);
                     signalStrengthSDFB.put(signalID, signalStrengthSD);
                     signalBSSIDFB.put(signalID, bssid);
                 }
@@ -209,7 +199,7 @@ public class TestingActivity extends AppCompatActivity {
             boolean resultsReceived = intent.getBooleanExtra(WifiManager.EXTRA_RESULTS_UPDATED, false);
 
             if (resultsReceived) {
-                Toast.makeText(TestingActivity.this, "Processing Wifi Scan " + numOfScans, Toast.LENGTH_SHORT).show();
+                Toast.makeText(TestingActivity.this, "Processing Wifi Scan " + numOfScans+1, Toast.LENGTH_SHORT).show();
 
                 List<ScanResult> list = wifiManager.getScanResults();
 
@@ -245,41 +235,11 @@ public class TestingActivity extends AppCompatActivity {
                         targetStdDev.add(stdDevSignal);
 
                         // Log.d("WIFI SCAN (FINAL)", "MAC Address: " + macAddress + " , Wifi Signal: " + averageSignal + " , Wifi Signal (SD): " + stdDevSignal);
-                        Toast.makeText(TestingActivity.this, "All Wifi Scans Complete!", Toast.LENGTH_SHORT).show();
                     }
 
-                    // pre-matching fingerprints
-                    Toast.makeText(TestingActivity.this, "Conducting Fingerprint Pre-Matching", Toast.LENGTH_SHORT).show();
-                    preMatching();
-                    Toast.makeText(TestingActivity.this, "Fingerprint Pre-Matching Complete!", Toast.LENGTH_SHORT).show();
-
-                    // weighted fusion
-                    Toast.makeText(TestingActivity.this, "Calculating Algo 1: Euclidean Distance Algo", Toast.LENGTH_SHORT).show();
-                    Coordinate calculatedPoint1 = euclideanDistance();
-                    Toast.makeText(TestingActivity.this, "Calculating Algo 2: Joint Probability Algo", Toast.LENGTH_SHORT).show();
-                    Coordinate calculatedPoint2 = jointProbability();
-                    Toast.makeText(TestingActivity.this, "Calculating Algo 3: Weighted Fusion Algo", Toast.LENGTH_SHORT).show();
-                    Coordinate finalPoint = weightedFusion(calculatedPoint1, calculatedPoint2);
-
-                    StringBuilder sb = new StringBuilder();
-                    sb.append("Euclidean Distance results: x = ");
-                    sb.append(calculatedPoint1.getX());
-                    sb.append(", y = ");
-                    sb.append(calculatedPoint1.getY());
-                    sb.append("\n");
-
-                    sb.append("Joint Probability results: x = ");
-                    sb.append(calculatedPoint2.getX());
-                    sb.append(", y = ");
-                    sb.append(calculatedPoint2.getY());
-                    sb.append("\n");
-
-                    sb.append("Weighted Fusion results: x = ");
-                    sb.append(finalPoint.getX());
-                    sb.append(", y = ");
-                    sb.append(finalPoint.getY());
-
-                    calculatedPointData.setText(sb);
+                    Toast.makeText(TestingActivity.this, "Calculating Position...", Toast.LENGTH_SHORT).show();
+                    String position = calculatePosition();
+                    calculatedPointData.setText(position);
                 }
             } else {
                 Toast.makeText(TestingActivity.this, "Wifi scan failed. Please try again in 2 minutes.", Toast.LENGTH_SHORT).show();
@@ -294,6 +254,36 @@ public class TestingActivity extends AppCompatActivity {
                 wifiManager.startScan();
             }
         }
+    }
+
+    private String calculatePosition() {
+        // pre-matching fingerprints
+        preMatching();
+
+        // weighted fusion
+        Coordinate calculatedPoint1 = euclideanDistance();
+        Coordinate calculatedPoint2 = jointProbability();
+        Coordinate finalPoint = weightedFusion(calculatedPoint1, calculatedPoint2);
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("Euclidean Distance results: x = ");
+        sb.append(calculatedPoint1.getX());
+        sb.append(", y = ");
+        sb.append(calculatedPoint1.getY());
+        sb.append("\n");
+
+        sb.append("Joint Probability results: x = ");
+        sb.append(calculatedPoint2.getX());
+        sb.append(", y = ");
+        sb.append(calculatedPoint2.getY());
+        sb.append("\n");
+
+        sb.append("Weighted Fusion results: x = ");
+        sb.append(finalPoint.getX());
+        sb.append(", y = ");
+        sb.append(finalPoint.getY());
+
+        return sb.toString();
     }
 
     private void preMatching() {
@@ -472,6 +462,7 @@ public class TestingActivity extends AppCompatActivity {
                 //AVGk, DEV of k-th wifi signals at the target place
                 //x value
                 Integer avgTarget = targetDataOriginal.get(k - 1);
+                System.out.println("avgTarget: " + avgTarget);
                 if (subFingerprintOriginalAvgSignalJP.containsKey(targetMacAdd.get(k - 1))){
                     //mu value
                     Integer avgFingerprint = subFingerprintOriginalAvgSignalJP.get(targetMacAdd.get(k - 1));
@@ -481,21 +472,29 @@ public class TestingActivity extends AppCompatActivity {
                     Pik = calculateJointProb(avgTarget, avgFingerprint, devFingerprint);
                     //Pi = Pi1 * Pi2 * Pi3 * ... *Pik
                     jointProbi = jointProbi * Pik;
+                    System.out.println("avgFingerprint: " + avgFingerprint + ", devFingerprint: " + devFingerprint + ", Pik: " + Pik + ", Joint Prob: " + jointProbi);
                 }
             }
             jointProbArray.add(jointProbi);
         }
 
+        System.out.println("Joint Probability Array: " + jointProbArray.toString());
+
         //calculate the coordinate
         for (int j = 1; j <= fingerprintCoordinate.size(); j++) {
-            //find x and y multiplied by omega and sum all
-            numeratorX += calculateXJointProb(jointProbArray.get(j - 1), fingerprintCoordinate.get(j - 1));
-            numeratorY += calculateYJointProb(jointProbArray.get(j - 1), fingerprintCoordinate.get(j - 1));
-            //omega
-            denominatorPart += omegaJointProb(jointProbArray.get(j-1));
+            if (jointProbArray.get(j-1) != 0.0) {
+                //find x and y multiplied by omega and sum all
+                numeratorX += calculateXJointProb(jointProbArray.get(j - 1), fingerprintCoordinate.get(j - 1));
+                numeratorY += calculateYJointProb(jointProbArray.get(j - 1), fingerprintCoordinate.get(j - 1));
+                //omega
+                denominatorPart += omegaJointProb(jointProbArray.get(j-1));
+                System.out.println("numeratorX: " + numeratorX + ", numeratorY: " + numeratorY + "denominatorPart: " + denominatorPart);
+            }
         }
         double x = numeratorX / denominatorPart;
         double y = numeratorY / denominatorPart;
+
+        System.out.println("Final X: " + x + ", Final Y: " + y);
 
         //clear the array to be reusable
         jointProbArray.clear();
@@ -515,7 +514,10 @@ public class TestingActivity extends AppCompatActivity {
         // + weightCosineSim * cosineSimPosition.getX()
         // + weightCosineSim * cosineSimPosition.getY()
         double finalX = weightEuclidDist * euclidDistPosition.getX() + weightJointProb * jointProbPosition.getX();
-        double finalY = weightEuclidDist * euclidDistPosition.getX() + weightJointProb * jointProbPosition.getX();
+        double finalY = weightEuclidDist * euclidDistPosition.getY() + weightJointProb * jointProbPosition.getY();
+        System.out.println("euclidean x: " + euclidDistPosition.getX() + ", euclidean y: " + euclidDistPosition.getY());
+        System.out.println("joint prob x: " + jointProbPosition.getX() + ", joint prob y: " + jointProbPosition.getY());
+        System.out.println("Final coordinates: " + finalX + ", " + finalY);
 
         // return the calculated X and Y values
         return new Coordinate(finalX,finalY);
@@ -524,11 +526,14 @@ public class TestingActivity extends AppCompatActivity {
     //helper method to calculate joint probability
     private double calculateJointProb(Integer x, Integer mu, double sigma){
         //further improvement >> exception when sigma is zero
+        if (sigma == 0.0) {
+            sigma = 1.0;
+        }
         double p1 = 1 / (sigma * Math.sqrt(2* Math.PI));
-        double numerator = Math.pow(x- mu, 2);
+        double numerator = Math.pow(x-mu, 2);
         double denominator = 2* Math.pow(sigma, 2);
         double p2 = Math.exp(-numerator/denominator);
-
+        System.out.println("p1: "+ p1 + ", numerator: " + numerator + ", denominator: " + denominator + ", p2: " + p2 + ", p1*p2: " + p1*p2);
         return p1*p2;
     }
 
