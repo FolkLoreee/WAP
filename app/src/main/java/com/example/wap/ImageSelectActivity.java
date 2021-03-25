@@ -47,8 +47,11 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -65,10 +68,13 @@ public class ImageSelectActivity extends ListFragment {
     StorageReference storageRef;
     String locationName;
     String locationID;
+    Button select;
     WAPFirebase<Location> locationWAPFirebase;
     ListView listView;
+    ImageView imageView;
     ArrayList<Location> locationList = new ArrayList<Location>();
     LayoutInflater inflater;
+    Bitmap bitmap;
 
     Uri filePath;
     private final int PICK_IMAGE_REQUEST = 71;
@@ -79,7 +85,9 @@ public class ImageSelectActivity extends ListFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
-
+        locationWAPFirebase = new WAPFirebase<>(Location.class,"locations");
+        storage = FirebaseStorage.getInstance();
+        storageRef = storage.getReference();
         return inflater.inflate(R.layout.activity_image_select, parent, false);
     }
 
@@ -89,12 +97,24 @@ public class ImageSelectActivity extends ListFragment {
     }
 
     @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        select = view.findViewById(R.id.select);
+
+        select.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                imageView.invalidate();
+                BitmapDrawable drawable = (BitmapDrawable) imageView.getDrawable();
+                Bitmap bitmap = drawable.getBitmap();
+                splitImage(bitmap);
+            }
+        });
+    }
+
+    @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        locationWAPFirebase = new WAPFirebase<>(Location.class,"locations");
-        storage = FirebaseStorage.getInstance();
-        storageRef = storage.getReference();
-
 
         locationWAPFirebase.getCollection().addOnSuccessListener(new OnSuccessListener<ArrayList<Location>>() {
             @Override
@@ -104,66 +124,55 @@ public class ImageSelectActivity extends ListFragment {
                     locationList.add(locations.get(i));
                     Log.d("Help", String.valueOf(locationList.get(i).getLocationID()));
                 }
+                ArrayAdapter<Location> locationArrayAdapter = new ImageSelectAdapter(getActivity(), R.layout.listview_item,locationList);
+                getListView().setAdapter(locationArrayAdapter);
             }
-
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
                 Log.d("Help", String.valueOf(e));
             }
         });
-//        Log.d("Help", String.valueOf(locationList.get(0)));
-        ArrayAdapter<Location> locationArrayAdapter = new LocationAdapter(this.getActivity(), R.layout.activity_image_select,locationList);
-        getListView().setAdapter(locationArrayAdapter);
+
     }
 
-    //    @Override
-//    public void onActivityCreated(View view, Bundle savedInstanceState) {
-//
-//        locationWAPFirebase = new WAPFirebase<>(Location.class,"locations");
-//        storage = FirebaseStorage.getInstance();
-//        storageRef = storage.getReference();
-//
-//        listView = view.findViewById(R.id.listView);
-//        locationWAPFirebase.getCollection().addOnSuccessListener(new OnSuccessListener<ArrayList<Location>>() {
-//            @Override
-//            public void onSuccess(ArrayList<Location> locations) {
-//                Log.d("Help", "success");
-//                for(int i = 0; i<locations.size(); i++){
-//                    locationList.add(locations.get(i));
-//                }
+    @Override
+    public void onListItemClick(@NonNull ListView l, @NonNull View v, int position, long id) {
+        super.onListItemClick(l, v, position, id);
+        imageView = v.getRootView().findViewById(R.id.imageSelect);
+
+        if(locationList.get(position).getMapImage() != null){
+            Uri imageUri = Uri.parse(locationList.get(position).getMapImage());
+            Picasso.get().load(imageUri)
+                    .fit().centerCrop().into(imageView);
+//            try {
+//                URL url = new URL(locationList.get(position).getMapImage());
+//                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+//                connection.setDoInput(true);
+//                connection.connect();
+//                InputStream input = connection.getInputStream();
+//                bitmap = BitmapFactory.decodeStream(input);
+//                imageView.setImageBitmap(bitmap);
+//            } catch (IOException e) {
+//                e.printStackTrace();
 //            }
-//
-//        }).addOnFailureListener(new OnFailureListener() {
-//            @Override
-//            public void onFailure(@NonNull Exception e) {
-//                Log.d("Help", String.valueOf(e));
-//            }
-//        });
-////        Log.d("Help", String.valueOf(locationList.get(0)));
-//        populateList();
-//        inflater.inflate(R.layout.activity_image_select, (ViewGroup) view.getParent(), false);
-//
-//        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//            Bitmap image;
-//            @Override
-//            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//                URL url = null;
-//                try {
-//                    url = new URL(locationList.get(position).getMapImage());
-//                } catch (MalformedURLException e) {
-//                    e.printStackTrace();
-//                }
-//                try {
-//                    image = BitmapFactory.decodeStream(url.openConnection().getInputStream());
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-//                splitImage(image);
-//            }
-//        });
-//
-//    }
+        }
+        else{
+            imageView.setImageResource(R.drawable.image_upload);
+            Toast.makeText(getContext(), "No image", Toast.LENGTH_SHORT).show();
+        }
+//        try {
+//            URL url = new URL(locationList.get(position).getMapImage());
+//            Log.d("Help", locationList.get(position).getMapImage());
+//            Bitmap image = BitmapFactory.decodeStream(url.openConnection().getInputStream());
+//            splitImage(image);
+//            Log.d("help", "trying");
+//        } catch(IOException e) {
+//            Log.d("help list",String.valueOf(e));
+//        }
+//        Toast.makeText(getContext(), "hello", Toast.LENGTH_SHORT).show();
+
+    }
 
     private void splitImage(Bitmap bitmap) {
 
@@ -202,36 +211,8 @@ public class ImageSelectActivity extends ListFragment {
 
         Intent intent = new Intent(getActivity(), MapViewActivity.class);
         startActivity(intent);
+
     }
-
-
-    public class LocationAdapter extends ArrayAdapter<Location> {
-        private int layoutResource;
-        public LocationAdapter(Context context, int layoutResource, ArrayList<Location> users) {
-            super(context, layoutResource, users);
-            this.layoutResource = layoutResource;
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            View view = convertView;
-
-            if (view == null) {
-                LayoutInflater layoutInflater = LayoutInflater.from(getContext());
-                view = layoutInflater.inflate(layoutResource, null);
-            }
-            Location currentLocation = getItem(position);
-
-            TextView locationName = (TextView) view.findViewById(R.id.textView);
-            locationName.setText(currentLocation.getName());
-            TextView locationID = (TextView) view.findViewById(R.id.textView2);
-            locationID.setText(currentLocation.getLocationID());
-
-            return view;
-        }
-    }
-
-
 
     private ArrayList<Bitmap> makeDeepCopyInteger(ArrayList<Bitmap> old){
         ArrayList<Bitmap> copy = new ArrayList<Bitmap>(old.size());
