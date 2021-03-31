@@ -387,11 +387,6 @@ public class TestingActivity extends AppCompatActivity {
             coordinateKey.add(coorStr);
 
         }
-
-
-
-
-
         //the number of coordinates
         for (int i = 1; i <fingerprintCoordinate.size()+1 ; i++) {
             HashMap<String, Integer> subFingerprintAvgSignal = fingerprintAvgSignal.get(coordinateKey.get(i-1));
@@ -400,7 +395,7 @@ public class TestingActivity extends AppCompatActivity {
 
             //the number of the values of mac addresses
 
-            for (int k = 1; k < targetData.size() + 1; k++) {
+            for (int k = 1; k <= targetData.size(); k++) {
 
 
                 //PAVG, DEV of k-th wifi signals at the target place
@@ -416,14 +411,13 @@ public class TestingActivity extends AppCompatActivity {
                     //sum it
                     euclideanDis += sqauredValue;
                 }
+                else{
+                    continue;
+                }
 
             }
-
-
             euclideanDis = Math.sqrt(euclideanDis);
             euclideanArray.add(euclideanDis);
-
-            macAddFingerprintKey.clear();
         }
 
         //calculate the coordinate
@@ -440,8 +434,6 @@ public class TestingActivity extends AppCompatActivity {
 
         Coordinate position = new Coordinate(x, y);
         euclideanArray.clear();
-
-
         return position;
 
     }
