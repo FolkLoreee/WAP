@@ -14,22 +14,35 @@ import java.util.List;
 
 public class WifiScan {
 
-    public static Integer calculateAverage(List<Integer> readings) {
-        Integer sum = 0;
+    public static Double calculateAverage(List<Integer> readings) {
+        //RANDOM ERROR: Data Cleaning - if there's a missed reading in readings, then, set the average to -100
+        if (readings.contains(null)){
+            return -100.0;
+        }
+        Double sum = 0.0;
         for (Integer reading : readings) {
             sum += reading;
         }
-        Integer average = sum / readings.size();
+        Double average = sum / readings.size();
         return average;
     }
 
-    public static Double calculateStandardDeviation(List<Integer> readings, int average) {
-        Integer sum = 0;
+    public static Double calculateStandardDeviation(List<Integer> readings, double average) {
+        Double sum = 0.0;
         for (Integer reading : readings) {
-            sum += Math.abs(reading - average);
+            //RANDOM ERROR handling
+            if (reading == null){
+                //do not calculate the null values
+                continue;
+            }else{
+                //square the absolute value of reading - average
+                Double temporary = Math.abs(reading - average);
+                sum += Math.pow(temporary, 2);
+            }
+
         }
         System.out.println("final sum: " + sum);
-        Double intermediate = (double) sum / readings.size();
+        Double intermediate =  sum / readings.size();
         double sd = Math.sqrt(intermediate);
         System.out.println("sum / reading.sizes(): " + intermediate);
         System.out.println("calculated sd: " + sd);
@@ -37,13 +50,13 @@ public class WifiScan {
     }
 
     // error handling on the original average wifi signal
-    public static Integer calculateProcessedAverage(Integer average) {
+    public static Double calculateProcessedAverage(Double average) {
         int offset = 0;
         // systematic error
-        int result = average + offset;
-        // gross error
+        double result = average + offset;
+        // gross error - by movement of people - use T test
 
-        // random error
+        // random error - HANDLED IN calculateAverage
         return result;
     }
 

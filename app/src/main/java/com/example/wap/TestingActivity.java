@@ -50,8 +50,8 @@ public class TestingActivity extends AppCompatActivity {
     HashMap<String, String> ssids;
 
     // wifi scan data from target location
-    ArrayList<Integer> targetDataOriginal;
-    ArrayList<Integer> targetData;
+    ArrayList<Double> targetDataOriginal;
+    ArrayList<Double> targetData;
     ArrayList<Double> targetStdDev;
     ArrayList<String> targetMacAdd;
 
@@ -237,9 +237,9 @@ public class TestingActivity extends AppCompatActivity {
 
                         // get the average wifi signal if the BSSID exists
                         ArrayList<Integer> readings = allSignals.get(macAddress);
-                        int averageSignal = WifiScan.calculateAverage(readings);
+                        double averageSignal = WifiScan.calculateAverage(readings);
                         double stdDevSignal = WifiScan.calculateStandardDeviation(readings, averageSignal);
-                        int averageSignalProcessed = WifiScan.calculateProcessedAverage(averageSignal);
+                        double averageSignalProcessed = WifiScan.calculateProcessedAverage(averageSignal);
 
                         // store these values into the data variables for wifi scan
                         targetDataOriginal.add(averageSignal);
@@ -304,17 +304,17 @@ public class TestingActivity extends AppCompatActivity {
         double threshold = 0.4;
 
         // get FLAG value
-        int total = 0;
-        for (int strength: targetData) {
+        double total = 0;
+        for (double strength: targetData) {
             total += strength;
         }
 
-        final int FLAG = total / targetData.size();
+        final double FLAG = total / targetData.size();
 
         // get a list of mac address where the signal strength pass the FLAG value
         ArrayList<String> filteredMac = new ArrayList<>();
         for (int i = 0; i < targetData.size(); i++) {
-            int strength = targetData.get(i);
+            double strength = targetData.get(i);
             if (Math.abs(strength) > Math.abs(FLAG)) {
                 filteredMac.add(targetMacAdd.get(i));
             }
@@ -417,14 +417,14 @@ public class TestingActivity extends AppCompatActivity {
             //the number of the values of mac addresses
             for (int k = 1; k < targetData.size() + 1; k++) {
                 //PAVG, DEV of k-th wifi signals at the target place
-                Integer pavgTarget = targetData.get(k - 1);
+                Double pavgTarget = targetData.get(k - 1);
                 Double devTarget = targetStdDev.get(k - 1);
                 if (subFingerprintAvgSignal.containsKey(targetMacAdd.get(k-1))){
                     //PAVG, DEV of k-th wifi signals at the i-th fingerprint
                     Integer pavgFingerprint = subFingerprintAvgSignal.get(targetMacAdd.get(k - 1));
                     Double devFingerprint = subFingerprintStdDevSignal.get(targetMacAdd.get(k - 1));
                     //find the absolute value of pavg
-                    Integer absPavg = Math.abs(pavgTarget - pavgFingerprint);
+                    Double absPavg = Math.abs(pavgTarget - pavgFingerprint);
                     double sqauredValue = Math.pow(absPavg + devTarget + devFingerprint, 2);
                     //sum it
                     euclideanDis += sqauredValue;
@@ -469,7 +469,7 @@ public class TestingActivity extends AppCompatActivity {
             for (int k = 1; k < targetDataOriginal.size() + 1; k++) {
                 //AVGk, DEV of k-th wifi signals at the target place
                 //x value
-                Integer avgTarget = targetDataOriginal.get(k - 1);
+                Double avgTarget = targetDataOriginal.get(k - 1);
                 System.out.println("avgTarget: " + avgTarget);
                 if (subFingerprintOriginalAvgSignalJP.containsKey(targetMacAdd.get(k - 1))){
                     //mu value
@@ -479,6 +479,7 @@ public class TestingActivity extends AppCompatActivity {
                     //calculate Pik
                     Pik = calculateJointProb(avgTarget, avgFingerprint, devFingerprint);
                     //Pi = Pi1 * Pi2 * Pi3 * ... *Pik
+                    //when standard deviation == 0, they have exact match on original wifi signal strength
                     jointProbi = jointProbi * Pik;
                     System.out.println("avgFingerprint: " + avgFingerprint + ", devFingerprint: " + devFingerprint + ", Pik: " + Pik + ", Joint Prob: " + jointProbi);
                 }
@@ -532,17 +533,17 @@ public class TestingActivity extends AppCompatActivity {
     }
 
     //helper method to calculate joint probability
-    private double calculateJointProb(Integer x, Integer mu, double sigma){
-        //further improvement >> exception when sigma is zero
+    private double calculateJointProb(Double x, Integer mu, double sigma){
+
         if (sigma == 0.0) {
             sigma = 1.0;
         }
-        double p1 = 1 / (sigma * Math.sqrt(2* Math.PI));
+        double p1 = (sigma * Math.sqrt(2* Math.PI));
         double numerator = Math.pow(x-mu, 2);
         double denominator = 2* Math.pow(sigma, 2);
         double p2 = Math.exp(-numerator/denominator);
         System.out.println("p1: "+ p1 + ", numerator: " + numerator + ", denominator: " + denominator + ", p2: " + p2 + ", p1*p2: " + p1*p2);
-        return p1*p2;
+        return p2 / p1;
     }
 
     //helper method to calculate numerator of coordinate
@@ -588,6 +589,12 @@ public class TestingActivity extends AppCompatActivity {
     }
 
     private double omegaJointProb(double probability){
+        //no standard deviation means their matches are exact
+        //hence, we don't need to add any coordinate value to the existing coordinate
+        //Math.log10(1) = 0
+        if (probability == 0){
+            return Math.log10(1);
+        }
         return Math.log10(probability);
     }
 
