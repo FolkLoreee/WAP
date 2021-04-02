@@ -25,8 +25,6 @@ import com.example.wap.models.Signal;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
-import java.lang.reflect.Array;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -55,13 +53,13 @@ public class TestingActivity extends AppCompatActivity {
     ArrayList<Double> targetStdDev;
     ArrayList<String> targetMacAdd;
 
-    private final String locationID = "TestLocation5";
+    private final String locationID = "CampusCentreLvl2Ph1";
 
     // data from firebase
     HashMap<String, ArrayList<String>> pointsFB;
     HashMap<String, Coordinate> pointsCoordinatesFB;
-    HashMap<String, Integer> signalStrengthFB;
-    HashMap<String, Integer> signalStrengthOriginalFB;
+    HashMap<String, Double> signalStrengthFB;
+    HashMap<String, Double> signalStrengthOriginalFB;
     HashMap<String, String> signalBSSIDFB;
     HashMap<String, Double> signalStrengthSDFB;
 
@@ -70,8 +68,8 @@ public class TestingActivity extends AppCompatActivity {
     ArrayList<Coordinate> fingerprintCoordinate;
 
     // NEWLY ADDED FOR DATA CREATED AFTER PRE-MATCHING
-    HashMap<String, HashMap<String, Integer>> fingerprintOriginalAvgSignal;
-    HashMap<String, HashMap<String, Integer>> fingerprintAvgSignal;
+    HashMap<String, HashMap<String, Double>> fingerprintOriginalAvgSignal;
+    HashMap<String, HashMap<String, Double>> fingerprintAvgSignal;
     HashMap<String, HashMap<String, Double>> fingerprintStdDevSignal;
 
     // create an arraylist to store the euclidean distance di values
@@ -79,8 +77,6 @@ public class TestingActivity extends AppCompatActivity {
     // create an arraylist to store the jointprob i values
     ArrayList<Double> jointProbArray = new ArrayList<>();
 
-    //list of fingerprint mac addresses
-    ArrayList<Coordinate> CoorFingerprintKey = new ArrayList<>();
     // Weights for each algorithm in the weighted fusion algorithm
     private final double weightEuclidDist = 0.5;
     private final double weightJointProb = 0.5;
@@ -186,7 +182,7 @@ public class TestingActivity extends AppCompatActivity {
                     String signalID = signal.getSignalID();
                     String bssid = signal.getWifiBSSID();
                     double signalStrengthSD = signal.getSignalStrengthSD();
-                    int signalStrength = signal.getSignalStrength();
+                    double signalStrength = signal.getSignalStrength();
                     signalStrengthFB.put(signalID, signalStrength);
                     signalStrengthOriginalFB.put(signalID, signalStrength);
                     // Log.d("FIREBASE SIGNAL", signalID + " - " + signalStrength);
@@ -365,9 +361,9 @@ public class TestingActivity extends AppCompatActivity {
                 String coordinatesStr = str.toString();
 
                 // create a hashmap for each mac address and corresponding signal strength at this fingerprint
-                HashMap<String, Integer> avgSignalFingerprint = new HashMap<>();
+                HashMap<String, Double> avgSignalFingerprint = new HashMap<>();
                 HashMap<String, Double> stdDevSignalFingerprint = new HashMap<>();
-                HashMap<String, Integer> originalAvgSignalFingerprint = new HashMap<>();
+                HashMap<String, Double> originalAvgSignalFingerprint = new HashMap<>();
                 for (String signalID: allSignals) {
                     originalAvgSignalFingerprint.put(signalBSSIDFB.get(signalID), signalStrengthOriginalFB.get(signalID));
                     avgSignalFingerprint.put(signalBSSIDFB.get(signalID), signalStrengthFB.get(signalID));
@@ -411,7 +407,7 @@ public class TestingActivity extends AppCompatActivity {
 
         //the number of coordinates
         for (int i = 1; i <= fingerprintCoordinate.size() ; i++) {
-            HashMap<String, Integer> subFingerprintAvgSignal = fingerprintAvgSignal.get(coordinateKey.get(i-1));
+            HashMap<String, Double> subFingerprintAvgSignal = fingerprintAvgSignal.get(coordinateKey.get(i-1));
             HashMap<String, Double> subFingerprintStdDevSignal = fingerprintStdDevSignal.get(coordinateKey.get(i-1));
 
             //the number of the values of mac addresses
@@ -421,7 +417,7 @@ public class TestingActivity extends AppCompatActivity {
                 Double devTarget = targetStdDev.get(k - 1);
                 if (subFingerprintAvgSignal.containsKey(targetMacAdd.get(k-1))){
                     //PAVG, DEV of k-th wifi signals at the i-th fingerprint
-                    Integer pavgFingerprint = subFingerprintAvgSignal.get(targetMacAdd.get(k - 1));
+                    Double pavgFingerprint = subFingerprintAvgSignal.get(targetMacAdd.get(k - 1));
                     Double devFingerprint = subFingerprintStdDevSignal.get(targetMacAdd.get(k - 1));
                     //find the absolute value of pavg
                     Double absPavg = Math.abs(pavgTarget - pavgFingerprint);
@@ -463,7 +459,7 @@ public class TestingActivity extends AppCompatActivity {
         ArrayList<String> coordinateKeyJP = new ArrayList<>();
 
         for (int i = 1; i <fingerprintCoordinate.size()+1 ; i++){
-            HashMap<String, Integer> subFingerprintOriginalAvgSignalJP = fingerprintOriginalAvgSignal.get(coordinateKeyJP.get(i-1));
+            HashMap<String, Double> subFingerprintOriginalAvgSignalJP = fingerprintOriginalAvgSignal.get(coordinateKeyJP.get(i-1));
             HashMap<String, Double> subFingerprintStdDevSignalJP = fingerprintStdDevSignal.get(coordinateKeyJP.get(i-1));
 
             for (int k = 1; k < targetDataOriginal.size() + 1; k++) {
@@ -473,7 +469,7 @@ public class TestingActivity extends AppCompatActivity {
                 System.out.println("avgTarget: " + avgTarget);
                 if (subFingerprintOriginalAvgSignalJP.containsKey(targetMacAdd.get(k - 1))){
                     //mu value
-                    Integer avgFingerprint = subFingerprintOriginalAvgSignalJP.get(targetMacAdd.get(k - 1));
+                    Double avgFingerprint = subFingerprintOriginalAvgSignalJP.get(targetMacAdd.get(k - 1));
                     //sigma
                     Double devFingerprint = subFingerprintStdDevSignalJP.get(targetMacAdd.get(k - 1));
                     //calculate Pik
@@ -533,7 +529,7 @@ public class TestingActivity extends AppCompatActivity {
     }
 
     //helper method to calculate joint probability
-    private double calculateJointProb(Double x, Integer mu, double sigma){
+    private double calculateJointProb(Double x, Double mu, double sigma){
 
         if (sigma == 0.0) {
             sigma = 1.0;

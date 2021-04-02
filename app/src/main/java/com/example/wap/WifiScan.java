@@ -41,11 +41,8 @@ public class WifiScan {
             }
 
         }
-        System.out.println("final sum: " + sum);
         Double intermediate =  sum / readings.size();
         double sd = Math.sqrt(intermediate);
-        System.out.println("sum / reading.sizes(): " + intermediate);
-        System.out.println("calculated sd: " + sd);
         return sd;
     }
 

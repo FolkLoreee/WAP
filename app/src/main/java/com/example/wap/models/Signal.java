@@ -8,14 +8,14 @@ public class Signal {
     private double signalStrengthSD;
     private String locationID;
     //strength of the signal
-    private int signalStrength;
-    private int signalStrengthProcessed;
+    private double signalStrength;
+    private double signalStrengthProcessed;
     //the actual distance calculated by the algorithm
     private double calculatedDistance;
     //the measured distance from the map
     private double mapDistance;
 
-    public Signal(String signalID, String locationID, String wifiBSSID, String wifiSSID, double signalStrengthSD, int signalStrength, int signalStrengthProcessed, double mapDistance){
+    public Signal(String signalID, String locationID, String wifiBSSID, String wifiSSID, double signalStrengthSD, double signalStrength, double signalStrengthProcessed, double mapDistance){
         this.locationID = locationID;
         this.wifiBSSID = wifiBSSID;
         this.wifiSSID = wifiSSID;
@@ -51,11 +51,11 @@ public class Signal {
         return locationID;
     }
 
-    public int getSignalStrength() {
+    public double getSignalStrength() {
         return signalStrength;
     }
 
-    public int getSignalStrengthProcessed() {
+    public double getSignalStrengthProcessed() {
         return signalStrengthProcessed;
     }
 
