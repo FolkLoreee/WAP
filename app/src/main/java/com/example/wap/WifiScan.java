@@ -48,12 +48,13 @@ public class WifiScan {
 
     // error handling on the original average wifi signal
     public static Double calculateProcessedAverage(Double average) {
-        int offset = 0;
+
         // systematic error
+        int offset = 2;
         double result = average + offset;
+
         // gross error - by movement of people - use T test
 
-        // random error - HANDLED IN calculateAverage
         return result;
     }
 

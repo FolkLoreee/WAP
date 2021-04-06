@@ -34,6 +34,7 @@ import com.example.wap.models.MapPoint;
 import com.example.wap.models.Signal;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 
 import java.io.IOException;
@@ -71,7 +72,8 @@ public class TestingActivity extends AppCompatActivity {
     ArrayList<Double> targetStdDev;
     ArrayList<String> targetMacAdd;
 
-    private final String locationID = "CCThinkTankLvl2";
+    // private final String locationID = "CCThinkTankLvl2";
+    private final String locationID = "Bldg2ThinkTank";
 
     // data from firebase
     HashMap<String, ArrayList<String>> pointsFB;
@@ -96,8 +98,8 @@ public class TestingActivity extends AppCompatActivity {
     ArrayList<Double> jointProbArray = new ArrayList<>();
 
     // Weights for each algorithm in the weighted fusion algorithm
-    private final double weightEuclidDist = 0.5;
-    private final double weightJointProb = 0.5;
+    private final double weightEuclidDist = 0.25;
+    private final double weightJointProb = 0.75;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -238,6 +240,7 @@ public class TestingActivity extends AppCompatActivity {
                 for (Signal signal: signals) {
                     String signalID = signal.getSignalID();
                     String bssid = signal.getWifiBSSID();
+                    // TODO: NEED TO GET BACK THE PRECISION OF THE DOUBLE VALUES
                     double signalStrengthSD = signal.getSignalStrengthSD();
                     double signalStrength = signal.getSignalStrength();
                     signalStrengthFB.put(signalID, signalStrength);
@@ -349,9 +352,10 @@ public class TestingActivity extends AppCompatActivity {
         // Algorithm algorithm = new Algorithm(fingerprintOriginalAvgSignal, fingerprintAvgSignal, fingerprintStdDevSignal, fingerprintCoordinate);
 
         // weighted fusion
+        Coordinate finalPoint = new Coordinate();
         Coordinate calculatedPoint1 = euclideanDistance();
         Coordinate calculatedPoint2 = jointProbability();
-        Coordinate finalPoint = weightedFusion(calculatedPoint1, calculatedPoint2);
+        finalPoint = weightedFusion(calculatedPoint1, calculatedPoint2);
 
         StringBuilder sb = new StringBuilder();
         sb.append("Euclidean Distance results: x = ");
@@ -374,7 +378,7 @@ public class TestingActivity extends AppCompatActivity {
 
     private void preMatching() {
 
-        double threshold = 0.4;
+        double threshold = 0.8;
 
         // get FLAG value
         double total = 0;
@@ -416,7 +420,7 @@ public class TestingActivity extends AppCompatActivity {
 
             // calculating the percentage match
             double percentMatch = (double) count / filteredMac.size();
-            System.out.println(percentMatch);
+            System.out.println("Percent Match with Fingerprint: " + percentMatch);
             if (percentMatch < threshold) {
                 check = false;
             }
@@ -469,7 +473,6 @@ public class TestingActivity extends AppCompatActivity {
         double denominatorPart = 0;
 
         //euclidean distance
-        double euclideanDis = 0;
         ArrayList<String> coordinateKey = new ArrayList<>();
 
         //retrieve the keys of the fingerprint
@@ -481,6 +484,8 @@ public class TestingActivity extends AppCompatActivity {
         for (int i = 1; i <= fingerprintCoordinate.size() ; i++) {
             HashMap<String, Double> subFingerprintAvgSignal = fingerprintAvgSignal.get(coordinateKey.get(i-1));
             HashMap<String, Double> subFingerprintStdDevSignal = fingerprintStdDevSignal.get(coordinateKey.get(i-1));
+
+            double euclideanDis = 0;
 
             //the number of the values of mac addresses
             for (int k = 1; k < targetData.size() + 1; k++) {
@@ -499,6 +504,7 @@ public class TestingActivity extends AppCompatActivity {
                 }
             }
             euclideanDis = Math.sqrt(euclideanDis);
+            System.out.println("Fingerprint " + i + ": " + euclideanDis);
             euclideanArray.add(euclideanDis);
         }
 
@@ -521,9 +527,6 @@ public class TestingActivity extends AppCompatActivity {
     }
 
     public Coordinate jointProbability() {
-        double Pik = 1;
-        double jointProbi = 1;
-
         double numeratorX = 0;
         double numeratorY = 0;
         double denominatorPart = 0;
@@ -539,6 +542,9 @@ public class TestingActivity extends AppCompatActivity {
             HashMap<String, Double> subFingerprintOriginalAvgSignalJP = fingerprintOriginalAvgSignal.get(coordinateKeyJP.get(i-1));
             HashMap<String, Double> subFingerprintStdDevSignalJP = fingerprintStdDevSignal.get(coordinateKeyJP.get(i-1));
 
+            double Pik = 1;
+            double jointProbi = 1;
+
             for (int k = 1; k < targetDataOriginal.size() + 1; k++) {
                 //AVGk, DEV of k-th wifi signals at the target place
                 //x value
@@ -553,9 +559,10 @@ public class TestingActivity extends AppCompatActivity {
                     //Pi = Pi1 * Pi2 * Pi3 * ... *Pik
                     //when standard deviation == 0, they have exact match on original wifi signal strength
                     jointProbi = jointProbi * Pik;
-                    System.out.println("avgFingerprint: " + avgFingerprint + ", devFingerprint: " + devFingerprint + ", Pik: " + Pik + ", Joint Prob: " + jointProbi);
+                    // System.out.println("avgFingerprint: " + avgFingerprint + ", devFingerprint: " + devFingerprint + ", Pik: " + Pik + ", Joint Prob: " + jointProbi);
                 }
             }
+            System.out.println("Fingerprint " + i + ": " + jointProbi);
             jointProbArray.add(jointProbi);
         }
 
@@ -579,11 +586,17 @@ public class TestingActivity extends AppCompatActivity {
 
     public Coordinate weightedFusion(Coordinate euclidDistPosition, Coordinate jointProbPosition) {
         // Calculate the final X and Y
-        double finalX = weightEuclidDist * euclidDistPosition.getX() + weightJointProb * jointProbPosition.getX();
-        double finalY = weightEuclidDist * euclidDistPosition.getY() + weightJointProb * jointProbPosition.getY();
 
-        // return the calculated X and Y values
-        return new Coordinate(finalX,finalY);
+        if (Double.isNaN(jointProbPosition.getY()) || Double.isNaN(jointProbPosition.getX())) {
+            euclidDistPosition.setY(euclidDistPosition.getY() + 40);
+            return euclidDistPosition;
+        } else {
+            double finalX = weightEuclidDist * euclidDistPosition.getX() + weightJointProb * jointProbPosition.getX();
+            double finalY = weightEuclidDist * euclidDistPosition.getY() + weightJointProb * jointProbPosition.getY() + (31/2);
+
+            // return the calculated X and Y values
+            return new Coordinate(finalX, finalY);
+        }
     }
 
     //helper method to calculate joint probability

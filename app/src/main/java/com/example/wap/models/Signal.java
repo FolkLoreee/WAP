@@ -43,10 +43,6 @@ public class Signal {
         return wifiSSID;
     }
 
-    public double getFrequency() {
-        return signalStrengthSD;
-    }
-
     public String getLocationID() {
         return locationID;
     }
