@@ -346,10 +346,13 @@ public class TestingActivity extends AppCompatActivity {
         // pre-matching fingerprints
         preMatching();
 
+        //create the Algorithm object
+        Algorithm algorithm = new Algorithm(fingerprintOriginalAvgSignal, fingerprintAvgSignal, fingerprintStdDevSignal, fingerprintCoordinate);
+
         // weighted fusion
-        Coordinate calculatedPoint1 = euclideanDistance();
-        Coordinate calculatedPoint2 = jointProbability();
-        Coordinate finalPoint = weightedFusion(calculatedPoint1, calculatedPoint2);
+        Coordinate calculatedPoint1 = algorithm.euclideanDistance(targetData, targetStdDev, targetMacAdd);
+        Coordinate calculatedPoint2 = algorithm.jointProbability(targetDataOriginal, targetMacAdd);
+        Coordinate finalPoint = algorithm.weightedFusion(calculatedPoint1, calculatedPoint2);
 
         StringBuilder sb = new StringBuilder();
         sb.append("Euclidean Distance results: x = ");
@@ -460,6 +463,7 @@ public class TestingActivity extends AppCompatActivity {
      * targetDataOriginal = list of original average wifi signal values for each mac address (FOR NOW, THESE HAVE THE SAME VALUES AS THE PROCESSED ONES)
      * Retrieve the corresponding average and standard deviation values for each mac address by the index value
      * */
+    /*
 
     public Coordinate euclideanDistance() {
         double numeratorX = 0;
@@ -648,5 +652,7 @@ public class TestingActivity extends AppCompatActivity {
         }
         return Math.log10(probability);
     }
+
+     */
 
 }
