@@ -49,6 +49,7 @@ public class TestingActivity extends AppCompatActivity {
     ImageView mapImageView;
 
     // Bitmap
+    Bitmap mapImage;
     Canvas canvas;
     Paint paint;
     Path mPath;
@@ -151,7 +152,7 @@ public class TestingActivity extends AppCompatActivity {
                             StrictMode.setThreadPolicy(policy);
                             try {
                                 URL url = new URL(mapImageAdd);
-                                Bitmap mapImage = Utils.getBitmap(url);
+                                mapImage = Utils.getBitmap(url);
                                 Bitmap bitmap = Bitmap.createBitmap((int) mapImage.getWidth(), (int) mapImage.getHeight(), Bitmap.Config.ARGB_8888);
                                 canvas = new Canvas(bitmap);
                                 mPath = new Path();
@@ -306,6 +307,8 @@ public class TestingActivity extends AppCompatActivity {
 
                     // clear previous dot if there is
                     canvas.drawColor(0, PorterDuff.Mode.CLEAR);
+                    // redraw the bitmap
+                    canvas.drawBitmap(mapImage, 0, 0, null);
 
                     // draw the dot on the bitmap
                     canvas.drawCircle(doubleToFloat(position.getX()), doubleToFloat(position.getY()), 10, paint);
