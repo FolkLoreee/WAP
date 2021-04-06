@@ -5,13 +5,22 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Path;
+import android.graphics.PorterDuff;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -20,11 +29,15 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.wap.firebase.WAPFirebase;
 import com.example.wap.models.Coordinate;
+import com.example.wap.models.Location;
 import com.example.wap.models.MapPoint;
 import com.example.wap.models.Signal;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.storage.FirebaseStorage;
 
+import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -33,16 +46,20 @@ public class TestingActivity extends AppCompatActivity {
 
     Button locateBtn;
     TextView calculatedPointData;
+    ImageView mapImageView;
+
+    // Bitmap
+    Canvas canvas;
+    Paint paint;
+    Path mPath;
 
     // Wifi
     private static final int MY_REQUEST_CODE = 123;
     private final static String LOG_TAG = "Testing Activity";
     WifiManager wifiManager;
     TestingActivity.WifiBroadcastReceiver wifiReceiver;
-    MapPoint point;
 
     // Wifi Scan
-    ArrayList<String> macAddresses;
     int numOfScans;
     HashMap<String, ArrayList> allSignals;
     HashMap<String, String> ssids;
@@ -53,7 +70,7 @@ public class TestingActivity extends AppCompatActivity {
     ArrayList<Double> targetStdDev;
     ArrayList<String> targetMacAdd;
 
-    private final String locationID = "CampusCentreLvl2Ph1";
+    private final String locationID = "CCThinkTankLvl2";
 
     // data from firebase
     HashMap<String, ArrayList<String>> pointsFB;
@@ -80,7 +97,6 @@ public class TestingActivity extends AppCompatActivity {
     // Weights for each algorithm in the weighted fusion algorithm
     private final double weightEuclidDist = 0.5;
     private final double weightJointProb = 0.5;
-    private final double weightCosineSim = 1/3;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,7 +111,6 @@ public class TestingActivity extends AppCompatActivity {
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 switch(item.getItemId()){
                     case R.id.testingActivity:
-
                         return true;
                     case R.id.mappingActivity:
                         startActivity(new Intent(getApplicationContext(),MappingActivity.class));
@@ -111,8 +126,49 @@ public class TestingActivity extends AppCompatActivity {
         });
 
         // Initialise XML elements
-        locateBtn = (Button) findViewById(R.id.locateBtn);
-        calculatedPointData = (TextView) findViewById(R.id.calculatedPointData);
+        locateBtn = findViewById(R.id.locateBtn);
+        calculatedPointData = findViewById(R.id.calculatedPointData);
+        mapImageView = findViewById(R.id.mapImageView);
+
+        // delete old records
+//        WAPFirebase<Signal> signalsWAPFirebase = new WAPFirebase<Signal>(Signal.class,"signals");
+//        for (int i = 6411; i < 9999; i++) {
+//            String uuid = "SG-CampusCentre1-" + String.valueOf(i);
+//            signalsWAPFirebase.delete(uuid);
+//        }
+
+        // TODO: Map should not be hardcoded; NEED TO CHANGE
+        WAPFirebase<Location> locationWAPFirebase = new WAPFirebase<>(Location.class,"locations");
+        locationWAPFirebase.compoundQuery("locationID", locationID).addOnSuccessListener(new OnSuccessListener<ArrayList<Location>>() {
+            @Override
+            public void onSuccess(ArrayList<Location> locations) {
+                for (Location l: locations) {
+                    if (l.getLocationID().equals(locationID)) {
+                        String mapImageAdd = l.getMapImage();
+                        System.out.println("mapImage: " + mapImageAdd);
+                        if (android.os.Build.VERSION.SDK_INT > 9) {
+                            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+                            StrictMode.setThreadPolicy(policy);
+                            try {
+                                URL url = new URL(mapImageAdd);
+                                Bitmap mapImage = Utils.getBitmap(url);
+                                Bitmap bitmap = Bitmap.createBitmap((int) mapImage.getWidth(), (int) mapImage.getHeight(), Bitmap.Config.ARGB_8888);
+                                canvas = new Canvas(bitmap);
+                                mPath = new Path();
+                                canvas.drawBitmap(mapImage, 0, 0, null);
+                                paint = new Paint();
+                                paint.setColor(Color.RED);
+                                mapImageView.setImageBitmap(bitmap);
+                                locateBtn.setVisibility(View.VISIBLE);
+                                calculatedPointData.setVisibility(View.VISIBLE);
+                            } catch (IOException e) {
+                                Log.d("Help", String.valueOf(e));
+                            }
+                        }
+                    }
+                }
+            }
+        });
 
         wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
 
@@ -126,6 +182,7 @@ public class TestingActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 // Initialise hashmaps
+                // Re-initialise these maps upon each click
                 pointsFB = new HashMap<>();
                 pointsCoordinatesFB = new HashMap<>();
                 signalStrengthFB = new HashMap<>();
@@ -185,7 +242,6 @@ public class TestingActivity extends AppCompatActivity {
                     double signalStrength = signal.getSignalStrength();
                     signalStrengthFB.put(signalID, signalStrength);
                     signalStrengthOriginalFB.put(signalID, signalStrength);
-                    // Log.d("FIREBASE SIGNAL", signalID + " - " + signalStrength);
                     signalStrengthSDFB.put(signalID, signalStrengthSD);
                     signalBSSIDFB.put(signalID, bssid);
                 }
@@ -208,7 +264,7 @@ public class TestingActivity extends AppCompatActivity {
             boolean resultsReceived = intent.getBooleanExtra(WifiManager.EXTRA_RESULTS_UPDATED, false);
 
             if (resultsReceived) {
-                Toast.makeText(TestingActivity.this, "Processing Wifi Scan " + numOfScans+1, Toast.LENGTH_SHORT).show();
+                Toast.makeText(TestingActivity.this, "Processing Wifi Scan " + numOfScans, Toast.LENGTH_SHORT).show();
 
                 List<ScanResult> list = wifiManager.getScanResults();
 
@@ -224,11 +280,11 @@ public class TestingActivity extends AppCompatActivity {
                             allSignals.get(result.BSSID).add(result.level);
                         }
                     }
-                    // Log.d("WIFI SCAN", "MAC Address: " + result.BSSID + " , SSID: " + result.SSID + " , Wifi Signal: " + result.level);
                 }
 
                 // all scans completed
-                if (numOfScans == 3) {
+                if (numOfScans == 1) {
+                    calculatedPointData.setText("Wifi Scan Complete");
                     for (String macAddress: allSignals.keySet()) {
 
                         // get the average wifi signal if the BSSID exists
@@ -242,13 +298,17 @@ public class TestingActivity extends AppCompatActivity {
                         targetData.add(averageSignalProcessed);
                         targetMacAdd.add(macAddress);
                         targetStdDev.add(stdDevSignal);
-
-                        // Log.d("WIFI SCAN (FINAL)", "MAC Address: " + macAddress + " , Wifi Signal: " + averageSignal + " , Wifi Signal (SD): " + stdDevSignal);
                     }
 
-                    Toast.makeText(TestingActivity.this, "Calculating Position...", Toast.LENGTH_SHORT).show();
-                    String position = calculatePosition();
-                    calculatedPointData.setText(position);
+                    calculatedPointData.setText("Calculating Position...");
+                    Coordinate position = calculatePosition();
+                    calculatedPointData.setText(stringifyPosition(position));
+
+                    // clear previous dot if there is
+                    canvas.drawColor(0, PorterDuff.Mode.CLEAR);
+
+                    // draw the dot on the bitmap
+                    canvas.drawCircle(doubleToFloat(position.getX()), doubleToFloat(position.getY()), 10, paint);
                 }
             } else {
                 Toast.makeText(TestingActivity.this, "Wifi scan failed. Please try again in 2 minutes.", Toast.LENGTH_SHORT).show();
@@ -258,14 +318,28 @@ public class TestingActivity extends AppCompatActivity {
             // continue scanning if it has not reached 4 scans + increase numOfScans
             numOfScans++;
             if (numOfScans < 4) {
-                // Log.d(LOG_TAG, String.valueOf(numOfScans));
-                // Log.d(LOG_TAG, "Started another scan");
                 wifiManager.startScan();
             }
         }
     }
 
-    private String calculatePosition() {
+    private float doubleToFloat(double d) {
+        Double D = Double.valueOf(d);
+        float f = D.floatValue();
+        return f;
+    }
+
+    private String stringifyPosition(Coordinate finalPoint) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("x = ");
+        sb.append(finalPoint.getX());
+        sb.append(", y = ");
+        sb.append(finalPoint.getY());
+
+        return sb.toString();
+    }
+
+    private Coordinate calculatePosition() {
         // pre-matching fingerprints
         preMatching();
 
@@ -287,12 +361,10 @@ public class TestingActivity extends AppCompatActivity {
         sb.append(calculatedPoint2.getY());
         sb.append("\n");
 
-        sb.append("Weighted Fusion results: x = ");
-        sb.append(finalPoint.getX());
-        sb.append(", y = ");
-        sb.append(finalPoint.getY());
+        System.out.println("Euclidean Distance results: " + stringifyPosition(calculatedPoint1));
+        System.out.println("Joint Probability results: " + stringifyPosition(calculatedPoint2));
 
-        return sb.toString();
+        return finalPoint;
     }
 
     private void preMatching() {
@@ -337,9 +409,6 @@ public class TestingActivity extends AppCompatActivity {
                 }
             }
 
-            // System.out.println("filtered mac: " + filteredMac.toString());
-            // System.out.println("list of bssid: " + listOfBSSID.toString());
-
             // calculating the percentage match
             double percentMatch = (double) count / filteredMac.size();
             System.out.println(percentMatch);
@@ -374,8 +443,6 @@ public class TestingActivity extends AppCompatActivity {
                 fingerprintStdDevSignal.put(coordinatesStr, stdDevSignalFingerprint);
             }
         }
-
-        // System.out.println("size of filtered fingerprints: " + fingerprintAvgSignal.keySet().size());
     }
 
     /**
@@ -458,6 +525,11 @@ public class TestingActivity extends AppCompatActivity {
 
         ArrayList<String> coordinateKeyJP = new ArrayList<>();
 
+        //retrieve the keys of the fingerprint
+        for (String coorStr : fingerprintAvgSignal.keySet()){
+            coordinateKeyJP.add(coorStr);
+        }
+
         for (int i = 1; i <fingerprintCoordinate.size()+1 ; i++){
             HashMap<String, Double> subFingerprintOriginalAvgSignalJP = fingerprintOriginalAvgSignal.get(coordinateKeyJP.get(i-1));
             HashMap<String, Double> subFingerprintStdDevSignalJP = fingerprintStdDevSignal.get(coordinateKeyJP.get(i-1));
@@ -466,7 +538,6 @@ public class TestingActivity extends AppCompatActivity {
                 //AVGk, DEV of k-th wifi signals at the target place
                 //x value
                 Double avgTarget = targetDataOriginal.get(k - 1);
-                System.out.println("avgTarget: " + avgTarget);
                 if (subFingerprintOriginalAvgSignalJP.containsKey(targetMacAdd.get(k - 1))){
                     //mu value
                     Double avgFingerprint = subFingerprintOriginalAvgSignalJP.get(targetMacAdd.get(k - 1));
@@ -483,8 +554,6 @@ public class TestingActivity extends AppCompatActivity {
             jointProbArray.add(jointProbi);
         }
 
-        System.out.println("Joint Probability Array: " + jointProbArray.toString());
-
         //calculate the coordinate
         for (int j = 1; j <= fingerprintCoordinate.size(); j++) {
             if (jointProbArray.get(j-1) != 0.0) {
@@ -493,36 +562,20 @@ public class TestingActivity extends AppCompatActivity {
                 numeratorY += calculateYJointProb(jointProbArray.get(j - 1), fingerprintCoordinate.get(j - 1));
                 //omega
                 denominatorPart += omegaJointProb(jointProbArray.get(j-1));
-                System.out.println("numeratorX: " + numeratorX + ", numeratorY: " + numeratorY + "denominatorPart: " + denominatorPart);
             }
         }
         double x = numeratorX / denominatorPart;
         double y = numeratorY / denominatorPart;
-
-        System.out.println("Final X: " + x + ", Final Y: " + y);
 
         //clear the array to be reusable
         jointProbArray.clear();
         return new Coordinate(x, y);
     }
 
-    public Coordinate cosineSimilarity() {
-        // TODO: cosine similarity positioning algorithm (Sherene)
-        Coordinate position = new Coordinate(0,0);
-        return position;
-    }
-
     public Coordinate weightedFusion(Coordinate euclidDistPosition, Coordinate jointProbPosition) {
-        // Coordinate cosineSimPosition
-
         // Calculate the final X and Y
-        // + weightCosineSim * cosineSimPosition.getX()
-        // + weightCosineSim * cosineSimPosition.getY()
         double finalX = weightEuclidDist * euclidDistPosition.getX() + weightJointProb * jointProbPosition.getX();
         double finalY = weightEuclidDist * euclidDistPosition.getY() + weightJointProb * jointProbPosition.getY();
-        System.out.println("euclidean x: " + euclidDistPosition.getX() + ", euclidean y: " + euclidDistPosition.getY());
-        System.out.println("joint prob x: " + jointProbPosition.getX() + ", joint prob y: " + jointProbPosition.getY());
-        System.out.println("Final coordinates: " + finalX + ", " + finalY);
 
         // return the calculated X and Y values
         return new Coordinate(finalX,finalY);
@@ -538,7 +591,6 @@ public class TestingActivity extends AppCompatActivity {
         double numerator = Math.pow(x-mu, 2);
         double denominator = 2* Math.pow(sigma, 2);
         double p2 = Math.exp(-numerator/denominator);
-        System.out.println("p1: "+ p1 + ", numerator: " + numerator + ", denominator: " + denominator + ", p2: " + p2 + ", p1*p2: " + p1*p2);
         return p2 / p1;
     }
 

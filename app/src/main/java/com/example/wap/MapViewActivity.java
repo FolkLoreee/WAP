@@ -297,7 +297,7 @@ public class MapViewActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Toast.makeText(getApplicationContext(), String.valueOf(imageCoords.get(position).getX()) + ", " + String.valueOf(imageCoords.get(position).getY()) + ", Submitted", Toast.LENGTH_SHORT).show();
-                String pointID = "MP-" + currentLocation.getLocationID() + "-" + (int) (imageCoords.get(position).getY()) + "-" + (int) (imageCoords.get(position).getY());
+                String pointID = "MP-" + currentLocation.getLocationID() + "-" + (int) (imageCoords.get(position).getX()) + "-" + (int) (imageCoords.get(position).getY());
                 point = new MapPoint(pointID, new Coordinate(imageCoords.get(position).getX(), imageCoords.get(position).getY()), currentLocation.getLocationID());
 
                 numOfScans = 0;
@@ -371,7 +371,7 @@ public class MapViewActivity extends AppCompatActivity {
                         Log.d(LOG_TAG, "MAC Address: " + macAddress + " , Wifi Signal: " + averageSignal + " , Wifi Signal (SD): " + stdDevSignal);
 
                         // posting the result to firebase
-                        String signalID = "SG-" + locationID + "-" + signalCounter;
+                        String signalID = "SG-" + locationID + "-" + (int) (imageCoords.get(position).getX()) + "-" + (int) (imageCoords.get(position).getY()) + "-" + signalCounter;
                         Signal signal = new Signal(signalID, locationID, macAddress, ssids.get(macAddress), stdDevSignal, averageSignal, averageSignalProcessed, 10);
                         signals.add(signal);
                         point.addSignalID(signalID);
