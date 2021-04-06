@@ -71,7 +71,7 @@ public class TestingActivity extends AppCompatActivity {
     ArrayList<Double> targetStdDev;
     ArrayList<String> targetMacAdd;
 
-    private final String locationID = "CCThinkTankLvl2";
+    private final String locationID = "Bldg2ThinkTank";
 
     // data from firebase
     HashMap<String, ArrayList<String>> pointsFB;
@@ -450,6 +450,7 @@ public class TestingActivity extends AppCompatActivity {
         }
     }
 
+
     /**
      * fingerprintOriginalAvgSignal = HashMap<fingerprintCoordinate, HashMap<macAddress, originalAverageWifiSignal>>
      * fingerprintAvgSignal = HashMap<fingerprintCoordinate, HashMap<macAddress, averageWifiSignal>>
@@ -462,6 +463,7 @@ public class TestingActivity extends AppCompatActivity {
      * targetDataOriginal = list of original average wifi signal values for each mac address (FOR NOW, THESE HAVE THE SAME VALUES AS THE PROCESSED ONES)
      * Retrieve the corresponding average and standard deviation values for each mac address by the index value
      * */
+
 
     public Coordinate euclideanDistance() {
         double numeratorX = 0;
@@ -551,8 +553,11 @@ public class TestingActivity extends AppCompatActivity {
                     //calculate Pik
                     Pik = calculateJointProb(avgTarget, avgFingerprint, devFingerprint);
                     //Pi = Pi1 * Pi2 * Pi3 * ... *Pik
-                    //when standard deviation == 0, they have exact match on original wifi signal strength
-                    jointProbi = jointProbi * Pik;
+                    if (Pik != 0){
+                        jointProbi = jointProbi * Pik;
+
+                    }
+
                     System.out.println("avgFingerprint: " + avgFingerprint + ", devFingerprint: " + devFingerprint + ", Pik: " + Pik + ", Joint Prob: " + jointProbi);
                 }
             }
