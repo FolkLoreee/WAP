@@ -273,8 +273,14 @@ public class Algorithm {
                     Pik = calculateJointProb(avgTarget, avgFingerprint, devFingerprint);
 
                     //Pi = Pi1 * Pi2 * Pi3 * ... *Pik
-                    jointProbi = jointProbi * Pik;
+                    if (Pik != 0){
+                        jointProbi = jointProbi * Pik;
+                    }
+
                     System.out.println("avgFingerprint: " + avgFingerprint + ", devFingerprint: " + devFingerprint + ", Pik: " + Pik + ", Joint Prob: " + jointProbi);
+                }
+                if (jointProbi == 0){
+                    jointProbi = 1;
                 }
             }
             jointProbArray.add(jointProbi);
