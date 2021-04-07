@@ -3,7 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:background="@drawable/Background"
+    android:background="@drawable/background"
     android:layout_height="match_parent">
 
 
@@ -69,7 +69,7 @@
         android:layout_marginRight="138dp"
         android:layout_marginBottom="77dp"
         android:background="#FFFFFF"
-        android:src="@drawable/SubmitButton"
+        android:src="@drawable/submitbutton"
         android:text="@string/submit"
         android:textAllCaps="true"
         android:textColor="#020202"
@@ -86,7 +86,7 @@
         android:layout_marginEnd="108dp"
         android:layout_marginRight="108dp"
         android:layout_marginBottom="79dp"
-        android:background="@drawable/Logo" />
+        android:background="@drawable/logo" />
 
 
 </RelativeLayout>

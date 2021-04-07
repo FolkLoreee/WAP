@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
 
-    android:background="@drawable/Background"
+    android:background="@drawable/background"
     android:layout_height="match_parent">
 
     <com.google.android.material.tabs.TabLayout
@@ -15,7 +15,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0"
-        android:background="@drawable/Background"
+        android:background="@drawable/background"
         tools:layout_editor_absoluteX="0dp">
 
         <com.google.android.material.tabs.TabItem

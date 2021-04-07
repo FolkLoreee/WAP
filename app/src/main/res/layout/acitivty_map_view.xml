@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@drawable/Background"
+    android:src="@drawable/background"
     tools:context=".MapViewActivity">
 
     <GridView
@@ -65,14 +65,14 @@
             android:layout_marginLeft="80dp"
             android:layout_alignParentRight="true" />
 
-        <Button
+        <ImageButton
             android:id="@+id/submit"
-            android:layout_width="wrap_content"
-            android:text="submit"
-            android:layout_height="40dp"
+            android:layout_width="133dp"
+            android:layout_height="43dp"
             android:layout_below="@+id/down"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="20dp" />
+            android:layout_marginTop="17dp"
+            android:src="@drawable/selectbutton"/>
 
     </RelativeLayout>
 

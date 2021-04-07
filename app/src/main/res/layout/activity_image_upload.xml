@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="15dp"
-    android:background="@drawable/Background"
+    android:background="@drawable/background"
     android:orientation="vertical">
 
     <ImageView
@@ -11,7 +11,7 @@
         android:layout_width="wrap_content"
         android:layout_height="329dp"
         android:layout_marginTop="20dp"
-        android:background="@drawable/Background"
+        android:background="@drawable/background"
         android:src="@drawable/image_upload" />
 
     <EditText
@@ -36,7 +36,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_marginTop="20dp"
-        android:src="@drawable/SubmitButton"
+        android:src="@drawable/submitbutton"
         android:textStyle="bold" />
 
 </LinearLayout>
