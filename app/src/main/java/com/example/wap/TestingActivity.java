@@ -11,7 +11,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -31,7 +31,7 @@ import java.util.List;
 
 public class TestingActivity extends AppCompatActivity {
 
-    Button locateBtn;
+    ImageButton locateBtn;
     TextView calculatedPointData;
 
     // Wifi
@@ -127,7 +127,7 @@ public class TestingActivity extends AppCompatActivity {
         });
 
         // Initialise XML elements
-        locateBtn = (Button) findViewById(R.id.locateBtn);
+        locateBtn = (ImageButton) findViewById(R.id.locateBtn);
         calculatedPointData = (TextView) findViewById(R.id.calculatedPointData);
 
         // Initialise hashmaps

@@ -11,24 +11,29 @@
         android:layout_width="wrap_content"
         android:layout_height="250dp"
         android:background="@drawable/background"
+        android:layout_marginTop="0dp"
         android:src="@drawable/image_here" />
 
     <ListView
         android:id="@android:id/list"
-        android:layout_below="@+id/imageSelect"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="300dp"
+        android:layout_below="@+id/imageSelect"
+        android:layout_alignBottom="@+id/imageSelect"
+        android:layout_marginBottom="0dp"
         tools:layout_editor_absoluteX="18dp"
         tools:layout_editor_absoluteY="95dp" />
 
     <ImageButton
         android:id="@+id/select"
-        android:layout_width="140dp"
-        android:layout_height="51dp"
+        android:layout_width="131dp"
+        android:layout_height="43dp"
+        android:layout_alignParentTop="true"
+
         android:layout_alignParentRight="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginRight="10dp"
-        android:layout_marginBottom="42dp"
+        android:layout_marginTop="542dp"
+        android:layout_marginRight="140dp"
+        android:layout_marginBottom="0dp"
         android:src="@drawable/selectbutton"
         android:text="select" />
 

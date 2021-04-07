@@ -11,12 +11,16 @@
         android:id="@+id/passwordfield"
         android:layout_width="233dp"
         android:layout_height="42dp"
-        android:layout_above="@+id/login_button"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
-        android:layout_marginEnd="86dp"
-        android:layout_marginRight="86dp"
-        android:layout_marginBottom="31dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="93dp"
+        android:layout_marginLeft="93dp"
+        android:layout_marginEnd="83dp"
+        android:layout_marginRight="83dp"
+        android:layout_marginBottom="159dp"
         android:background="@color/white"
         android:ems="10" />
 
@@ -60,21 +64,15 @@
 
     <ImageButton
         android:id="@+id/login_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="167dp"
+        android:layout_height="43dp"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginEnd="138dp"
-        android:layout_marginRight="138dp"
-        android:layout_marginBottom="77dp"
-        android:background="#FFFFFF"
-        android:src="@drawable/submitbutton"
-        android:text="@string/submit"
-        android:textAllCaps="true"
-        android:textColor="#020202"
-        android:textColorHighlight="#000000"
-        app:backgroundTint="#FFFFFF" />
+        android:layout_marginEnd="120dp"
+        android:layout_marginRight="120dp"
+        android:layout_marginBottom="72dp"
+        android:src="@drawable/submitbutton" />
 
     <ImageView
         android:layout_width="203dp"

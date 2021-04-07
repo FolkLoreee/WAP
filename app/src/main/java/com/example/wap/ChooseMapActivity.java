@@ -1,12 +1,16 @@
 package com.example.wap;
 
+import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.MenuItem;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.tabs.TabLayout;
 
 public class ChooseMapActivity extends AppCompatActivity {
@@ -17,6 +21,30 @@ public class ChooseMapActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_choose_map);
         tabLayout = (TabLayout) findViewById(R.id.tabLayout);
+
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_nav_bar);
+        bottomNavigationView.setSelectedItemId(R.id.mainActivity);
+        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @SuppressLint("NonConstantResourceId")
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                switch(item.getItemId()){
+                    case R.id.testingActivity:
+                        startActivity(new Intent(getApplicationContext(),TestingActivity.class));
+                        overridePendingTransition(0,0);
+                        return true;
+                    case R.id.mappingActivity:
+                        startActivity(new Intent(getApplicationContext(),MappingActivity.class));
+                        overridePendingTransition(0,0);
+                        return true;
+                    case R.id.mainActivity:
+                        startActivity(new Intent(getApplicationContext(),MainActivity.class));
+                        overridePendingTransition(0,0);
+                        return true;
+                }
+                return false;
+            }
+        });
 
 
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
