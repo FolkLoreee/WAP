@@ -98,6 +98,10 @@ public class MapViewActivity extends AppCompatActivity {
         grid.setAdapter(imageAdapter);
         grid.setNumColumns((int) Math.sqrt(imageChunks.size()));
 
+        Intent intent = getIntent();
+        locationID =intent.getStringExtra("locationID");
+        Log.d(LOG_TAG,"LOCATION IS: "+locationID);
+
         currentLocation = new Location(locationID, locationName);
 
         signalWAPFirebase = new WAPFirebase<>(Signal.class, "signals");
@@ -385,12 +389,14 @@ public class MapViewActivity extends AppCompatActivity {
                         }
                     });
                     for (Signal signal : signals) {
+                        Log.d("FIREBASE", "signalID: "+signal.getSignalID());
                         signalWAPFirebase.create(signal, signal.getSignalID()).addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {
                                 Toast.makeText(MapViewActivity.this, "Successfully created a point", Toast.LENGTH_SHORT).show();
                                 currentLocation.incrementSignalCounter();
                                 Log.d("FIREBASE", "signal successfully posted");
+                                Log.d("FIREBASE", "location: "+locationID);
                                 locationWAPFirebase.update(currentLocation, locationID);
                             }
                         });
