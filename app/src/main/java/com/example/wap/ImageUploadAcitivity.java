@@ -225,7 +225,7 @@ public class ImageUploadAcitivity extends Fragment {
 
     }
     private void addToFirestore(String storageLocation) {
-        // Retrieve Item Details
+        // Retrieve Location Details
 
         final Location location = new Location(locationID,locationName);
         location.setMapImage(storageLocation);
