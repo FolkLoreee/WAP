@@ -243,6 +243,7 @@ public class TestingActivity extends AppCompatActivity {
                     // TODO: NEED TO GET BACK THE PRECISION OF THE DOUBLE VALUES
                     double signalStrengthSD = signal.getSignalStrengthSD();
                     double signalStrength = signal.getSignalStrength();
+                    Log.d(LOG_TAG,"Strength SD is: "+ String.format("%.5f",signalStrengthSD));
                     signalStrengthFB.put(signalID, signalStrength);
                     signalStrengthOriginalFB.put(signalID, signalStrength);
                     signalStrengthSDFB.put(signalID, signalStrengthSD);
