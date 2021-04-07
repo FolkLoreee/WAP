@@ -442,11 +442,11 @@ public class TestingActivity extends AppCompatActivity {
                 euclideanDis += sqauredValue;
                 if (subFingerprintAvgSignal.containsKey(targetMacAdd.get(k-1))){
                     //PAVG, DEV of k-th wifi signals at the i-th fingerprint
-                    Integer pavgFingerprint = subFingerprintAvgSignal.get(targetMacAdd.get(k - 1));
-                    Integer devFingerprint = subFingerprintStdDevSignal.get(targetMacAdd.get(k - 1));
+                     pavgFingerprint = subFingerprintAvgSignal.get(targetMacAdd.get(k - 1));
+                     devFingerprint = subFingerprintStdDevSignal.get(targetMacAdd.get(k - 1));
                     //find the absolute value of pavg
-                    Integer absPavg = Math.abs(pavgTarget - pavgFingerprint);
-                    double sqauredValue = Math.pow(absPavg + devTarget + devFingerprint, 2);
+                     absPavg = Math.abs(pavgTarget - pavgFingerprint);
+                     sqauredValue = Math.pow(absPavg + devTarget + devFingerprint, 2);
                     //sum it
                     euclideanDis += sqauredValue;
                 }

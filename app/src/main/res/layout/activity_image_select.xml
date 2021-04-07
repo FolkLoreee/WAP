@@ -3,13 +3,14 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
+    android:background="@drawable/Background"
     android:layout_height="match_parent">
 
     <ImageView
         android:id="@+id/imageSelect"
         android:layout_width="wrap_content"
         android:layout_height="250dp"
-        android:background="@drawable/white"
+        android:background="@drawable/Background"
         android:src="@drawable/image_here" />
 
     <ListView
@@ -20,13 +21,15 @@
         tools:layout_editor_absoluteX="18dp"
         tools:layout_editor_absoluteY="95dp" />
 
-    <Button
+    <ImageButton
         android:id="@+id/select"
-        android:layout_width="wrap_content"
-        android:layout_height="40dp"
-        android:layout_alignParentBottom="true"
+        android:layout_width="140dp"
+        android:layout_height="51dp"
         android:layout_alignParentRight="true"
-        android:layout_marginBottom="41dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginRight="10dp"
+        android:layout_marginBottom="42dp"
+        android:src="@drawable/selectbutton"
         android:text="select" />
 
 </RelativeLayout>
