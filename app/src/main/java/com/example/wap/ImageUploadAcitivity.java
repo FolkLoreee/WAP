@@ -1,5 +1,6 @@
 package com.example.wap;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -78,6 +79,7 @@ public class ImageUploadAcitivity extends Fragment {
         return contextOfApplication;
     }
 
+    @SuppressLint("WrongViewCast")
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
 
