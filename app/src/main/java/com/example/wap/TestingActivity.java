@@ -470,8 +470,7 @@ public class TestingActivity extends AppCompatActivity {
         double numeratorY = 0;
         double denominatorPart = 0;
 
-        //euclidean distance
-        double euclideanDis = 0;
+
         ArrayList<String> coordinateKey = new ArrayList<>();
 
         //retrieve the keys of the fingerprint
@@ -481,6 +480,8 @@ public class TestingActivity extends AppCompatActivity {
 
         //the number of coordinates
         for (int i = 1; i <= fingerprintCoordinate.size() ; i++) {
+            //euclidean distance
+            double euclideanDis = 0;
             HashMap<String, Double> subFingerprintAvgSignal = fingerprintAvgSignal.get(coordinateKey.get(i-1));
             HashMap<String, Double> subFingerprintStdDevSignal = fingerprintStdDevSignal.get(coordinateKey.get(i-1));
 
@@ -502,6 +503,7 @@ public class TestingActivity extends AppCompatActivity {
             }
             euclideanDis = Math.sqrt(euclideanDis);
             euclideanArray.add(euclideanDis);
+
         }
 
         //calculate the coordinate
@@ -523,8 +525,7 @@ public class TestingActivity extends AppCompatActivity {
     }
 
     public Coordinate jointProbability() {
-        double Pik = 1;
-        double jointProbi = 1;
+
 
         double numeratorX = 0;
         double numeratorY = 0;
@@ -538,6 +539,10 @@ public class TestingActivity extends AppCompatActivity {
         }
 
         for (int i = 1; i <fingerprintCoordinate.size()+1 ; i++){
+
+            double Pik = 1;
+            double jointProbi = 1;
+
             HashMap<String, Double> subFingerprintOriginalAvgSignalJP = fingerprintOriginalAvgSignal.get(coordinateKeyJP.get(i-1));
             HashMap<String, Double> subFingerprintStdDevSignalJP = fingerprintStdDevSignal.get(coordinateKeyJP.get(i-1));
 
@@ -553,10 +558,9 @@ public class TestingActivity extends AppCompatActivity {
                     //calculate Pik
                     Pik = calculateJointProb(avgTarget, avgFingerprint, devFingerprint);
                     //Pi = Pi1 * Pi2 * Pi3 * ... *Pik
-                    if (Pik != 0){
-                        jointProbi = jointProbi * Pik;
 
-                    }
+                    jointProbi = jointProbi * Pik;
+
 
                     System.out.println("avgFingerprint: " + avgFingerprint + ", devFingerprint: " + devFingerprint + ", Pik: " + Pik + ", Joint Prob: " + jointProbi);
                 }
@@ -579,13 +583,27 @@ public class TestingActivity extends AppCompatActivity {
 
         //clear the array to be reusable
         jointProbArray.clear();
+        System.out.println("Coordinate from Joint Prob"+new Coordinate(x, y));
         return new Coordinate(x, y);
     }
 
     public Coordinate weightedFusion(Coordinate euclidDistPosition, Coordinate jointProbPosition) {
+        double finalX;
+        double finalY;
         // Calculate the final X and Y
-        double finalX = weightEuclidDist * euclidDistPosition.getX() + weightJointProb * jointProbPosition.getX();
-        double finalY = weightEuclidDist * euclidDistPosition.getY() + weightJointProb * jointProbPosition.getY();
+        if (Double.isNaN(jointProbPosition.getX()) && Double.isNaN(jointProbPosition.getY())){
+            finalX = euclidDistPosition.getX();
+            finalY = 2 * euclidDistPosition.getY();
+            System.out.println("WeighedFusion x :"+ finalX+ " y :"+ finalY);
+            System.out.println("Joint prob coordinate is NaN");
+
+        }else{
+            finalX = weightEuclidDist * euclidDistPosition.getX() + weightJointProb * jointProbPosition.getX();
+            finalY = weightEuclidDist * euclidDistPosition.getY() + 2*  weightJointProb * jointProbPosition.getY();
+            System.out.println("Weighed Fusion :"+new Coordinate(finalX, finalY));
+
+        }
+
 
         // return the calculated X and Y values
         return new Coordinate(finalX,finalY);
