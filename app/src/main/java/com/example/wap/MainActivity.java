@@ -44,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
                         overridePendingTransition(0,0);
                         return true;
                     case R.id.mappingActivity:
-                        startActivity(new Intent(getApplicationContext(),MappingActivity.class));
+                        startActivity(new Intent(getApplicationContext(),MapActivity.class));
                         overridePendingTransition(0,0);
                         return true;
                     case R.id.mainActivity:

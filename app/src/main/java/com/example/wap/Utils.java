@@ -1,13 +1,21 @@
 package com.example.wap;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.Build;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.MalformedJsonException;
+import android.view.WindowManager;
+import android.view.WindowMetrics;
+
+import androidx.annotation.RequiresApi;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -61,6 +69,9 @@ public class Utils {
         return inputStream;
 
     }
+
+
+
 
     /**
      * From a InputStream created by a HTTP connection, read the String that is returned

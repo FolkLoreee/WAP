@@ -12,20 +12,29 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Insets;
+import android.graphics.Point;
 import android.graphics.drawable.Drawable;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Display;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowInsets;
+import android.view.WindowMetrics;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.GridView;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import androidx.annotation.Dimension;
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -39,17 +48,19 @@ import com.google.android.gms.tasks.OnSuccessListener;
 //This activity will display the small image chunks into a grid view
 public class MapViewActivity extends AppCompatActivity {
 
+    public static Drawable mapImageBitmap;
     public static ArrayList<Bitmap> imageChunks = new ArrayList<Bitmap>(300);
     public static ArrayList<Bitmap> imageChunksCopy;
     public static ArrayList<Coordinate> imageCoords = new ArrayList<Coordinate>(300);
     GridView grid;
     ImageAdapter imageAdapter;
+    ImageView mapImage;
 //    private final static String LOG_TAG = "Mapview Activity";
     Button up;
     Button down;
     Button left;
     Button right;
-    Button submit;
+    ImageButton submit;
 
     int position = 0;
     int y = 0;
@@ -92,11 +103,21 @@ public class MapViewActivity extends AppCompatActivity {
 
         submit = findViewById(R.id.submit);
 
+        mapImage = findViewById(R.id.mapImage);
         //Getting the grid view and setting an adapter to it
-        imageAdapter = new ImageAdapter(this, imageChunks, imageCoords);
+
+//        mapImage.setImageBitmap(mapImageBitmap);
+
+        int screenWidth = getScreenWidth(this);
+        int numCols = (int) Math.sqrt(imageChunks.size());
+        
+        imageAdapter = new ImageAdapter(this, imageChunks, imageCoords, screenWidth, numCols);
         grid = (GridView) findViewById(R.id.gridView);
+        grid.setBackground(mapImageBitmap);
+
+
         grid.setAdapter(imageAdapter);
-        grid.setNumColumns((int) Math.sqrt(imageChunks.size()));
+        grid.setNumColumns(numCols);
 
         currentLocation = new Location(locationID, locationName);
 
@@ -113,8 +134,8 @@ public class MapViewActivity extends AppCompatActivity {
         registerReceiver(wifiReceiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
 
 
-        View v1 = imageAdapter.getView(0,null, grid);
-        v1.callOnClick();
+//        View v1 = imageAdapter.getView(0,null, grid);
+//        v1.callOnClick();
         Bitmap bitmap = BitmapFactory. decodeResource(getResources(), R. drawable.black);
         imageChunks.set(0, bitmap);
 //                    imageAdapter = new ImageAdapter(getApplicationContext(), imageChunks, imageCoords);
@@ -123,7 +144,7 @@ public class MapViewActivity extends AppCompatActivity {
 //                    grid.setNumColumns((int) Math.sqrt(imageChunks.size()));
         imageAdapter.notifyDataSetChanged();
 
-        v1.callOnClick();
+//        v1.callOnClick();
 
 
         up.setOnClickListener(new View.OnClickListener() {
@@ -141,16 +162,16 @@ public class MapViewActivity extends AppCompatActivity {
 
                     position -= 17;
 
-                    View v1 = imageAdapter.getView(position,null, grid);
-                    v1.callOnClick();
-                    Bitmap bitmap2 = BitmapFactory. decodeResource(getResources(), R. drawable.black);
+//                    View v1 = imageAdapter.getView(position,null, grid);
+//                    v1.callOnClick();
+                    Bitmap bitmap2 = BitmapFactory. decodeResource(getResources(), R. drawable.blacksq);
                     imageChunks.set(position, bitmap2);
 //                    imageAdapter = new ImageAdapter(getApplicationContext(), imageChunks, imageCoords);
 //                    grid = (GridView) findViewById(R.id.gridView);
 //                    grid.setAdapter(imageAdapter);
 //                    grid.setNumColumns((int) Math.sqrt(imageChunks.size()));
                     imageAdapter.notifyDataSetChanged();
-                    v1.callOnClick();
+//                    v1.callOnClick();
 
 //                    bitmap = imageChunksCopy.get(position);
 //                    imageChunks.set(position, bitmap);
@@ -178,16 +199,16 @@ public class MapViewActivity extends AppCompatActivity {
 //                        v1.setForeground(drawable);
 //                        Log.d("Help again", String.valueOf(v1));
                     position += 17;
-                    View v1 = imageAdapter.getView(position,null, grid);
-                    v1.callOnClick();
-                    Bitmap bitmap2 = BitmapFactory. decodeResource(getResources(), R. drawable.black);
+//                    View v1 = imageAdapter.getView(position,null, grid);
+//                    v1.callOnClick();
+                    Bitmap bitmap2 = BitmapFactory. decodeResource(getResources(), R. drawable.blacksq);
                     imageChunks.set(position, bitmap2);
 //                    imageAdapter = new ImageAdapter(getApplicationContext(), imageChunks, imageCoords);
 //                    grid = (GridView) findViewById(R.id.gridView);
 //                    grid.setAdapter(imageAdapter);
 //                    grid.setNumColumns((int) Math.sqrt(imageChunks.size()));
                     imageAdapter.notifyDataSetChanged();
-                    v1.callOnClick();
+//                    v1.callOnClick();
 
 //                    bitmap = imageChunksCopy.get(position);
 //                    imageChunks.set(position, bitmap);
@@ -214,16 +235,16 @@ public class MapViewActivity extends AppCompatActivity {
 //                        v1.setForeground(drawable);
 //                        Log.d("Help again", String.valueOf(v1));
                     position -= 1;
-                    View v1 = imageAdapter.getView(position,null, grid);
-                    v1.callOnClick();
-                    Bitmap bitmap2 = BitmapFactory. decodeResource(getResources(), R. drawable.black);
+//                    View v1 = imageAdapter.getView(position,null, grid);
+//                    v1.callOnClick();
+                    Bitmap bitmap2 = BitmapFactory. decodeResource(getResources(), R. drawable.blacksq);
                     imageChunks.set(position, bitmap2);
 //                    imageAdapter = new ImageAdapter(getApplicationContext(), imageChunks, imageCoords);
 //                    grid = (GridView) findViewById(R.id.gridView);
 //                    grid.setAdapter(imageAdapter);
 //                    grid.setNumColumns((int) Math.sqrt(imageChunks.size()));
                     imageAdapter.notifyDataSetChanged();
-                    v1.callOnClick();
+//                    v1.callOnClick();
 //
 //                    bitmap = imageChunksCopy.get(position);
 //                    imageChunks.set(position, bitmap);
@@ -250,9 +271,9 @@ public class MapViewActivity extends AppCompatActivity {
 //                        v1.setForeground(drawable);
 //                        Log.d("Help again", String.valueOf(v1));
                     position += 1;
-                    View v1 = imageAdapter.getView(position,null, grid);
-                    v1.callOnClick();
-                    Bitmap bitmap2 = BitmapFactory. decodeResource(getResources(), R. drawable.black);
+//                    View v1 = imageAdapter.getView(position,null, grid);
+//                    v1.callOnClick();
+                    Bitmap bitmap2 = BitmapFactory. decodeResource(getResources(), R. drawable.blacksq);
                     imageChunks.set(position, bitmap2);
 //                    imageAdapter = new ImageAdapter(getApplicationContext(), imageChunks, imageCoords);
 //                    grid = (GridView) findViewById(R.id.gridView);
@@ -260,7 +281,7 @@ public class MapViewActivity extends AppCompatActivity {
 //                    grid.setNumColumns((int) Math.sqrt(imageChunks.size()));
                     imageAdapter.notifyDataSetChanged();
 
-                    v1.callOnClick();
+//                    v1.callOnClick();
 
 //                    bitmap = imageChunksCopy.get(position);
 //                    imageChunks.set(position, bitmap);
@@ -277,9 +298,9 @@ public class MapViewActivity extends AppCompatActivity {
 //                        v1.setForeground(drawable);
 //                        Log.d("Help again", String.valueOf(v1));
                     position = 0;
-                    View v1 = imageAdapter.getView(position,null, grid);
-                    v1.callOnClick();
-                    Bitmap bitmap2 = BitmapFactory. decodeResource(getResources(), R. drawable.black);
+//                    View v1 = imageAdapter.getView(position,null, grid);
+//                    v1.callOnClick();
+                    Bitmap bitmap2 = BitmapFactory. decodeResource(getResources(), R. drawable.blacksq);
                     imageChunks.set(position, bitmap2);
 //                    imageAdapter = new ImageAdapter(getApplicationContext(), imageChunks, imageCoords);
 //                    grid = (GridView) findViewById(R.id.gridView);
@@ -287,7 +308,7 @@ public class MapViewActivity extends AppCompatActivity {
 //                    grid.setNumColumns((int) Math.sqrt(imageChunks.size()));
                     imageAdapter.notifyDataSetChanged();
 
-                    v1.callOnClick();
+//                    v1.callOnClick();
 
                 }
             }
@@ -317,6 +338,20 @@ public class MapViewActivity extends AppCompatActivity {
 //        });
 
         }
+
+
+    public static int getScreenWidth(@NonNull Activity activity) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            WindowMetrics windowMetrics = activity.getWindowManager().getCurrentWindowMetrics();
+            Insets insets = windowMetrics.getWindowInsets()
+                    .getInsetsIgnoringVisibility(WindowInsets.Type.systemBars());
+            return windowMetrics.getBounds().width() - insets.left - insets.right;
+        } else {
+            DisplayMetrics displayMetrics = new DisplayMetrics();
+            activity.getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+            return displayMetrics.widthPixels;
+        }
+    }
 
 
     class WifiBroadcastReceiver extends BroadcastReceiver {
