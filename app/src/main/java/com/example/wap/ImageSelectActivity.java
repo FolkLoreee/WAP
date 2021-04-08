@@ -187,6 +187,7 @@ public class ImageSelectActivity extends ListFragment {
 
         MapActivity.bitmapImg = bitmap;
         Intent intent = new Intent(getActivity(), MapActivity.class);
+        intent.putExtra("locationID",locationID);
         startActivity(intent);
 
     }

@@ -128,8 +128,7 @@ public class MapActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
 
-        Display appDisplay = getApplicationContext().getDisplay();
-        displaySize = getDisplaySizeV9(appDisplay);
+
 
         signalWAPFirebase = new WAPFirebase<>(Signal.class, "signals");
         pointWAPFirebase = new WAPFirebase<>(MapPoint.class, "points");
