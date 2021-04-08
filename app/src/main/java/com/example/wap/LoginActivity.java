@@ -30,7 +30,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if(true){
-//                if(etId.getText().toString().equals("admin") && etPassword.getText().toString().equals("123")){
+                if(etId.getText().toString().equals("admin") && etPassword.getText().toString().equals("123")){
                     Context context;
                     AlertDialog.Builder builder = new AlertDialog.Builder(LoginActivity.this);
                     builder.setTitle("Login Successful");
@@ -50,9 +50,9 @@ public class LoginActivity extends AppCompatActivity {
 
                 }
             }
-        });
-    }
-    }
+        };
+    });
+    }}
 
 
 
