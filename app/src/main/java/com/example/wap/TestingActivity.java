@@ -71,7 +71,7 @@ public class TestingActivity extends AppCompatActivity {
     ArrayList<Double> targetStdDev;
     ArrayList<String> targetMacAdd;
 
-    private final String locationID = "OutsideCampusCenterTest";
+    private final String locationID = "Bldg2ThinkTank";
 
     // data from firebase
     HashMap<String, ArrayList<String>> pointsFB;
@@ -110,16 +110,16 @@ public class TestingActivity extends AppCompatActivity {
             @SuppressLint("NonConstantResourceId")
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                switch(item.getItemId()){
+                switch (item.getItemId()) {
                     case R.id.testingActivity:
                         return true;
                     case R.id.mappingActivity:
-                        startActivity(new Intent(getApplicationContext(),MappingActivity.class));
-                        overridePendingTransition(0,0);
+                        startActivity(new Intent(getApplicationContext(), MappingActivity.class));
+                        overridePendingTransition(0, 0);
                         return true;
                     case R.id.mainActivity:
-                        startActivity(new Intent(getApplicationContext(),MainActivity.class));
-                        overridePendingTransition(0,0);
+                        startActivity(new Intent(getApplicationContext(), MainActivity.class));
+                        overridePendingTransition(0, 0);
                         return true;
                 }
                 return false;
@@ -139,11 +139,11 @@ public class TestingActivity extends AppCompatActivity {
 //        }
 
         // TODO: Map should not be hardcoded; NEED TO CHANGE
-        WAPFirebase<Location> locationWAPFirebase = new WAPFirebase<>(Location.class,"locations");
+        WAPFirebase<Location> locationWAPFirebase = new WAPFirebase<>(Location.class, "locations");
         locationWAPFirebase.compoundQuery("locationID", locationID).addOnSuccessListener(new OnSuccessListener<ArrayList<Location>>() {
             @Override
             public void onSuccess(ArrayList<Location> locations) {
-                for (Location l: locations) {
+                for (Location l : locations) {
                     if (l.getLocationID().equals(locationID)) {
                         String mapImageAdd = l.getMapImage();
                         System.out.println("mapImage: " + mapImageAdd);
@@ -217,13 +217,13 @@ public class TestingActivity extends AppCompatActivity {
     }
 
     private void retrievefromFirebase() {
-        WAPFirebase<MapPoint> wapFirebasePoints = new WAPFirebase<>(MapPoint.class,"points");
-        WAPFirebase<Signal> wapFirebaseSignal = new WAPFirebase<>(Signal.class,"signals");
+        WAPFirebase<MapPoint> wapFirebasePoints = new WAPFirebase<>(MapPoint.class, "points");
+        WAPFirebase<Signal> wapFirebaseSignal = new WAPFirebase<>(Signal.class, "signals");
 
         wapFirebasePoints.compoundQuery("locationID", locationID).addOnSuccessListener(new OnSuccessListener<ArrayList<MapPoint>>() {
             @Override
             public void onSuccess(ArrayList<MapPoint> mapPoints) {
-                for (MapPoint point: mapPoints) {
+                for (MapPoint point : mapPoints) {
                     String pointID = point.getPointID();
                     ArrayList<String> signalsIDs = point.getSignalIDs();
                     pointsFB.put(pointID, signalsIDs);
@@ -235,7 +235,7 @@ public class TestingActivity extends AppCompatActivity {
         wapFirebaseSignal.compoundQuery("locationID", locationID).addOnSuccessListener(new OnSuccessListener<ArrayList<Signal>>() {
             @Override
             public void onSuccess(ArrayList<Signal> signals) {
-                for (Signal signal: signals) {
+                for (Signal signal : signals) {
                     String signalID = signal.getSignalID();
                     String bssid = signal.getWifiBSSID();
                     double signalStrengthSD = signal.getSignalStrengthSD();
@@ -250,7 +250,7 @@ public class TestingActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onStop()  {
+    protected void onStop() {
         this.unregisterReceiver(this.wifiReceiver);
         super.onStop();
     }
@@ -274,8 +274,7 @@ public class TestingActivity extends AppCompatActivity {
                         signals.add(result.level);
                         allSignals.put(result.BSSID, signals);
                         ssids.put(result.BSSID, result.SSID);
-                    }
-                    else {
+                    } else {
                         if (allSignals.containsKey(result.BSSID)) {
                             allSignals.get(result.BSSID).add(result.level);
                         }
@@ -285,7 +284,7 @@ public class TestingActivity extends AppCompatActivity {
                 // all scans completed
                 if (numOfScans == 1) {
                     calculatedPointData.setText("Wifi Scan Complete");
-                    for (String macAddress: allSignals.keySet()) {
+                    for (String macAddress : allSignals.keySet()) {
 
                         // get the average wifi signal if the BSSID exists
                         ArrayList<Integer> readings = allSignals.get(macAddress);
@@ -302,47 +301,49 @@ public class TestingActivity extends AppCompatActivity {
 
                     calculatedPointData.setText("Calculating Position...");
                     Coordinate position = calculatePosition();
-                    calculatedPointData.setText(stringifyPosition(position));
+                    if (Double.isNaN(position.getX()) || Double.isNaN(position.getY())) {
+                        calculatedPointData.setText("You are out of the area. Please move to this location shown in the map.");
+                    } else {
+                        calculatedPointData.setText(stringifyPosition(position));
+                        // clear previous dot if there is
+                        canvas.drawColor(0, PorterDuff.Mode.CLEAR);
+                        // redraw the bitmap
+                        canvas.drawBitmap(mapImage, 0, 0, null);
 
-                    // clear previous dot if there is
-                    canvas.drawColor(0, PorterDuff.Mode.CLEAR);
-                    // redraw the bitmap
-                    canvas.drawBitmap(mapImage, 0, 0, null);
-
-                    // draw the dot on the bitmap
-                    canvas.drawCircle(doubleToFloat(position.getX()), doubleToFloat(position.getY()), 10, paint);
+                        // draw the dot on the bitmap
+                        canvas.drawCircle(doubleToFloat(position.getX()), doubleToFloat(position.getY()), 10, paint);
+                    }
+                } else {
+                    Toast.makeText(TestingActivity.this, "Wifi scan failed. Please try again in 2 minutes.", Toast.LENGTH_SHORT).show();
+                    Log.d(LOG_TAG, "Wifi scan failed");
                 }
-            } else {
-                Toast.makeText(TestingActivity.this, "Wifi scan failed. Please try again in 2 minutes.", Toast.LENGTH_SHORT).show();
-                Log.d(LOG_TAG, "Wifi scan failed");
-            }
 
-            // continue scanning if it has not reached 4 scans + increase numOfScans
-            numOfScans++;
-            if (numOfScans < 2) {
-                wifiManager.startScan();
+                // continue scanning if it has not reached 4 scans + increase numOfScans
+                numOfScans++;
+                if (numOfScans < 2) {
+                    wifiManager.startScan();
+                }
             }
         }
-    }
 
-    private float doubleToFloat(double d) {
-        Double D = Double.valueOf(d);
-        float f = D.floatValue();
-        return f;
-    }
+        private float doubleToFloat(double d) {
+            Double D = Double.valueOf(d);
+            float f = D.floatValue();
+            return f;
+        }
 
-    private String stringifyPosition(Coordinate finalPoint) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("x = ");
-        sb.append(finalPoint.getX());
-        sb.append(", y = ");
-        sb.append(finalPoint.getY());
+        private String stringifyPosition(Coordinate finalPoint) {
+            StringBuilder sb = new StringBuilder();
+            sb.append("x = ");
+            sb.append(finalPoint.getX());
+            sb.append(", y = ");
+            sb.append(finalPoint.getY());
 
-        return sb.toString();
-    }
+            return sb.toString();
+        }
 
-    private Coordinate calculatePosition() {
-        preMatching();
+        private Coordinate calculatePosition() {
+            preMatching();
         /*
         // pre-matching fingerprints
         DataPrematching dataPrematch = new DataPrematching();
@@ -351,16 +352,14 @@ public class TestingActivity extends AppCompatActivity {
          */
 
 
-
-        //create the Algorithm object
-        Algorithm algorithm = new Algorithm(fingerprintOriginalAvgSignal, fingerprintAvgSignal, fingerprintStdDevSignal, fingerprintCoordinate);
-
+            //create the Algorithm object
+            Algorithm algorithm = new Algorithm(fingerprintOriginalAvgSignal, fingerprintAvgSignal, fingerprintStdDevSignal, fingerprintCoordinate);
 
 
-        // weighted fusion
-        Coordinate calculatedPoint1 = algorithm.euclideanDistance(targetData, targetStdDev, targetMacAdd);
-        Coordinate calculatedPoint2 = algorithm.jointProbability(targetDataOriginal, targetMacAdd);
-        Coordinate finalPoint = algorithm.weightedFusion(calculatedPoint1, calculatedPoint2);
+            // weighted fusion
+            Coordinate calculatedPoint1 = algorithm.euclideanDistance(targetData, targetStdDev, targetMacAdd);
+            Coordinate calculatedPoint2 = algorithm.jointProbability(targetDataOriginal, targetMacAdd);
+            Coordinate finalPoint = algorithm.weightedFusion(calculatedPoint1, calculatedPoint2);
 
          /*
 
@@ -372,335 +371,105 @@ public class TestingActivity extends AppCompatActivity {
           */
 
 
+            StringBuilder sb = new StringBuilder();
+            sb.append("Euclidean Distance results: x = ");
+            sb.append(calculatedPoint1.getX());
+            sb.append(", y = ");
+            sb.append(calculatedPoint1.getY());
+            sb.append("\n");
+
+            sb.append("Joint Probability results: x = ");
+            sb.append(calculatedPoint2.getX());
+            sb.append(", y = ");
+            sb.append(calculatedPoint2.getY());
+            sb.append("\n");
+
+            System.out.println("Euclidean Distance results: " + stringifyPosition(calculatedPoint1));
+            System.out.println("Joint Probability results: " + stringifyPosition(calculatedPoint2));
 
 
-        StringBuilder sb = new StringBuilder();
-        sb.append("Euclidean Distance results: x = ");
-        sb.append(calculatedPoint1.getX());
-        sb.append(", y = ");
-        sb.append(calculatedPoint1.getY());
-        sb.append("\n");
-
-        sb.append("Joint Probability results: x = ");
-        sb.append(calculatedPoint2.getX());
-        sb.append(", y = ");
-        sb.append(calculatedPoint2.getY());
-        sb.append("\n");
-
-        System.out.println("Euclidean Distance results: " + stringifyPosition(calculatedPoint1));
-        System.out.println("Joint Probability results: " + stringifyPosition(calculatedPoint2));
-
-
-        //Coordinate finalPoint = new Coordinate(0, 0);
-        return finalPoint;
-    }
-
-
-
-    private void preMatching() {
-
-        double threshold = 0.4;
-
-        // get FLAG value
-        double total = 0;
-        for (double strength: targetData) {
-            total += strength;
+            //Coordinate finalPoint = new Coordinate(0, 0);
+            return finalPoint;
         }
 
-        final double FLAG = total / targetData.size();
 
-        // get a list of mac address where the signal strength pass the FLAG value
-        ArrayList<String> filteredMac = new ArrayList<>();
-        for (int i = 0; i < targetData.size(); i++) {
-            double strength = targetData.get(i);
-            if (Math.abs(strength) > Math.abs(FLAG)) {
-                filteredMac.add(targetMacAdd.get(i));
-            }
-        }
+        private void preMatching() {
 
-        // compare bssid in each fingerprint with the list of bssid from wifi scan at target location
-        for (String pointID: pointsFB.keySet()) {
-            // System.out.println("Size of each fingerprint: " + pointsFB.get(pointID).size());
-            int count = 0;
-            boolean check = true;
-            ArrayList<String> allSignals = pointsFB.get(pointID);
-            ArrayList<String> listOfBSSID = new ArrayList<>();
+            double threshold = 0.4;
 
-            // for each signal, retrieve the corresponding bssid
-            for (String signalID: allSignals) {
-                listOfBSSID.add(signalBSSIDFB.get(signalID));
+            // get FLAG value
+            double total = 0;
+            for (double strength : targetData) {
+                total += strength;
             }
 
-            // compare the bssid between fingerprint and target location
-            // if the bssid of the target location is not in the fingerprint, eliminate the fingerprint
-            for (String bssid : filteredMac) {
-                if (listOfBSSID.contains(bssid)) {
-                    count++;
+            final double FLAG = total / targetData.size();
+
+            // get a list of mac address where the signal strength pass the FLAG value
+            ArrayList<String> filteredMac = new ArrayList<>();
+            for (int i = 0; i < targetData.size(); i++) {
+                double strength = targetData.get(i);
+                if (Math.abs(strength) > Math.abs(FLAG)) {
+                    filteredMac.add(targetMacAdd.get(i));
                 }
             }
 
-            // calculating the percentage match
-            double percentMatch = (double) count / filteredMac.size();
-            System.out.println(percentMatch);
-            if (percentMatch < threshold) {
-                check = false;
-            }
 
-            // if all the bssids are in the fingerprint, add fingerprint
-            if (check) {
-                // get coordinates of this fingerprint
-                Coordinate coordinates = pointsCoordinatesFB.get(pointID);
-                fingerprintCoordinate.add(coordinates);
+            // compare bssid in each fingerprint with the list of bssid from wifi scan at target location
+            for (String pointID : pointsFB.keySet()) {
+                // System.out.println("Size of each fingerprint: " + pointsFB.get(pointID).size());
+                int count = 0;
+                boolean check = true;
+                ArrayList<String> allSignals = pointsFB.get(pointID);
+                ArrayList<String> listOfBSSID = new ArrayList<>();
 
-                // convert coordinates to string to store as key values for the hashmaps
-                StringBuilder str = new StringBuilder();
-                str.append(coordinates.getX());
-                str.append(", ");
-                str.append(coordinates.getY());
-                String coordinatesStr = str.toString();
-
-                // create a hashmap for each mac address and corresponding signal strength at this fingerprint
-                HashMap<String, Double> avgSignalFingerprint = new HashMap<>();
-                HashMap<String, Double> stdDevSignalFingerprint = new HashMap<>();
-                HashMap<String, Double> originalAvgSignalFingerprint = new HashMap<>();
-                for (String signalID: allSignals) {
-                    originalAvgSignalFingerprint.put(signalBSSIDFB.get(signalID), signalStrengthOriginalFB.get(signalID));
-                    avgSignalFingerprint.put(signalBSSIDFB.get(signalID), signalStrengthFB.get(signalID));
-                    stdDevSignalFingerprint.put(signalBSSIDFB.get(signalID), signalStrengthSDFB.get(signalID));
+                // for each signal, retrieve the corresponding bssid
+                for (String signalID : allSignals) {
+                    listOfBSSID.add(signalBSSIDFB.get(signalID));
                 }
-                fingerprintOriginalAvgSignal.put(coordinatesStr, originalAvgSignalFingerprint);
-                fingerprintAvgSignal.put(coordinatesStr, avgSignalFingerprint);
-                fingerprintStdDevSignal.put(coordinatesStr, stdDevSignalFingerprint);
-            }
-        }
-    }
 
+                // compare the bssid between fingerprint and target location
+                // if the bssid of the target location is not in the fingerprint, eliminate the fingerprint
+                for (String bssid : targetMacAdd) {
+                    if (listOfBSSID.contains(bssid)) {
+                        count++;
+                    }
+                }
 
-    /**
-     * fingerprintOriginalAvgSignal = HashMap<fingerprintCoordinate, HashMap<macAddress, originalAverageWifiSignal>>
-     * fingerprintAvgSignal = HashMap<fingerprintCoordinate, HashMap<macAddress, averageWifiSignal>>
-     * fingerprintStdDevSignal = HashMap<fingerprintCoordinate, HashMap<macAddress, standardDeviationSignal>>
-     * fingerprintCoordinate = list of filtered fingerprints
-     *
-     * targetMacAdd = list of mac address received at target location
-     * targetStdDev = list of wifi signal standard deviation values for each mac address
-     * targetData = list of average wifi signal values for each mac address
-     * targetDataOriginal = list of original average wifi signal values for each mac address (FOR NOW, THESE HAVE THE SAME VALUES AS THE PROCESSED ONES)
-     * Retrieve the corresponding average and standard deviation values for each mac address by the index value
-     * */
+                // calculating the percentage match
+                double percentMatch = (double) count / targetMacAdd.size();
+                System.out.println(percentMatch);
+                if (percentMatch < threshold) {
+                    check = false;
+                }
 
-    /*
+                // if all the bssids are in the fingerprint, add fingerprint
+                if (check) {
+                    // get coordinates of this fingerprint
+                    Coordinate coordinates = pointsCoordinatesFB.get(pointID);
+                    fingerprintCoordinate.add(coordinates);
 
-    public Coordinate euclideanDistance() {
-        double numeratorX = 0;
-        double numeratorY = 0;
-        double denominatorPart = 0;
+                    // convert coordinates to string to store as key values for the hashmaps
+                    StringBuilder str = new StringBuilder();
+                    str.append(coordinates.getX());
+                    str.append(", ");
+                    str.append(coordinates.getY());
+                    String coordinatesStr = str.toString();
 
-
-        ArrayList<String> coordinateKey = new ArrayList<>();
-
-        //retrieve the keys of the fingerprint
-        for (String coorStr : fingerprintAvgSignal.keySet()){
-            coordinateKey.add(coorStr);
-        }
-
-        //the number of coordinates
-        for (int i = 1; i <= fingerprintCoordinate.size() ; i++) {
-            //euclidean distance
-            double euclideanDis = 0;
-            HashMap<String, Double> subFingerprintAvgSignal = fingerprintAvgSignal.get(coordinateKey.get(i-1));
-            HashMap<String, Double> subFingerprintStdDevSignal = fingerprintStdDevSignal.get(coordinateKey.get(i-1));
-
-            //the number of the values of mac addresses
-            for (int k = 1; k < targetData.size() + 1; k++) {
-                //PAVG, DEV of k-th wifi signals at the target place
-                Double pavgTarget = targetData.get(k - 1);
-                Double devTarget = targetStdDev.get(k - 1);
-                if (subFingerprintAvgSignal.containsKey(targetMacAdd.get(k-1))){
-                    //PAVG, DEV of k-th wifi signals at the i-th fingerprint
-                    Double pavgFingerprint = subFingerprintAvgSignal.get(targetMacAdd.get(k - 1));
-                    Double devFingerprint = subFingerprintStdDevSignal.get(targetMacAdd.get(k - 1));
-                    //find the absolute value of pavg
-                    Double absPavg = Math.abs(pavgTarget - pavgFingerprint);
-                    double sqauredValue = Math.pow(absPavg + devTarget + devFingerprint, 2);
-                    //sum it
-                    euclideanDis += sqauredValue;
+                    // create a hashmap for each mac address and corresponding signal strength at this fingerprint
+                    HashMap<String, Double> avgSignalFingerprint = new HashMap<>();
+                    HashMap<String, Double> stdDevSignalFingerprint = new HashMap<>();
+                    HashMap<String, Double> originalAvgSignalFingerprint = new HashMap<>();
+                    for (String signalID : allSignals) {
+                        originalAvgSignalFingerprint.put(signalBSSIDFB.get(signalID), signalStrengthOriginalFB.get(signalID));
+                        avgSignalFingerprint.put(signalBSSIDFB.get(signalID), signalStrengthFB.get(signalID));
+                        stdDevSignalFingerprint.put(signalBSSIDFB.get(signalID), signalStrengthSDFB.get(signalID));
+                    }
+                    fingerprintOriginalAvgSignal.put(coordinatesStr, originalAvgSignalFingerprint);
+                    fingerprintAvgSignal.put(coordinatesStr, avgSignalFingerprint);
+                    fingerprintStdDevSignal.put(coordinatesStr, stdDevSignalFingerprint);
                 }
             }
-            euclideanDis = Math.sqrt(euclideanDis);
-            euclideanArray.add(euclideanDis);
-
         }
-
-        //calculate the coordinate
-        for (int j = 1; j <= fingerprintCoordinate.size(); j++) {
-
-            //find x and y multiplied by omega and sum all
-            numeratorX += calculateXEuclidean(euclideanArray.get(j - 1), fingerprintCoordinate.get(j - 1));
-            numeratorY += calculateYEuclidean(euclideanArray.get(j - 1), fingerprintCoordinate.get(j - 1));
-            //omega
-            denominatorPart += (1 / euclideanArray.get(j - 1));
-        }
-        double x = numeratorX / denominatorPart;
-        double y = numeratorY / denominatorPart;
-
-        Coordinate position = new Coordinate(x, y);
-        euclideanArray.clear();
-
-        return position;
     }
-
-    public Coordinate jointProbability() {
-
-
-        double numeratorX = 0;
-        double numeratorY = 0;
-        double denominatorPart = 0;
-
-        ArrayList<String> coordinateKeyJP = new ArrayList<>();
-
-        //retrieve the keys of the fingerprint
-        for (String coorStr : fingerprintAvgSignal.keySet()){
-            coordinateKeyJP.add(coorStr);
-        }
-
-        for (int i = 1; i <fingerprintCoordinate.size()+1 ; i++){
-
-            double Pik = 1;
-            double jointProbi = 1;
-
-            HashMap<String, Double> subFingerprintOriginalAvgSignalJP = fingerprintOriginalAvgSignal.get(coordinateKeyJP.get(i-1));
-            HashMap<String, Double> subFingerprintStdDevSignalJP = fingerprintStdDevSignal.get(coordinateKeyJP.get(i-1));
-
-            for (int k = 1; k < targetDataOriginal.size() + 1; k++) {
-                //AVGk, DEV of k-th wifi signals at the target place
-                //x value
-                Double avgTarget = targetDataOriginal.get(k - 1);
-                if (subFingerprintOriginalAvgSignalJP.containsKey(targetMacAdd.get(k - 1))){
-                    //mu value
-                    Double avgFingerprint = subFingerprintOriginalAvgSignalJP.get(targetMacAdd.get(k - 1));
-                    //sigma
-                    Double devFingerprint = subFingerprintStdDevSignalJP.get(targetMacAdd.get(k - 1));
-                    //calculate Pik
-                    Pik = calculateJointProb(avgTarget, avgFingerprint, devFingerprint);
-                    //Pi = Pi1 * Pi2 * Pi3 * ... *Pik
-
-                    jointProbi = jointProbi * Pik;
-
-
-                    System.out.println("avgFingerprint: " + avgFingerprint + ", devFingerprint: " + devFingerprint + ", Pik: " + Pik + ", Joint Prob: " + jointProbi);
-                }
-            }
-            jointProbArray.add(jointProbi);
-        }
-
-        //calculate the coordinate
-        for (int j = 1; j <= fingerprintCoordinate.size(); j++) {
-            if (jointProbArray.get(j-1) != 0.0) {
-                //find x and y multiplied by omega and sum all
-                numeratorX += calculateXJointProb(jointProbArray.get(j - 1), fingerprintCoordinate.get(j - 1));
-                numeratorY += calculateYJointProb(jointProbArray.get(j - 1), fingerprintCoordinate.get(j - 1));
-                //omega
-                denominatorPart += omegaJointProb(jointProbArray.get(j-1));
-            }
-        }
-        double x = numeratorX / denominatorPart;
-        double y = numeratorY / denominatorPart;
-
-        //clear the array to be reusable
-        jointProbArray.clear();
-        System.out.println("Coordinate from Joint Prob"+new Coordinate(x, y));
-        return new Coordinate(x, y);
-    }
-
-    public Coordinate weightedFusion(Coordinate euclidDistPosition, Coordinate jointProbPosition) {
-        double finalX;
-        double finalY;
-        // Calculate the final X and Y
-        if (Double.isNaN(jointProbPosition.getX()) && Double.isNaN(jointProbPosition.getY())){
-            finalX = euclidDistPosition.getX();
-            finalY = 2 * euclidDistPosition.getY();
-            System.out.println("WeighedFusion x :"+ finalX+ " y :"+ finalY);
-            System.out.println("Joint prob coordinate is NaN");
-
-        }else{
-            finalX = weightEuclidDist * euclidDistPosition.getX() + weightJointProb * jointProbPosition.getX();
-            finalY = weightEuclidDist * euclidDistPosition.getY() + 2*  weightJointProb * jointProbPosition.getY();
-            System.out.println("Weighed Fusion :"+new Coordinate(finalX, finalY));
-
-        }
-
-
-        // return the calculated X and Y values
-        return new Coordinate(finalX,finalY);
-    }
-
-    //helper method to calculate joint probability
-    private double calculateJointProb(Double x, Double mu, double sigma){
-
-        if (sigma == 0.0) {
-            sigma = 1.0;
-        }
-        double p1 = (sigma * Math.sqrt(2* Math.PI));
-        double numerator = Math.pow(x-mu, 2);
-        double denominator = 2* Math.pow(sigma, 2);
-        double p2 = Math.exp(-numerator/denominator);
-        return p2 / p1;
-    }
-
-    //helper method to calculate numerator of coordinate
-    private double calculateXEuclidean(double distance, Coordinate coordinate){
-        //omega value
-        double omega = 1 / distance;
-        //x
-        double x = coordinate.getX();
-        x = omega * x;
-        return x;
-    }
-
-    //helper method to calculate numerator of coordinate
-    private double calculateYEuclidean(double distance, Coordinate coordinate){
-        //omega value
-        double omega = 1 / distance;
-        //y
-        double y = coordinate.getY();
-        y = omega *y;
-
-        return y;
-    }
-
-    //helper method to calculate numerator of coordinate
-    private double calculateXJointProb(double probability, Coordinate coordinate){
-        //omega value
-        double omega = omegaJointProb(probability);
-        //x
-        double x = coordinate.getX();
-        x = omega * x;
-        return x;
-    }
-
-    //helper method to calculate numerator of coordinate
-    private double calculateYJointProb(double probability, Coordinate coordinate){
-        //omega value
-        double omega = omegaJointProb(probability);
-        //y
-        double y = coordinate.getY();
-        y = omega *y;
-
-        return y;
-    }
-
-    private double omegaJointProb(double probability){
-        //no standard deviation means their matches are exact
-        //hence, we don't need to add any coordinate value to the existing coordinate
-        //Math.log10(1) = 0
-        if (probability == 0){
-            return Math.log10(1);
-        }
-        return Math.log10(probability);
-    }
-
-     */
-
-
 }
