@@ -179,9 +179,10 @@ public class ImageUploadAcitivity extends Fragment {
 
         MapViewActivity.imageCoords = coordImages;
 
-        MapViewActivity.locationID = locationIDText.getText().toString();
+//        MapViewActivity.locationID = locationIDText.getText().toString();
         MapViewActivity.locationName = locationNameText.getText().toString();
         Intent intent = new Intent(getActivity(), MapViewActivity.class);
+        intent.putExtra("locationID",locationID);
         startActivity(intent);
     }
 

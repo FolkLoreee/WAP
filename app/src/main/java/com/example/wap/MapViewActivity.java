@@ -98,6 +98,10 @@ public class MapViewActivity extends AppCompatActivity {
         grid.setAdapter(imageAdapter);
         grid.setNumColumns((int) Math.sqrt(imageChunks.size()));
 
+        Intent intent = getIntent();
+        locationID =intent.getStringExtra("locationID");
+        Log.d(LOG_TAG,"LOCATION IS: "+locationID);
+
         currentLocation = new Location(locationID, locationName);
 
         signalWAPFirebase = new WAPFirebase<>(Signal.class, "signals");
@@ -297,7 +301,7 @@ public class MapViewActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Toast.makeText(getApplicationContext(), String.valueOf(imageCoords.get(position).getX()) + ", " + String.valueOf(imageCoords.get(position).getY()) + ", Submitted", Toast.LENGTH_SHORT).show();
-                String pointID = "MP-" + currentLocation.getLocationID() + "-" + (int) (imageCoords.get(position).getY()) + "-" + (int) (imageCoords.get(position).getY());
+                String pointID = "MP-" + currentLocation.getLocationID() + "-" + (int) (imageCoords.get(position).getX()) + "-" + (int) (imageCoords.get(position).getY());
                 point = new MapPoint(pointID, new Coordinate(imageCoords.get(position).getX(), imageCoords.get(position).getY()), currentLocation.getLocationID());
 
                 numOfScans = 0;
@@ -364,14 +368,14 @@ public class MapViewActivity extends AppCompatActivity {
 
                         // get the average wifi signal if the BSSID exists
                         ArrayList<Integer> readings = allSignals.get(macAddress);
-                        int averageSignal = WifiScan.calculateAverage(readings);
-                        int stdDevSignal = WifiScan.calculateStandardDeviation(readings, averageSignal);
-                        int averageSignalProcessed = WifiScan.calculateProcessedAverage(averageSignal);
+                        double averageSignal = WifiScan.calculateAverage(readings);
+                        double stdDevSignal = WifiScan.calculateStandardDeviation(readings, averageSignal);
+                        double averageSignalProcessed = WifiScan.calculateProcessedAverage(averageSignal);
 
                         Log.d(LOG_TAG, "MAC Address: " + macAddress + " , Wifi Signal: " + averageSignal + " , Wifi Signal (SD): " + stdDevSignal);
 
                         // posting the result to firebase
-                        String signalID = "SG-" + locationID + "-" + signalCounter;
+                        String signalID = "SG-" + locationID + "-" + (int) (imageCoords.get(position).getX()) + "-" + (int) (imageCoords.get(position).getY()) + "-" + signalCounter;
                         Signal signal = new Signal(signalID, locationID, macAddress, ssids.get(macAddress), stdDevSignal, averageSignal, averageSignalProcessed, 10);
                         signals.add(signal);
                         point.addSignalID(signalID);
@@ -385,12 +389,15 @@ public class MapViewActivity extends AppCompatActivity {
                         }
                     });
                     for (Signal signal : signals) {
+                        Log.d("FIREBASE", "signalID: "+signal.getSignalID());
                         signalWAPFirebase.create(signal, signal.getSignalID()).addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {
                                 Toast.makeText(MapViewActivity.this, "Successfully created a point", Toast.LENGTH_SHORT).show();
                                 currentLocation.incrementSignalCounter();
                                 Log.d("FIREBASE", "signal successfully posted");
+                                Log.d("Location ID", locationID);
+                                Log.d("FIREBASE", "location: "+locationID);
                                 locationWAPFirebase.update(currentLocation, locationID);
                             }
                         });

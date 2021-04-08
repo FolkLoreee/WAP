@@ -21,6 +21,9 @@ public class ChooseMapActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_choose_map);
         tabLayout = (TabLayout) findViewById(R.id.tabLayout);
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        ft.replace(R.id.fragment, new ImageUploadAcitivity());
+        ft.commit();
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_nav_bar);
         bottomNavigationView.setSelectedItemId(R.id.mainActivity);
@@ -62,7 +65,6 @@ public class ChooseMapActivity extends AppCompatActivity {
                    ft.replace(R.id.fragment, new ImageSelectActivity());
                    ft.commit();
                }
-
 //                ft.commit();
             }
 

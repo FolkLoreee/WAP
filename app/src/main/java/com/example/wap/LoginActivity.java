@@ -29,7 +29,8 @@ public class LoginActivity extends AppCompatActivity {
         loginBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(etId.getText().toString().equals("admin") && etPassword.getText().toString().equals("123")){
+                if(true){
+//                if(etId.getText().toString().equals("admin") && etPassword.getText().toString().equals("123")){
                     Context context;
                     AlertDialog.Builder builder = new AlertDialog.Builder(LoginActivity.this);
                     builder.setTitle("Login Successful");

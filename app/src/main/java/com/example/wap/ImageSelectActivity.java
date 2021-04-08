@@ -6,6 +6,10 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.StrictMode;
+import android.provider.MediaStore;
+import android.util.AttributeSet;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -79,12 +83,10 @@ public class ImageSelectActivity extends ListFragment {
         select.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                imageView.invalidate();
-                BitmapDrawable drawable = (BitmapDrawable) imageView.getDrawable();
-                Bitmap bitmap = drawable.getBitmap();
                 splitImage(bitmap);
             }
         });
+
     }
 
     @Override
@@ -117,20 +119,22 @@ public class ImageSelectActivity extends ListFragment {
         imageView = v.getRootView().findViewById(R.id.imageSelect);
 
         if(locationList.get(position).getMapImage() != null){
-            Uri imageUri = Uri.parse(locationList.get(position).getMapImage());
-            Picasso.get().load(imageUri)
-                    .fit().centerCrop().into(imageView);
-//            try {
-//                URL url = new URL(locationList.get(position).getMapImage());
-//                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-//                connection.setDoInput(true);
-//                connection.connect();
-//                InputStream input = connection.getInputStream();
-//                bitmap = BitmapFactory.decodeStream(input);
-//                imageView.setImageBitmap(bitmap);
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
+//            Uri imageUri = Uri.parse(locationList.get(position).getMapImage());
+//            Picasso.get().load(imageUri)
+//                    .fit().centerCrop().into(imageView);
+            if (android.os.Build.VERSION.SDK_INT > 9) {
+                StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+                StrictMode.setThreadPolicy(policy);
+                try {
+                    URL url = new URL(locationList.get(position).getMapImage());
+                    locationID = locationList.get(position).getLocationID();
+                    bitmap = Utils.getBitmap(url);
+                    imageView.setImageBitmap(bitmap);
+                } catch (IOException e) {
+                    Log.d("Help", String.valueOf(e));
+                }
+            }
+
         }
         else{
             imageView.setImageResource(R.drawable.image_upload);
@@ -185,6 +189,7 @@ public class ImageSelectActivity extends ListFragment {
         MapViewActivity.imageCoords = coordImages;
 
         Intent intent = new Intent(getActivity(), MapViewActivity.class);
+        intent.putExtra("locationID",locationID);
         startActivity(intent);
 
     }
