@@ -49,8 +49,9 @@ public class ImageSelectActivity extends ListFragment {
     ListView listView;
     ImageView imageView;
     ArrayList<Location> locationList = new ArrayList<Location>();
+    ArrayAdapter<Location> locationArrayAdapter;
     LayoutInflater inflater;
-    Bitmap bitmap;
+    Bitmap bitmap = null;
 
     Uri filePath;
     private final int PICK_IMAGE_REQUEST = 71;
@@ -72,15 +73,26 @@ public class ImageSelectActivity extends ListFragment {
         return contextOfApplication;
     }
 
+
+
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         select = (ImageButton) view.findViewById(R.id.select);
 
+
+        contextOfApplication = getActivity().getApplicationContext();
+
         select.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                splitImage(bitmap);
+                if(bitmap == null){
+                    Toast.makeText(ImageSelectActivity.getContextOfApplication(), "No Image", Toast.LENGTH_SHORT).show();
+                }
+                else{
+                    splitImage(bitmap);
+                }
+
             }
         });
 
@@ -98,7 +110,7 @@ public class ImageSelectActivity extends ListFragment {
                     locationList.add(locations.get(i));
                     Log.d("Help", String.valueOf(locationList.get(i).getLocationID()));
                 }
-                ArrayAdapter<Location> locationArrayAdapter = new ImageSelectAdapter(getActivity(), R.layout.listview_item,locationList);
+                locationArrayAdapter = new ImageSelectAdapter(getActivity(), R.layout.listview_item,locationList);
                 getListView().setAdapter(locationArrayAdapter);
             }
         }).addOnFailureListener(new OnFailureListener() {

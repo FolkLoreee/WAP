@@ -103,7 +103,16 @@ public class ImageUploadAcitivity extends Fragment {
             public void onClick(View v) {
                 locationID = locationIDText.getText().toString();
                 locationName = locationNameText.getText().toString();
-                splitImage(bitmap);
+                if(locationID == "" || locationID == null){
+                    Toast.makeText(ImageUploadAcitivity.getContextOfApplication(), "No location ID", Toast.LENGTH_SHORT).show();
+                }
+                else if(locationName == "" || locationName == null){
+                    Toast.makeText(ImageUploadAcitivity.getContextOfApplication(), "No Location Name", Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    splitImage(bitmap);
+                }
+
             }
         });
     }
@@ -184,15 +193,21 @@ public class ImageUploadAcitivity extends Fragment {
 //
 ////        MapViewActivity.locationID = locationIDText.getText().toString();
 //        MapViewActivity.locationName = locationNameText.getText().toString();
-        MapActivity.bitmapImg = bitmap;
-        Intent intent = new Intent(getActivity(), MapActivity.class);
-        intent.putExtra("locationID",locationID);
-        startActivity(intent);
+        if (filePath == null) {
+            Toast.makeText(ImageUploadAcitivity.getContextOfApplication(), "Upload an image", Toast.LENGTH_SHORT).show();
+        } else {
+            uploadMapImage();
+            MapActivity.bitmapImg = bitmap;
+            Intent intent = new Intent(getActivity(), MapActivity.class);
+            intent.putExtra("locationID", locationID);
+            startActivity(intent);
+        }
     }
 
     private void uploadMapImage(){
 
         final StorageReference ref = storageRef.child("maps/" + locationID);
+
             UploadTask uploadTask = ref.putFile(filePath);
             // Retrieve the download url for the image uploaded to Firebase Storage
             // Download url is to be used to store in Firestore and to display later using Picasso
@@ -200,6 +215,7 @@ public class ImageUploadAcitivity extends Fragment {
                 @Override
                 public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
                     if (!task.isSuccessful()) {
+                        Log.e("error", "null here");
                         throw task.getException();
                     }
 
@@ -240,13 +256,13 @@ public class ImageUploadAcitivity extends Fragment {
         });
     }
 
-    class CoordImages {
-        int xcoord;
-        int ycoord;
-        CoordImages(int xcoord, int ycoord){
-            this.xcoord = xcoord;
-            this.ycoord = ycoord;
-        }
-    }
+//    class CoordImages {
+//        int xcoord;
+//        int ycoord;
+//        CoordImages(int xcoord, int ycoord){
+//            this.xcoord = xcoord;
+//            this.ycoord = ycoord;
+//        }
+//    }
 
 }
