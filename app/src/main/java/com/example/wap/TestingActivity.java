@@ -347,16 +347,15 @@ public class TestingActivity extends AppCompatActivity {
 
     private Coordinate calculatePosition() {
         // pre-matching fingerprints
-        preMatching();
+        preMatching2();
 
         //create the Algorithm object
         // Algorithm algorithm = new Algorithm(fingerprintOriginalAvgSignal, fingerprintAvgSignal, fingerprintStdDevSignal, fingerprintCoordinate);
 
         // weighted fusion
-        Coordinate finalPoint = new Coordinate();
         Coordinate calculatedPoint1 = euclideanDistance();
         Coordinate calculatedPoint2 = jointProbability();
-        finalPoint = weightedFusion(calculatedPoint1, calculatedPoint2);
+        Coordinate finalPoint = weightedFusion(calculatedPoint1, calculatedPoint2);
 
         StringBuilder sb = new StringBuilder();
         sb.append("Euclidean Distance results: x = ");
@@ -507,10 +506,9 @@ public class TestingActivity extends AppCompatActivity {
         // sort the matches list in descending order to find top 4 fingerprints
         Collections.sort(matches);
         Collections.reverse(matches);
-        System.arraycopy(matches, 0, matches, 0, 4);
         System.out.println(matches);
 
-        for (int i = 0; i < matches.size(); i++) {
+        for (int i = 0; i < 4; i++) {
             String fingerprintID = "";
             for (Map.Entry<String, Double> fingerprint: fingerprintsMatch.entrySet()) {
                 if (fingerprint.getValue().equals(matches.get(i))) {
@@ -544,6 +542,13 @@ public class TestingActivity extends AppCompatActivity {
             fingerprintOriginalAvgSignal.put(coordinatesStr, originalAvgSignalFingerprint);
             fingerprintAvgSignal.put(coordinatesStr, avgSignalFingerprint);
             fingerprintStdDevSignal.put(coordinatesStr, stdDevSignalFingerprint);
+        }
+
+        for (String coordinates: fingerprintOriginalAvgSignal.keySet()) {
+            System.out.println(coordinates);
+            System.out.println(fingerprintOriginalAvgSignal.get(coordinates));
+            System.out.println(fingerprintAvgSignal.get(coordinates));
+            System.out.println(fingerprintStdDevSignal.get(coordinates));
         }
     }
 
