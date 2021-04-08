@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:background="@drawable/background"
     tools:context=".MapViewActivity">
 
     <GridView
@@ -21,16 +23,14 @@
     <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
-        android:layout_below="@+id/gridView">
+        android:layout_below="@+id/gridView"
+        android:layout_marginTop="-52dp">
 
         <Button
             android:id="@+id/up"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:layout_centerHorizontal="true"
-           >
-        </Button>
+            android:layout_centerHorizontal="true"></Button>
 
         <Button
             android:id="@+id/down"
@@ -38,8 +38,7 @@
             android:layout_height="40dp"
             android:layout_below="@+id/up"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="80dp">
-        </Button>
+            android:layout_marginTop="80dp"></Button>
 
         <Button
             android:id="@+id/right"
@@ -50,7 +49,7 @@
             android:layout_alignParentRight="true"
             android:layout_marginTop="15dp"
             android:layout_marginEnd="80dp"
-            android:layout_marginRight="371dp"></Button>
+            android:layout_marginRight="371dp" />
 
         <Button
             android:id="@+id/left"
@@ -59,19 +58,18 @@
             android:layout_below="@+id/up"
             android:layout_alignParentStart="true"
             android:layout_alignParentLeft="true"
-            android:layout_marginTop="15dp"
-            android:layout_marginLeft="80dp"
-            android:layout_alignParentRight="true"></Button>
 
-        <Button
+            android:layout_marginLeft="80dp"
+            android:layout_alignParentRight="true" />
+
+        <ImageButton
             android:id="@+id/submit"
-            android:layout_width="wrap_content"
-            android:text="submit"
-            android:layout_height="40dp"
+            android:layout_width="133dp"
+            android:layout_height="43dp"
             android:layout_below="@+id/down"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="20dp"
-            ></Button>
+            android:layout_marginTop="17dp"
+            android:src="@drawable/selectbutton"/>
 
     </RelativeLayout>
 

@@ -5,35 +5,47 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
 public class WifiScanTest {
-    ArrayList<Integer> readings;
-    Integer sum;
+    private static final double DELTA = 1e-15;
+
+
+
+
     @Before
-    public void setup(){
-        readings = new ArrayList<>(Arrays.asList(20,50,32,48));
-        sum = 0;
+    public void runBeforeEachTest() {
+        System.out.println("setting up");
     }
+
     @Test
-    public void test_calculate_average(){
-        for(Integer reading:readings){
-            sum+=reading;
-        }
-        Integer expectedAverage = sum/readings.size();
-        Integer actualAverage = WifiScan.calculateAverage(readings);
-        assertEquals(expectedAverage,actualAverage);
+    public void calculateAverageTest(){
+        Integer[] readingsList = new Integer[]{55, 37, -79, 47, 90, 65, 88};
+        List<Integer> readings = Arrays.asList(readingsList);
+
+        double output = WifiScan.calculateAverage(readings);
+        assertEquals(43.285714285714285, output, DELTA);
     }
+
     @Test
-    public void test_calculate_standard_deviation(){
-        int average = WifiScan.calculateAverage(readings);
-        for(Integer reading:readings){
-            sum += (reading - average);
-        }
-        int expectedStandardDeviation = (int)(Math.sqrt(sum/readings.size()));
-        int actualStandardDeviation = WifiScan.calculateStandardDeviation(readings,average);
-        assertEquals(expectedStandardDeviation,actualStandardDeviation);
+    public void calculateStandardDeviationTest(){
+
+        Integer[] readingsList = new Integer[]{55, 37, -79, 47, 90, 65, 88};
+        List<Integer> readings = Arrays.asList(readingsList);
+        double average = WifiScan.calculateAverage(readings);
+        double output = WifiScan.calculateStandardDeviation(readings, average);
+        assertEquals(53.18086198655163, output, DELTA);
+    }
+
+    @Test
+    public void calculateProcessedAverageTest(){
+        double average = 49.06579;
+        double output = WifiScan.calculateProcessedAverage(average);
+        //  TODO: CHANGE AFTER THE FUNTION UPDATED
+        assertEquals(49.06579, output, DELTA);
     }
 
 }
