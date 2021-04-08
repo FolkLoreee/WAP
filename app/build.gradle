@@ -1,6 +1,7 @@
 plugins {
     id 'com.android.application'
     id 'com.google.gms.google-services'
+    id 'jacoco'
 }
 
 android {
@@ -23,6 +24,9 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        debug{
+            testCoverageEnabled true
         }
     }
     compileOptions {
@@ -65,5 +69,9 @@ dependencies {
 
     //picasso
     implementation 'com.squareup.picasso:picasso:2.71828'
+
+    //jacoco
+    implementation 'org.jacoco:org.jacoco.core:0.8.6'
+
 
 }
