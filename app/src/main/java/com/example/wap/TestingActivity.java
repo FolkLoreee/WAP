@@ -244,6 +244,7 @@ public class TestingActivity extends AppCompatActivity {
                     String bssid = signal.getWifiBSSID();
                     double signalStrengthSD = signal.getSignalStrengthSD();
                     double signalStrength = signal.getSignalStrength();
+                    signalStrength += 2.4083333333333328;
                     signalStrengthFB.put(signalID, signalStrength);
                     signalStrengthOriginalFB.put(signalID, signalStrength);
                     signalStrengthSDFB.put(signalID, signalStrengthSD);
@@ -347,61 +348,34 @@ public class TestingActivity extends AppCompatActivity {
 
     private Coordinate calculatePosition() {
         // pre-matching fingerprints
-        preMatching2();
-        // preMatching();
-        /*
-        // pre-matching fingerprints
-        DataPrematching dataPrematch = new DataPrematching();
-        dataPrematch.preMatching(targetData, targetMacAdd, pointsFB, pointsCoordinatesFB,  signalStrengthFB,  signalStrengthOriginalFB, signalBSSIDFB, signalStrengthSDFB);
-
-         */
-
-
-
+//        preMatching2();
+//
         //create the Algorithm object
         Algorithm algorithm = new Algorithm(fingerprintOriginalAvgSignal, fingerprintAvgSignal, fingerprintStdDevSignal, fingerprintCoordinate);
+//
+//        // weighted fusion
+//        Coordinate calculatedPoint1 = algorithm.euclideanDistance(targetData, targetStdDev, targetMacAdd);
+//        Coordinate calculatedPoint2 = algorithm.jointProbability(targetDataOriginal, targetMacAdd);
+//        Coordinate finalPoint = algorithm.weightedFusion(calculatedPoint1, calculatedPoint2);
+//
+//        System.out.println("SECOND PREMATCHING");
+//        System.out.println("Euclidean Distance results: " + stringifyPosition(calculatedPoint1));
+//        System.out.println("Joint Probability results: " + stringifyPosition(calculatedPoint2));
+//        System.out.println("Final results: " + stringifyPosition(finalPoint));
 
+        preMatching();
 
-
-        // weighted fusion
         Coordinate calculatedPoint1 = algorithm.euclideanDistance(targetData, targetStdDev, targetMacAdd);
         Coordinate calculatedPoint2 = algorithm.jointProbability(targetDataOriginal, targetMacAdd);
         Coordinate finalPoint = algorithm.weightedFusion(calculatedPoint1, calculatedPoint2);
 
-         /*
-
-        preMatching();
-        Coordinate calculatedPoint1 = euclideanDistance();
-        Coordinate calculatedPoint2 = jointProbability();
-        Coordinate finalPoint = weightedFusion(calculatedPoint1, calculatedPoint2);
-
-          */
-
-
-
-
-        StringBuilder sb = new StringBuilder();
-        sb.append("Euclidean Distance results: x = ");
-        sb.append(calculatedPoint1.getX());
-        sb.append(", y = ");
-        sb.append(calculatedPoint1.getY());
-        sb.append("\n");
-
-        sb.append("Joint Probability results: x = ");
-        sb.append(calculatedPoint2.getX());
-        sb.append(", y = ");
-        sb.append(calculatedPoint2.getY());
-        sb.append("\n");
-
+        System.out.println("FIRST PREMATCHING");
         System.out.println("Euclidean Distance results: " + stringifyPosition(calculatedPoint1));
         System.out.println("Joint Probability results: " + stringifyPosition(calculatedPoint2));
+        System.out.println("Final results: " + stringifyPosition(finalPoint));
 
-
-        //Coordinate finalPoint = new Coordinate(0, 0);
         return finalPoint;
     }
-
-
 
     private void preMatching() {
 
@@ -533,9 +507,8 @@ public class TestingActivity extends AppCompatActivity {
         // sort the matches list in descending order to find top 4 fingerprints
         Collections.sort(matches);
         Collections.reverse(matches);
-        System.out.println(matches);
 
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < 6; i++) {
             String fingerprintID = "";
             for (Map.Entry<String, Double> fingerprint: fingerprintsMatch.entrySet()) {
                 if (fingerprint.getValue().equals(matches.get(i))) {
@@ -569,251 +542,8 @@ public class TestingActivity extends AppCompatActivity {
             fingerprintOriginalAvgSignal.put(coordinatesStr, originalAvgSignalFingerprint);
             fingerprintAvgSignal.put(coordinatesStr, avgSignalFingerprint);
             fingerprintStdDevSignal.put(coordinatesStr, stdDevSignalFingerprint);
-        }
 
-        for (String coordinates: fingerprintOriginalAvgSignal.keySet()) {
-            System.out.println(coordinates);
-            System.out.println(fingerprintOriginalAvgSignal.get(coordinates));
-            System.out.println(fingerprintAvgSignal.get(coordinates));
-            System.out.println(fingerprintStdDevSignal.get(coordinates));
+            fingerprintsMatch.remove(fingerprintID);
         }
     }
-
-    /**
-     * fingerprintOriginalAvgSignal = HashMap<fingerprintCoordinate, HashMap<macAddress, originalAverageWifiSignal>>
-     * fingerprintAvgSignal = HashMap<fingerprintCoordinate, HashMap<macAddress, averageWifiSignal>>
-     * fingerprintStdDevSignal = HashMap<fingerprintCoordinate, HashMap<macAddress, standardDeviationSignal>>
-     * fingerprintCoordinate = list of filtered fingerprints
-     *
-     * targetMacAdd = list of mac address received at target location
-     * targetStdDev = list of wifi signal standard deviation values for each mac address
-     * targetData = list of average wifi signal values for each mac address
-     * targetDataOriginal = list of original average wifi signal values for each mac address (FOR NOW, THESE HAVE THE SAME VALUES AS THE PROCESSED ONES)
-     * Retrieve the corresponding average and standard deviation values for each mac address by the index value
-     * */
-
-    /*
-
-    public Coordinate euclideanDistance() {
-        double numeratorX = 0;
-        double numeratorY = 0;
-        double denominatorPart = 0;
-
-        ArrayList<String> coordinateKey = new ArrayList<>();
-
-        //retrieve the keys of the fingerprint
-        for (String coorStr : fingerprintAvgSignal.keySet()){
-            coordinateKey.add(coorStr);
-        }
-
-        //the number of coordinates
-        for (int i = 1; i <= fingerprintCoordinate.size() ; i++) {
-            //euclidean distance
-            double euclideanDis = 0;
-            HashMap<String, Double> subFingerprintAvgSignal = fingerprintAvgSignal.get(coordinateKey.get(i-1));
-            HashMap<String, Double> subFingerprintStdDevSignal = fingerprintStdDevSignal.get(coordinateKey.get(i-1));
-
-            double euclideanDis = 0;
-
-            //the number of the values of mac addresses
-            for (int k = 1; k < targetData.size() + 1; k++) {
-                //PAVG, DEV of k-th wifi signals at the target place
-                Double pavgTarget = targetData.get(k - 1);
-                Double devTarget = targetStdDev.get(k - 1);
-                if (subFingerprintAvgSignal.containsKey(targetMacAdd.get(k-1))){
-                    //PAVG, DEV of k-th wifi signals at the i-th fingerprint
-                    Double pavgFingerprint = subFingerprintAvgSignal.get(targetMacAdd.get(k - 1));
-                    Double devFingerprint = subFingerprintStdDevSignal.get(targetMacAdd.get(k - 1));
-                    //find the absolute value of pavg
-                    Double absPavg = Math.abs(pavgTarget - pavgFingerprint);
-                    double sqauredValue = Math.pow(absPavg + devTarget + devFingerprint, 2);
-                    //sum it
-                    euclideanDis += sqauredValue;
-                }
-            }
-            euclideanDis = Math.sqrt(euclideanDis);
-            System.out.println("Fingerprint " + i + ": " + euclideanDis);
-            euclideanArray.add(euclideanDis);
-
-        }
-
-        //calculate the coordinate
-        for (int j = 1; j <= fingerprintCoordinate.size(); j++) {
-
-            //find x and y multiplied by omega and sum all
-            numeratorX += calculateXEuclidean(euclideanArray.get(j - 1), fingerprintCoordinate.get(j - 1));
-            numeratorY += calculateYEuclidean(euclideanArray.get(j - 1), fingerprintCoordinate.get(j - 1));
-            //omega
-            denominatorPart += (1 / euclideanArray.get(j - 1));
-        }
-        double x = numeratorX / denominatorPart;
-        double y = numeratorY / denominatorPart;
-
-        Coordinate position = new Coordinate(x, y);
-        euclideanArray.clear();
-
-        return position;
-    }
-
-    public Coordinate jointProbability() {
-        double numeratorX = 0;
-        double numeratorY = 0;
-        double denominatorPart = 0;
-
-        ArrayList<String> coordinateKeyJP = new ArrayList<>();
-
-        //retrieve the keys of the fingerprint
-        for (String coorStr : fingerprintAvgSignal.keySet()){
-            coordinateKeyJP.add(coorStr);
-        }
-
-        for (int i = 1; i <fingerprintCoordinate.size()+1 ; i++){
-
-            double Pik = 1;
-            double jointProbi = 1;
-
-            HashMap<String, Double> subFingerprintOriginalAvgSignalJP = fingerprintOriginalAvgSignal.get(coordinateKeyJP.get(i-1));
-            HashMap<String, Double> subFingerprintStdDevSignalJP = fingerprintStdDevSignal.get(coordinateKeyJP.get(i-1));
-
-            double Pik = 1;
-            double jointProbi = 1;
-
-            for (int k = 1; k < targetDataOriginal.size() + 1; k++) {
-                //AVGk, DEV of k-th wifi signals at the target place
-                //x value
-                Double avgTarget = targetDataOriginal.get(k - 1);
-                if (subFingerprintOriginalAvgSignalJP.containsKey(targetMacAdd.get(k - 1))){
-                    //mu value
-                    Double avgFingerprint = subFingerprintOriginalAvgSignalJP.get(targetMacAdd.get(k - 1));
-                    //sigma
-                    Double devFingerprint = subFingerprintStdDevSignalJP.get(targetMacAdd.get(k - 1));
-                    //calculate Pik
-                    Pik = calculateJointProb(avgTarget, avgFingerprint, devFingerprint);
-                    //Pi = Pi1 * Pi2 * Pi3 * ... *Pik
-
-                    jointProbi = jointProbi * Pik;
-                    // System.out.println("avgFingerprint: " + avgFingerprint + ", devFingerprint: " + devFingerprint + ", Pik: " + Pik + ", Joint Prob: " + jointProbi);
-                }
-            }
-            System.out.println("Fingerprint " + i + ": " + jointProbi);
-            jointProbArray.add(jointProbi);
-        }
-
-        //calculate the coordinate
-        for (int j = 1; j <= fingerprintCoordinate.size(); j++) {
-            if (jointProbArray.get(j-1) != 0.0) {
-                //find x and y multiplied by omega and sum all
-                numeratorX += calculateXJointProb(jointProbArray.get(j - 1), fingerprintCoordinate.get(j - 1));
-                numeratorY += calculateYJointProb(jointProbArray.get(j - 1), fingerprintCoordinate.get(j - 1));
-                //omega
-                denominatorPart += omegaJointProb(jointProbArray.get(j-1));
-            }
-        }
-        double x = numeratorX / denominatorPart;
-        double y = numeratorY / denominatorPart;
-
-        //clear the array to be reusable
-        jointProbArray.clear();
-        System.out.println("Coordinate from Joint Prob"+new Coordinate(x, y));
-        return new Coordinate(x, y);
-    }
-
-    public Coordinate weightedFusion(Coordinate euclidDistPosition, Coordinate jointProbPosition) {
-        double finalX;
-        double finalY;
-        // Calculate the final X and Y
-        if (Double.isNaN(jointProbPosition.getX()) && Double.isNaN(jointProbPosition.getY())){
-            finalX = euclidDistPosition.getX();
-            finalY = 2 * euclidDistPosition.getY();
-            System.out.println("WeighedFusion x :"+ finalX+ " y :"+ finalY);
-            System.out.println("Joint prob coordinate is NaN");
-
-        }else{
-            finalX = weightEuclidDist * euclidDistPosition.getX() + weightJointProb * jointProbPosition.getX();
-            finalY = weightEuclidDist * euclidDistPosition.getY() + 2*  weightJointProb * jointProbPosition.getY();
-            System.out.println("Weighed Fusion :"+new Coordinate(finalX, finalY));
-
-        }
-
-
-        if (Double.isNaN(jointProbPosition.getY()) || Double.isNaN(jointProbPosition.getX())) {
-            euclidDistPosition.setY(euclidDistPosition.getY() + 40);
-            return euclidDistPosition;
-        } else {
-            double finalX = weightEuclidDist * euclidDistPosition.getX() + weightJointProb * jointProbPosition.getX();
-            double finalY = weightEuclidDist * euclidDistPosition.getY() + weightJointProb * jointProbPosition.getY() + (31/2);
-
-            // return the calculated X and Y values
-            return new Coordinate(finalX, finalY);
-        }
-    }
-
-    //helper method to calculate joint probability
-    private double calculateJointProb(Double x, Double mu, double sigma){
-
-        if (sigma == 0.0) {
-            sigma = 1.0;
-        }
-        double p1 = (sigma * Math.sqrt(2* Math.PI));
-        double numerator = Math.pow(x-mu, 2);
-        double denominator = 2* Math.pow(sigma, 2);
-        double p2 = Math.exp(-numerator/denominator);
-        return p2 / p1;
-    }
-
-    //helper method to calculate numerator of coordinate
-    private double calculateXEuclidean(double distance, Coordinate coordinate){
-        //omega value
-        double omega = 1 / distance;
-        //x
-        double x = coordinate.getX();
-        x = omega * x;
-        return x;
-    }
-
-    //helper method to calculate numerator of coordinate
-    private double calculateYEuclidean(double distance, Coordinate coordinate){
-        //omega value
-        double omega = 1 / distance;
-        //y
-        double y = coordinate.getY();
-        y = omega *y;
-
-        return y;
-    }
-
-    //helper method to calculate numerator of coordinate
-    private double calculateXJointProb(double probability, Coordinate coordinate){
-        //omega value
-        double omega = omegaJointProb(probability);
-        //x
-        double x = coordinate.getX();
-        x = omega * x;
-        return x;
-    }
-
-    //helper method to calculate numerator of coordinate
-    private double calculateYJointProb(double probability, Coordinate coordinate){
-        //omega value
-        double omega = omegaJointProb(probability);
-        //y
-        double y = coordinate.getY();
-        y = omega *y;
-
-        return y;
-    }
-
-    private double omegaJointProb(double probability){
-        //no standard deviation means their matches are exact
-        //hence, we don't need to add any coordinate value to the existing coordinate
-        //Math.log10(1) = 0
-        if (probability == 0){
-            return Math.log10(1);
-        }
-        return Math.log10(probability);
-    }
-
-     */
-
-
 }

@@ -199,6 +199,8 @@ public class Algorithm {
             coordinateKey.add(coorStr);
         }
 
+        System.out.println(coordinateKey);
+
         //the number of coordinates
         for (int i = 1; i <= fingerprintCoordinate.size() ; i++) {
             //euclidean distance
