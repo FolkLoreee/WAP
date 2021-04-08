@@ -244,7 +244,7 @@ public class AlgorithmTest{
         targetMacAddress.add("wifi-signal-6");
 
         Coordinate output = algo.jointProbability(targetDataOriginal, targetMacAddress);
-    
+
         assertEquals(5.086800936887126, output.getX(), DELTA);
         assertEquals(4.818239369094473, output.getY(), DELTA);
     }
