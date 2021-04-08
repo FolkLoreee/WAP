@@ -18,8 +18,8 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Wap">
-        <activity android:name=".ChooseMapActivity">
+        android:theme="@style/Theme.Wap.NoActionBar">
+        <activity android:name=".LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -30,7 +30,7 @@
         <activity android:name=".TestingActivity"></activity>
         <activity android:name=".MapActivity" />
         <activity android:name=".MapViewActivity" />
-<!--        <activity android:name=".ChooseMapActivity" />-->
+       <activity android:name=".ChooseMapActivity" />
 
         <activity android:name=".MainActivity">
 

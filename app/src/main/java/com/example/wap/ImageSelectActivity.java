@@ -3,63 +3,38 @@ package com.example.wap;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.StrictMode;
-import android.provider.MediaStore;
-import android.util.AttributeSet;
-import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
-
 import android.widget.ListView;
-import android.widget.Spinner;
-import android.widget.TextView;
-
-import android.widget.TextView;
 import android.widget.Toast;
 
-
 import androidx.annotation.NonNull;
-//import androidx.appcompat.app.AppCompatActivity;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
 import androidx.fragment.app.ListFragment;
 
 import com.example.wap.firebase.WAPFirebase;
 import com.example.wap.models.Coordinate;
 import com.example.wap.models.Location;
-import com.google.android.gms.tasks.Continuation;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
-import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.List;
 
-import static android.app.Activity.RESULT_OK;
 import static android.graphics.Bitmap.createBitmap;
+
+//import androidx.appcompat.app.AppCompatActivity;
 
 public class ImageSelectActivity extends ListFragment {
 
@@ -69,7 +44,7 @@ public class ImageSelectActivity extends ListFragment {
     StorageReference storageRef;
     String locationName;
     String locationID;
-    Button select;
+    ImageButton select;
     WAPFirebase<Location> locationWAPFirebase;
     ListView listView;
     ImageView imageView;
@@ -100,7 +75,7 @@ public class ImageSelectActivity extends ListFragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        select = view.findViewById(R.id.select);
+        select = (ImageButton) view.findViewById(R.id.select);
 
         select.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -149,6 +124,7 @@ public class ImageSelectActivity extends ListFragment {
                 StrictMode.setThreadPolicy(policy);
                 try {
                     URL url = new URL(locationList.get(position).getMapImage());
+                    locationID = locationList.get(position).getLocationID();
                     bitmap = Utils.getBitmap(url);
                     imageView.setImageBitmap(bitmap);
                 } catch (IOException e) {

@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -20,8 +21,8 @@ public class MainActivity extends AppCompatActivity {
     private static final String LOG_TAG = "WAP";
     private static final int MY_REQUEST_CODE = 123;
 
-    Button testPage;
-    Button mapPage;
+    ImageButton testPage;
+    ImageButton mapPage;
     TextView wifiResults;
     BottomNavigationView bottomNavigationView;
     Button tracking;

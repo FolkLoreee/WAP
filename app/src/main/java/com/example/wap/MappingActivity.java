@@ -20,7 +20,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -55,10 +55,10 @@ public class MappingActivity extends AppCompatActivity implements View.OnTouchLi
     
     // XML Elements
     ImageView mapImage;
-    Button level1Btn;
-    Button level2Btn;
-    Button undo;
-    Button submit;
+    ImageButton level1Btn;
+    ImageButton level2Btn;
+    ImageButton undo;
+    ImageButton submit;
     TextView coordinatesText;
 
     //TODO: locationID will follow the locationID from the previous screen
@@ -135,11 +135,11 @@ public class MappingActivity extends AppCompatActivity implements View.OnTouchLi
         pointWAPFirebase = new WAPFirebase<>(MapPoint.class, "points");
         locationWAPFirebase = new WAPFirebase<>(Location.class, "locations");
         coordinatesText = (TextView) findViewById(R.id.coordinatesText);
-        level1Btn = (Button) findViewById(R.id.level1Btn);
-        level2Btn = (Button) findViewById(R.id.level2Btn);
+        level1Btn = (ImageButton) findViewById(R.id.level1Btn);
+        level2Btn = (ImageButton) findViewById(R.id.level2Btn);
 
-        undo = (Button) findViewById(R.id.undo);
-        submit = (Button) findViewById(R.id.submit);
+        undo = (ImageButton) findViewById(R.id.undo);
+        submit = (ImageButton) findViewById(R.id.submit);
 
         // Set up the map of level 1 by default
         mapImage = (ImageView) findViewById(R.id.mapImage);
@@ -470,9 +470,9 @@ public class MappingActivity extends AppCompatActivity implements View.OnTouchLi
 
                         // get the average wifi signal if the BSSID exists
                         ArrayList<Integer> readings = allSignals.get(macAddress);
-                        int averageSignal = WifiScan.calculateAverage(readings);
-                        int stdDevSignal = WifiScan.calculateStandardDeviation(readings, averageSignal);
-                        int averageSignalProcessed = WifiScan.calculateProcessedAverage(averageSignal);
+                        double averageSignal = WifiScan.calculateAverage(readings);
+                        double stdDevSignal = WifiScan.calculateStandardDeviation(readings, averageSignal);
+                        double averageSignalProcessed = WifiScan.calculateProcessedAverage(averageSignal);
 
                         Log.d(LOG_TAG, "MAC Address: " + macAddress + " , Wifi Signal: " + averageSignal + " , Wifi Signal (SD): " + stdDevSignal);
 

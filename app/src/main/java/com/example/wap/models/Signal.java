@@ -5,17 +5,18 @@ public class Signal {
     private String wifiSSID;
     private String wifiBSSID;
     //frequency of the AP
-    private int signalStrengthSD;
+    private double frequency;
+    private double signalStrengthSD;
     private String locationID;
     //strength of the signal
-    private int signalStrength;
-    private int signalStrengthProcessed;
-    //the actual distance calculated by the algorithm
+    private double signalStrength;
+    private double signalStrengthProcessed;
+    //the actual distance calculatedf by the algorithm
     private double calculatedDistance;
     //the measured distance from the map
     private double mapDistance;
-
-    public Signal(String signalID, String locationID, String wifiBSSID, String wifiSSID, int signalStrengthSD, int signalStrength, int signalStrengthProcessed, double mapDistance){
+    //TODO: remove frequency field, getter, setter and purge the DB
+    public Signal(String signalID, String locationID, String wifiBSSID, String wifiSSID, double signalStrengthSD, double signalStrength, double signalStrengthProcessed, double mapDistance) {
         this.locationID = locationID;
         this.wifiBSSID = wifiBSSID;
         this.wifiSSID = wifiSSID;
@@ -43,23 +44,19 @@ public class Signal {
         return wifiSSID;
     }
 
-    public double getFrequency() {
-        return signalStrengthSD;
-    }
-
     public String getLocationID() {
         return locationID;
     }
 
-    public int getSignalStrength() {
+    public double getSignalStrength() {
         return signalStrength;
     }
 
-    public int getSignalStrengthProcessed() {
+    public double getSignalStrengthProcessed() {
         return signalStrengthProcessed;
     }
 
-    public int getSignalStrengthSD() {
+    public double getSignalStrengthSD() {
         return signalStrengthSD;
     }
 
@@ -72,7 +69,7 @@ public class Signal {
     }
 
     public void setSignalID(String id) {
-        this.signalID= id;
+        this.signalID = id;
     }
 
     public void setCalculatedDistance(double calculatedDistance) {
@@ -87,15 +84,15 @@ public class Signal {
         this.wifiSSID = wifiSSID;
     }
 
-    public void setSignalStrengthOriginal(int signalStrength) {
+    public void setSignalStrengthOriginal(double signalStrength) {
         this.signalStrength = signalStrength;
     }
 
-    public void setSignalStrengthProcessed(int signalStrengthProcessed) {
+    public void setSignalStrengthProcessed(double signalStrengthProcessed) {
         this.signalStrengthProcessed = signalStrengthProcessed;
     }
 
-    public void setSignalStrengthSD(int signalStrengthSD) {
+    public void setSignalStrengthSD(double signalStrengthSD) {
         this.signalStrengthSD = signalStrengthSD;
     }
 
@@ -103,4 +100,6 @@ public class Signal {
         this.locationID = locationID;
     }
 
+    public double getFrequency(){return this.frequency;}
+    public void setFrequency(double frequency){this.frequency = frequency;}
 }
