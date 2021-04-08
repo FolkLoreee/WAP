@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -19,7 +18,7 @@ import android.os.StrictMode;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -34,11 +33,8 @@ import com.example.wap.models.MapPoint;
 import com.example.wap.models.Signal;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.storage.FirebaseStorage;
 
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -48,7 +44,7 @@ import java.util.Map;
 
 public class TestingActivity extends AppCompatActivity {
 
-    Button locateBtn;
+    ImageButton locateBtn;
     TextView calculatedPointData;
     ImageView mapImageView;
 
@@ -133,7 +129,7 @@ public class TestingActivity extends AppCompatActivity {
         });
 
         // Initialise XML elements
-        locateBtn = findViewById(R.id.locateBtn);
+        locateBtn = (ImageButton) findViewById(R.id.locateBtn);
         calculatedPointData = findViewById(R.id.calculatedPointData);
         mapImageView = findViewById(R.id.mapImageView);
 
