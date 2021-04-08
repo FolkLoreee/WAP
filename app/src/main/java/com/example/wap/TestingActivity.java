@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -19,7 +18,7 @@ import android.os.StrictMode;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -34,17 +33,18 @@ import com.example.wap.models.MapPoint;
 import com.example.wap.models.Signal;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.firebase.storage.FirebaseStorage;
 
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class TestingActivity extends AppCompatActivity {
 
-    Button locateBtn;
+    ImageButton locateBtn;
     TextView calculatedPointData;
     ImageView mapImageView;
 
@@ -71,6 +71,7 @@ public class TestingActivity extends AppCompatActivity {
     ArrayList<Double> targetStdDev;
     ArrayList<String> targetMacAdd;
 
+
     private final String locationID = "Bldg2ThinkTank";
 
     // data from firebase
@@ -84,6 +85,7 @@ public class TestingActivity extends AppCompatActivity {
     // pre-matching data format
     ArrayList<Integer> fingerprintData;
     ArrayList<Coordinate> fingerprintCoordinate;
+    private final int k = 4;
 
     // NEWLY ADDED FOR DATA CREATED AFTER PRE-MATCHING
     HashMap<String, HashMap<String, Double>> fingerprintOriginalAvgSignal;
@@ -96,8 +98,8 @@ public class TestingActivity extends AppCompatActivity {
     ArrayList<Double> jointProbArray = new ArrayList<>();
 
     // Weights for each algorithm in the weighted fusion algorithm
-    private final double weightEuclidDist = 0.5;
-    private final double weightJointProb = 0.5;
+    private final double weightEuclidDist = 0.25;
+    private final double weightJointProb = 0.75;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -127,16 +129,9 @@ public class TestingActivity extends AppCompatActivity {
         });
 
         // Initialise XML elements
-        locateBtn = findViewById(R.id.locateBtn);
+        locateBtn = (ImageButton) findViewById(R.id.locateBtn);
         calculatedPointData = findViewById(R.id.calculatedPointData);
         mapImageView = findViewById(R.id.mapImageView);
-
-        // delete old records
-//        WAPFirebase<Signal> signalsWAPFirebase = new WAPFirebase<Signal>(Signal.class,"signals");
-//        for (int i = 6411; i < 9999; i++) {
-//            String uuid = "SG-CampusCentre1-" + String.valueOf(i);
-//            signalsWAPFirebase.delete(uuid);
-//        }
 
         // TODO: Map should not be hardcoded; NEED TO CHANGE
         WAPFirebase<Location> locationWAPFirebase = new WAPFirebase<>(Location.class, "locations");
@@ -163,7 +158,7 @@ public class TestingActivity extends AppCompatActivity {
                                 locateBtn.setVisibility(View.VISIBLE);
                                 calculatedPointData.setVisibility(View.VISIBLE);
                             } catch (IOException e) {
-                                Log.d("Help", String.valueOf(e));
+                                Log.d("Map cannot be displayed", String.valueOf(e));
                             }
                         }
                     }
@@ -182,6 +177,11 @@ public class TestingActivity extends AppCompatActivity {
         locateBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+//                String device1 = "SG-Bldg2ThinkTank-495-31-";
+//                String device2 = "SG-null-448-72-";
+//
+//                WifiScan.compareDeviceWifiValues(device1, device2);
+
                 // Initialise hashmaps
                 // Re-initialise these maps upon each click
                 pointsFB = new HashMap<>();
@@ -344,6 +344,7 @@ public class TestingActivity extends AppCompatActivity {
 
         private Coordinate calculatePosition() {
             preMatching();
+
         /*
         // pre-matching fingerprints
         DataPrematching dataPrematch = new DataPrematching();
@@ -361,16 +362,6 @@ public class TestingActivity extends AppCompatActivity {
             Coordinate calculatedPoint2 = algorithm.jointProbability(targetDataOriginal, targetMacAdd);
             Coordinate finalPoint = algorithm.weightedFusion(calculatedPoint1, calculatedPoint2);
 
-         /*
-
-        preMatching();
-        Coordinate calculatedPoint1 = euclideanDistance();
-        Coordinate calculatedPoint2 = jointProbability();
-        Coordinate finalPoint = weightedFusion(calculatedPoint1, calculatedPoint2);
-
-          */
-
-
             StringBuilder sb = new StringBuilder();
             sb.append("Euclidean Distance results: x = ");
             sb.append(calculatedPoint1.getX());
@@ -387,15 +378,13 @@ public class TestingActivity extends AppCompatActivity {
             System.out.println("Euclidean Distance results: " + stringifyPosition(calculatedPoint1));
             System.out.println("Joint Probability results: " + stringifyPosition(calculatedPoint2));
 
-
             //Coordinate finalPoint = new Coordinate(0, 0);
             return finalPoint;
         }
 
-
         private void preMatching() {
 
-            double threshold = 0.4;
+            double threshold = 0.8;
 
             // get FLAG value
             double total = 0;
@@ -414,7 +403,6 @@ public class TestingActivity extends AppCompatActivity {
                 }
             }
 
-
             // compare bssid in each fingerprint with the list of bssid from wifi scan at target location
             for (String pointID : pointsFB.keySet()) {
                 // System.out.println("Size of each fingerprint: " + pointsFB.get(pointID).size());
@@ -430,15 +418,14 @@ public class TestingActivity extends AppCompatActivity {
 
                 // compare the bssid between fingerprint and target location
                 // if the bssid of the target location is not in the fingerprint, eliminate the fingerprint
-                for (String bssid : targetMacAdd) {
+                for (String bssid : filteredMac) {
                     if (listOfBSSID.contains(bssid)) {
                         count++;
                     }
                 }
 
                 // calculating the percentage match
-                double percentMatch = (double) count / targetMacAdd.size();
-                System.out.println(percentMatch);
+                double percentMatch = (double) count / filteredMac.size();
                 if (percentMatch < threshold) {
                     check = false;
                 }
@@ -460,16 +447,112 @@ public class TestingActivity extends AppCompatActivity {
                     HashMap<String, Double> avgSignalFingerprint = new HashMap<>();
                     HashMap<String, Double> stdDevSignalFingerprint = new HashMap<>();
                     HashMap<String, Double> originalAvgSignalFingerprint = new HashMap<>();
+
                     for (String signalID : allSignals) {
                         originalAvgSignalFingerprint.put(signalBSSIDFB.get(signalID), signalStrengthOriginalFB.get(signalID));
                         avgSignalFingerprint.put(signalBSSIDFB.get(signalID), signalStrengthFB.get(signalID));
                         stdDevSignalFingerprint.put(signalBSSIDFB.get(signalID), signalStrengthSDFB.get(signalID));
                     }
+
                     fingerprintOriginalAvgSignal.put(coordinatesStr, originalAvgSignalFingerprint);
                     fingerprintAvgSignal.put(coordinatesStr, avgSignalFingerprint);
                     fingerprintStdDevSignal.put(coordinatesStr, stdDevSignalFingerprint);
                 }
             }
         }
+
+        private void preMatching2() {
+
+            // get FLAG value
+            double total = 0;
+            for (double strength : targetData) {
+                total += strength;
+            }
+
+            final double FLAG = total / targetData.size();
+
+            // get a list of mac address where the signal strength pass the FLAG value
+            ArrayList<String> filteredMac = new ArrayList<>();
+            for (int i = 0; i < targetData.size(); i++) {
+                double strength = targetData.get(i);
+                if (Math.abs(strength) > Math.abs(FLAG)) {
+                    filteredMac.add(targetMacAdd.get(i));
+                }
+            }
+
+            // Hashmap to store the percentMatch to each fingerprint
+            HashMap<String, Double> fingerprintsMatch = new HashMap<>();
+            ArrayList<Double> matches = new ArrayList<>();
+
+            // compare bssid in each fingerprint with the list of bssid from wifi scan at target location
+            for (String pointID : pointsFB.keySet()) {
+                int count = 0;
+                ArrayList<String> allSignals = pointsFB.get(pointID);
+                ArrayList<String> listOfBSSID = new ArrayList<>();
+
+                // for each signal, retrieve the corresponding bssid
+                for (String signalID : allSignals) {
+                    listOfBSSID.add(signalBSSIDFB.get(signalID));
+                }
+
+                // compare the bssid between fingerprint and target location
+                // if the bssid of the target location is not in the fingerprint, eliminate the fingerprint
+                for (String bssid : filteredMac) {
+                    if (listOfBSSID.contains(bssid)) {
+                        count++;
+                    }
+                }
+
+                // calculating the percentage match
+                double percentMatch = (double) count / filteredMac.size();
+                fingerprintsMatch.put(pointID, percentMatch);
+                matches.add(percentMatch);
+            }
+
+            // sort the matches list in descending order to find top 4 fingerprints
+            Collections.sort(matches);
+            Collections.reverse(matches);
+
+            for (int i = 0; i < 6; i++) {
+                String fingerprintID = "";
+                for (Map.Entry<String, Double> fingerprint : fingerprintsMatch.entrySet()) {
+                    if (fingerprint.getValue().equals(matches.get(i))) {
+                        // get the key of this particular value which is the ID of the fingerprint
+                        fingerprintID = fingerprint.getKey();
+                    }
+                }
+
+                // get coordinates of this fingerprint
+                Coordinate coordinates = pointsCoordinatesFB.get(fingerprintID);
+                fingerprintCoordinate.add(coordinates);
+
+                // convert coordinates to string to store as key values for the hashmaps
+                StringBuilder str = new StringBuilder();
+                str.append(coordinates.getX());
+                str.append(", ");
+                str.append(coordinates.getY());
+                String coordinatesStr = str.toString();
+
+                // create a hashmap for each mac address and corresponding signal strength at this fingerprint
+                HashMap<String, Double> avgSignalFingerprint = new HashMap<>();
+                HashMap<String, Double> stdDevSignalFingerprint = new HashMap<>();
+                HashMap<String, Double> originalAvgSignalFingerprint = new HashMap<>();
+
+                for (String signalID : pointsFB.get(fingerprintID)) {
+                    originalAvgSignalFingerprint.put(signalBSSIDFB.get(signalID), signalStrengthOriginalFB.get(signalID));
+                    avgSignalFingerprint.put(signalBSSIDFB.get(signalID), signalStrengthFB.get(signalID));
+                    stdDevSignalFingerprint.put(signalBSSIDFB.get(signalID), signalStrengthSDFB.get(signalID));
+                }
+
+                fingerprintOriginalAvgSignal.put(coordinatesStr, originalAvgSignalFingerprint);
+                fingerprintAvgSignal.put(coordinatesStr, avgSignalFingerprint);
+                fingerprintStdDevSignal.put(coordinatesStr, stdDevSignalFingerprint);
+
+                fingerprintsMatch.remove(fingerprintID);
+            }
+        }
     }
 }
+
+
+

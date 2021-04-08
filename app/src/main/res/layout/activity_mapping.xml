@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
+    android:background="@drawable/background"
     tools:context=".MappingActivity">
 
 
@@ -18,30 +18,26 @@
         tools:ignore="MissingConstraints"
         tools:layout_editor_absoluteX="0dp">
 
-        <Button
+        <ImageButton
             android:id="@+id/level1Btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="84dp"
-            android:layout_marginLeft="84dp"
-            android:background="#C6F63FB9"
-            android:backgroundTint="#C6F63FB9"
-            android:text="Level 1"
-            app:backgroundTint="#C6F63FB9"
+            android:layout_width="100dp"
+            android:layout_height="35dp"
+            android:layout_marginStart="48dp"
+            android:layout_marginLeft="48dp"
+            android:src="@drawable/level1button"
             app:layout_constraintStart_toStartOf="parent"
-            tools:layout_editor_absoluteY="0dp" />
+            tools:layout_editor_absoluteY="7dp" />
 
-        <Button
+        <ImageButton
             android:id="@+id/level2Btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="88dp"
-            android:layout_marginRight="88dp"
-            android:text="Level 2"
-            app:backgroundTint="#C6F63FB9"
+            android:layout_width="100dp"
+            android:layout_height="35dp"
+            android:layout_marginEnd="68dp"
+            android:layout_marginRight="68dp"
+            android:src="@drawable/lvl2button"
 
             app:layout_constraintEnd_toEndOf="parent"
-            tools:layout_editor_absoluteY="0dp"></Button>
+            tools:layout_editor_absoluteY="7dp" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -63,44 +59,43 @@
         android:layout_height="359dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/coordinatesText"
-        app:layout_constraintVertical_bias="0.044"
+        app:layout_constraintVertical_bias="0.048"
         tools:ignore="MissingConstraints"></ImageView>
 
-    <Button
+    <ImageButton
         android:id="@+id/undo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="132dp"
+        android:layout_height="42dp"
+        android:src="@drawable/undobutton"
         android:text="undo"
-        app:backgroundTint="#C6F63FB9"
-
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.136"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.863"></Button>
+        app:layout_constraintVertical_bias="0.863"></ImageButton>
 
-    <Button
+    <ImageButton
         android:id="@+id/submit"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="135dp"
+        android:layout_height="41dp"
+        android:src="@drawable/submitbutton"
         android:text="submit"
-        app:backgroundTint="#C6F63FB9"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.844"
+        app:layout_constraintHorizontal_bias="0.822"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.863"></Button>
+        app:layout_constraintVertical_bias="0.862"></ImageButton>
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_nav_bar"
         android:layout_width="match_parent"
         android:layout_height="60dp"
-        android:background="@color/white"
+        android:background="@drawable/background"
 
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent"
