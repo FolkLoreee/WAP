@@ -71,7 +71,7 @@ public class TestingActivity extends AppCompatActivity {
     ArrayList<Double> targetStdDev;
     ArrayList<String> targetMacAdd;
 
-    private final String locationID = "Bldg2ThinkTank";
+    private final String locationID = "OutsideCampusCenterTest";
 
     // data from firebase
     HashMap<String, ArrayList<String>> pointsFB;
@@ -342,16 +342,37 @@ public class TestingActivity extends AppCompatActivity {
     }
 
     private Coordinate calculatePosition() {
-        // pre-matching fingerprints
         preMatching();
+        /*
+        // pre-matching fingerprints
+        DataPrematching dataPrematch = new DataPrematching();
+        dataPrematch.preMatching(targetData, targetMacAdd, pointsFB, pointsCoordinatesFB,  signalStrengthFB,  signalStrengthOriginalFB, signalBSSIDFB, signalStrengthSDFB);
+
+         */
+
+
 
         //create the Algorithm object
-        // Algorithm algorithm = new Algorithm(fingerprintOriginalAvgSignal, fingerprintAvgSignal, fingerprintStdDevSignal, fingerprintCoordinate);
+        Algorithm algorithm = new Algorithm(fingerprintOriginalAvgSignal, fingerprintAvgSignal, fingerprintStdDevSignal, fingerprintCoordinate);
+
+
 
         // weighted fusion
+        Coordinate calculatedPoint1 = algorithm.euclideanDistance(targetData, targetStdDev, targetMacAdd);
+        Coordinate calculatedPoint2 = algorithm.jointProbability(targetDataOriginal, targetMacAdd);
+        Coordinate finalPoint = algorithm.weightedFusion(calculatedPoint1, calculatedPoint2);
+
+         /*
+
+        preMatching();
         Coordinate calculatedPoint1 = euclideanDistance();
         Coordinate calculatedPoint2 = jointProbability();
         Coordinate finalPoint = weightedFusion(calculatedPoint1, calculatedPoint2);
+
+          */
+
+
+
 
         StringBuilder sb = new StringBuilder();
         sb.append("Euclidean Distance results: x = ");
@@ -369,8 +390,12 @@ public class TestingActivity extends AppCompatActivity {
         System.out.println("Euclidean Distance results: " + stringifyPosition(calculatedPoint1));
         System.out.println("Joint Probability results: " + stringifyPosition(calculatedPoint2));
 
+
+        //Coordinate finalPoint = new Coordinate(0, 0);
         return finalPoint;
     }
+
+
 
     private void preMatching() {
 
@@ -464,6 +489,7 @@ public class TestingActivity extends AppCompatActivity {
      * Retrieve the corresponding average and standard deviation values for each mac address by the index value
      * */
 
+    /*
 
     public Coordinate euclideanDistance() {
         double numeratorX = 0;
@@ -673,5 +699,8 @@ public class TestingActivity extends AppCompatActivity {
         }
         return Math.log10(probability);
     }
+
+     */
+
 
 }

@@ -53,70 +53,134 @@ public class AlgorithmTest{
         fingerprintCoordinate.add(new Coordinate(1,1));
         fingerprintCoordinate.add(new Coordinate(2, 5));
         fingerprintCoordinate.add(new Coordinate(3,4));
-        fingerprintCoordinate.add(new Coordinate(9,1));
+        fingerprintCoordinate.add(new Coordinate(9, 1));
         fingerprintCoordinate.add(new Coordinate(6, 7));
-        fingerprintCoordinate.add(new Coordinate(3,8));
+        fingerprintCoordinate.add(new Coordinate(3, 8));
 
-       //HashMap<macAddress, originalAverageWifiSignal>, data necesscary for fingerprintOriginalAvgSignal
-       HashMap<String, Double> subfingerprintOriginalAvgSignalCoor01 = new HashMap<>();
-       subfingerprintOriginalAvgSignalCoor01.put("wifi-signal-1", 75.0);
-       subfingerprintOriginalAvgSignalCoor01.put("wifi-signal-3", 15.5);
-       subfingerprintOriginalAvgSignalCoor01.put("wifi-signal-7", 33.7);
-        subfingerprintOriginalAvgSignalCoor01.put("wifi-signal-10", 55.0);
-        subfingerprintOriginalAvgSignalCoor01.put("wifi-signal-001", 66.5);
-        subfingerprintOriginalAvgSignalCoor01.put("wifi-signal-0", 39.15);
-        subfingerprintOriginalAvgSignalCoor01.put("wifi-signal-17", 25.0);
-        subfingerprintOriginalAvgSignalCoor01.put("wifi-signal-5", 52.5);
-        subfingerprintOriginalAvgSignalCoor01.put("wifi-signal-722", 13.7);
+        HashMap<String, Double> subfingerprintStdDevSignalCoor01 = new HashMap<>();
+        subfingerprintStdDevSignalCoor01.put("wifi-signal-1", 1.34569);
+        subfingerprintStdDevSignalCoor01.put("wifi-signal-3", 2.1234);
+        subfingerprintStdDevSignalCoor01.put("wifi-signal-2", 0.73890);
+        subfingerprintStdDevSignalCoor01.put("wifi-signal-5", 2.0597);
+        subfingerprintStdDevSignalCoor01.put("wifi-signal-6", 1.00987);
+
+
+        HashMap<String, Double> subfingerprintStdDevSignalCoor02 = new HashMap<>();
+        subfingerprintStdDevSignalCoor02.put("wifi-signal-1", 1.4567);
+        subfingerprintStdDevSignalCoor02.put("wifi-signal-3", 1.00953);
+        subfingerprintStdDevSignalCoor02.put("wifi-signal-2", 2.138);
+        subfingerprintStdDevSignalCoor02.put("wifi-signal-4", 1.64380);
+        subfingerprintStdDevSignalCoor02.put("wifi-signal-5", 0.0875);
+        subfingerprintStdDevSignalCoor02.put("wifi-signal-6", 0.0354);
+
+        HashMap<String, Double> subfingerprintStdDevSignalCoor03 = new HashMap<>();
+        subfingerprintStdDevSignalCoor03.put("wifi-signal-2", 2.0583);
+        subfingerprintStdDevSignalCoor03.put("wifi-signal-3", 0.0001);
+        subfingerprintStdDevSignalCoor03.put("wifi-signal-1", 0.0000);
+        subfingerprintStdDevSignalCoor03.put("wifi-signal-4", 1.5678);
+        subfingerprintStdDevSignalCoor03.put("wifi-signal-6", 2.457);
+        subfingerprintStdDevSignalCoor03.put("wifi-signal-0", 1.474);
+
+
+        HashMap<String, Double> subfingerprintStdDevSignalCoor04 = new HashMap<>();
+        subfingerprintStdDevSignalCoor04.put("wifi-signal-3", 2.0453);
+        subfingerprintStdDevSignalCoor04.put("wifi-signal-5", 0.98439);
+        subfingerprintStdDevSignalCoor04.put("wifi-signal-1", 1.4567);
+        subfingerprintStdDevSignalCoor04.put("wifi-signal-4", 1.05342);
+        subfingerprintStdDevSignalCoor04.put("wifi-signal-22", 2.138);
+        subfingerprintStdDevSignalCoor04.put("wifi-signal-2", 1.9758);
+
+        HashMap<String, Double> subfingerprintStdDevSignalCoor05 = new HashMap<>();
+        subfingerprintStdDevSignalCoor05.put("wifi-signal-2", 1.00492);
+        subfingerprintStdDevSignalCoor05.put("wifi-signal-3", 1.4968);
+        subfingerprintStdDevSignalCoor05.put("wifi-signal-1", 0.07947);
+        subfingerprintStdDevSignalCoor05.put("wifi-signal-4", 1.4280);
+        subfingerprintStdDevSignalCoor05.put("wifi-signal-5", 0.09142);
+        subfingerprintStdDevSignalCoor05.put("wifi-signal-6", 1.0003);
+
+        HashMap<String, Double> subfingerprintStdDevSignalCoor06 = new HashMap<>();
+        subfingerprintStdDevSignalCoor06.put("wifi-signal-202", 1.04523);
+        subfingerprintStdDevSignalCoor06.put("wifi-signal-1", 1.04523);
+        subfingerprintStdDevSignalCoor06.put("wifi-signal-2", 0.9538);
+        subfingerprintStdDevSignalCoor06.put("wifi-signal-6", 1.6483);
+        subfingerprintStdDevSignalCoor06.put("wifi-signal-4", 2.4515);
+        subfingerprintStdDevSignalCoor06.put("wifi-signal-5", 2.415957);
+
+        HashMap<String, HashMap<String, Double>> fingerprintStdDevSignal = new HashMap<>();
+        fingerprintStdDevSignal.put(new Coordinate(1,1).toString(), subfingerprintStdDevSignalCoor01);
+        fingerprintStdDevSignal.put(new Coordinate(2, 5).toString(), subfingerprintStdDevSignalCoor02);
+        fingerprintStdDevSignal.put(new Coordinate(3, 4).toString(), subfingerprintStdDevSignalCoor03);
+        fingerprintStdDevSignal.put(new Coordinate(9,1).toString(), subfingerprintStdDevSignalCoor04);
+        fingerprintStdDevSignal.put(new Coordinate(6, 7).toString(), subfingerprintStdDevSignalCoor05);
+        fingerprintStdDevSignal.put(new Coordinate(3, 8).toString(), subfingerprintStdDevSignalCoor06);
+
+
+        /**
+         * Currently, our processed avg values and original average values are the same
+         */
+
+        //HashMap<macAddress, originalAverageWifiSignal>, data necesscary for fingerprintOriginalAvgSignal
+        HashMap<String, Double> subfingerprintOriginalAvgSignalCoor01 = new HashMap<>();
+        subfingerprintOriginalAvgSignalCoor01.put("wifi-signal-1", 75.0);
+        subfingerprintOriginalAvgSignalCoor01.put("wifi-signal-3", 15.5);
+        subfingerprintOriginalAvgSignalCoor01.put("wifi-signal-2", 33.7);
+        subfingerprintOriginalAvgSignalCoor01.put("wifi-signal-5", 55.0);
+        subfingerprintOriginalAvgSignalCoor01.put("wifi-signal-6", 66.5);
 
         HashMap<String, Double> subfingerprintOriginalAvgSignalCoor02 = new HashMap<>();
         subfingerprintOriginalAvgSignalCoor02.put("wifi-signal-1", 75.0);
-        subfingerprintOriginalAvgSignalCoor02.put("wifi-signal-33", 15.5);
-        subfingerprintOriginalAvgSignalCoor02.put("wifi-signal-7", 33.7);
-        subfingerprintOriginalAvgSignalCoor02.put("wifi-signal-10", 55.0);
-        subfingerprintOriginalAvgSignalCoor02.put("wifi-signal-001", 66.5);
-        subfingerprintOriginalAvgSignalCoor02.put("wifi-signal-0", 39.15);
-        subfingerprintOriginalAvgSignalCoor02.put("wifi-signal-17", 25.0);
-        subfingerprintOriginalAvgSignalCoor02.put("wifi-signal-50", 52.5);
-        subfingerprintOriginalAvgSignalCoor02.put("wifi-signal-722", 13.7);
+        subfingerprintOriginalAvgSignalCoor02.put("wifi-signal-3", 15.5);
+        subfingerprintOriginalAvgSignalCoor02.put("wifi-signal-2", 33.7);
+        subfingerprintOriginalAvgSignalCoor02.put("wifi-signal-4", 55.0);
+        subfingerprintOriginalAvgSignalCoor02.put("wifi-signal-5", 66.5);
+        subfingerprintOriginalAvgSignalCoor02.put("wifi-signal-6", 39.15);
 
         HashMap<String, Double> subfingerprintOriginalAvgSignalCoor03 = new HashMap<>();
         subfingerprintOriginalAvgSignalCoor03.put("wifi-signal-2", 95.0);
         subfingerprintOriginalAvgSignalCoor03.put("wifi-signal-3", -100.0);
         subfingerprintOriginalAvgSignalCoor03.put("wifi-signal-1", -33.7);
         subfingerprintOriginalAvgSignalCoor03.put("wifi-signal-4", 85.0);
-        subfingerprintOriginalAvgSignalCoor03.put("wifi-signal-88", 66.5);
+        subfingerprintOriginalAvgSignalCoor03.put("wifi-signal-6", 66.5);
         subfingerprintOriginalAvgSignalCoor03.put("wifi-signal-0", 39.15);
-        subfingerprintOriginalAvgSignalCoor03.put("wifi-signal-17", 25.0);
-        subfingerprintOriginalAvgSignalCoor03.put("wifi-signal-5", 52.5);
-        subfingerprintOriginalAvgSignalCoor03.put("wifi-signal-62", 13.7);
 
         HashMap<String, Double> subfingerprintOriginalAvgSignalCoor04 = new HashMap<>();
-        subfingerprintOriginalAvgSignalCoor04.put("wifi-signal-345", 95.0);
-        subfingerprintOriginalAvgSignalCoor04.put("wifi-signal-90", -100.0);
+        subfingerprintOriginalAvgSignalCoor04.put("wifi-signal-3", 95.0);
+        subfingerprintOriginalAvgSignalCoor04.put("wifi-signal-5", -100.0);
+        subfingerprintOriginalAvgSignalCoor04.put("wifi-signal-1", 95.0);
+        subfingerprintOriginalAvgSignalCoor04.put("wifi-signal-4", -100.0);
+        subfingerprintOriginalAvgSignalCoor04.put("wifi-signal-22", 95.0);
+        subfingerprintOriginalAvgSignalCoor04.put("wifi-signal-2", -100.0);
 
         HashMap<String, Double> subfingerprintOriginalAvgSignalCoor05 = new HashMap<>();
         subfingerprintOriginalAvgSignalCoor05.put("wifi-signal-2", 65.0);
         subfingerprintOriginalAvgSignalCoor05.put("wifi-signal-3", -100.0);
         subfingerprintOriginalAvgSignalCoor05.put("wifi-signal-1", 133.7);
         subfingerprintOriginalAvgSignalCoor05.put("wifi-signal-4", -43.0);
-        subfingerprintOriginalAvgSignalCoor05.put("wifi-signal-88", 66.5);
-        subfingerprintOriginalAvgSignalCoor05.put("wifi-signal-003", 39.15);
+        subfingerprintOriginalAvgSignalCoor05.put("wifi-signal-5", 66.5);
+        subfingerprintOriginalAvgSignalCoor05.put("wifi-signal-6", 39.15);
 
         HashMap<String, Double> subfingerprintOriginalAvgSignalCoor06 = new HashMap<>();
         subfingerprintOriginalAvgSignalCoor06.put("wifi-signal-202", -100.0);
+        subfingerprintOriginalAvgSignalCoor06.put("wifi-signal-1", -30.0);
+        subfingerprintOriginalAvgSignalCoor06.put("wifi-signal-2", -80.0);
+        subfingerprintOriginalAvgSignalCoor06.put("wifi-signal-6", 69.0);
+        subfingerprintOriginalAvgSignalCoor06.put("wifi-signal-4", -29.0);
+        subfingerprintOriginalAvgSignalCoor06.put("wifi-signal-5", 98.0);
 
 
-        HashMap<Coordinate, HashMap<String, Double>> fingerprintOriginalAvgSignal = new HashMap<>();
-        fingerprintOriginalAvgSignal.put(new Coordinate(1,1), subfingerprintOriginalAvgSignalCoor01);
-        fingerprintOriginalAvgSignal.put(new Coordinate(2, 5), subfingerprintOriginalAvgSignalCoor02);
-        fingerprintOriginalAvgSignal.put(new Coordinate(3, 4), subfingerprintOriginalAvgSignalCoor03);
-        fingerprintOriginalAvgSignal.put(new Coordinate(9,1), subfingerprintOriginalAvgSignalCoor04);
-        fingerprintOriginalAvgSignal.put(new Coordinate(6, 7), subfingerprintOriginalAvgSignalCoor05);
-        fingerprintOriginalAvgSignal.put(new Coordinate(3, 8), subfingerprintOriginalAvgSignalCoor06);
+
+        HashMap<String, HashMap<String, Double>> fingerprintOriginalAvgSignal = new HashMap<>();
+        fingerprintOriginalAvgSignal.put(new Coordinate(1,1).toString(), subfingerprintOriginalAvgSignalCoor01);
+        fingerprintOriginalAvgSignal.put(new Coordinate(2, 5).toString(), subfingerprintOriginalAvgSignalCoor02);
+        fingerprintOriginalAvgSignal.put(new Coordinate(3, 4).toString(), subfingerprintOriginalAvgSignalCoor03);
+        fingerprintOriginalAvgSignal.put(new Coordinate(9,1).toString(), subfingerprintOriginalAvgSignalCoor04);
+        fingerprintOriginalAvgSignal.put(new Coordinate(6, 7).toString(), subfingerprintOriginalAvgSignalCoor05);
+        fingerprintOriginalAvgSignal.put(new Coordinate(3, 8).toString(), subfingerprintOriginalAvgSignalCoor06);
 
 
-        algo = new Algorithm();
+
+
+        algo = new Algorithm(fingerprintOriginalAvgSignal, fingerprintOriginalAvgSignal, fingerprintStdDevSignal, fingerprintCoordinate);
     }
     /*
     *Test cases for calculating X,Y Coordinate from Joint Probability method
@@ -181,10 +245,8 @@ public class AlgorithmTest{
         targetMacAddress.add("wifi-signal-6");
 
         Coordinate output = algo.jointProbability(targetDataOriginal, targetMacAddress);
-
-        //  TODO:need to change after writing the input values for fingerprint
-        assertEquals(4.5, output.getX(), DELTA);
-        assertEquals(4.5, output.getY(), DELTA);
+        assertEquals(3.0356561839986136, output.getX(), DELTA);
+        assertEquals(4.589661312280158, output.getY(), DELTA);
     }
 
     @Test
@@ -207,9 +269,8 @@ public class AlgorithmTest{
         targetMacAddress.add("wifi-signal-6");
 
         Coordinate output = algo.jointProbability(targetDataOriginal, targetMacAddress);
-        //  TODO:need to fix the expected values
-        assertEquals(4.783444809515455, output.getX(), DELTA);
-        assertEquals(4.380983164837119, output.getY(), DELTA);
+        assertEquals(3.161159868266154, output.getX(), DELTA);
+        assertEquals(4.072148893640588, output.getY(), DELTA);
 
 
     }
@@ -262,8 +323,7 @@ public class AlgorithmTest{
         euclideanArray.add(1.001);
 
         Coordinate output = algo.calculateEuclideanCoordinate(euclideanArray);
-        //  TODO: need to fix the expected values
-        assertEquals(3.8455745350405257, output.getX(), DELTA);
+        assertEquals( 3.8455745350405257, output.getX(), DELTA);
         assertEquals(5.863858525140664, output.getY(), DELTA);
     }
 
@@ -294,9 +354,11 @@ public class AlgorithmTest{
         targetMacAddress.add("wifi-signal-6");
 
         Coordinate output = algo.euclideanDistance(targetData,  targetStdDev,  targetMacAddress);
-        //  TODO: need to fix the expected values
-        assertEquals(3.8455745350405257, output.getX(), DELTA);
-        assertEquals(5.863858525140664, output.getY(), DELTA);
+        double coorX = (double) Math.round(output.getX() * 10000) / 10000;
+        double coorY = (double) Math.round(output.getY() * 10000) / 10000;
+        assertEquals(4.4827, coorX, DELTA);
+        assertEquals(4.7050, coorY, DELTA);
+
 
     }
 

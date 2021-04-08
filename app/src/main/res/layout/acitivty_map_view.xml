@@ -21,16 +21,14 @@
     <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
-        android:layout_below="@+id/gridView">
+        android:layout_below="@+id/gridView"
+        android:layout_marginTop="-52dp">
 
         <Button
             android:id="@+id/up"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:layout_centerHorizontal="true"
-           >
-        </Button>
+            android:layout_centerHorizontal="true"></Button>
 
         <Button
             android:id="@+id/down"
@@ -38,8 +36,7 @@
             android:layout_height="40dp"
             android:layout_below="@+id/up"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="80dp">
-        </Button>
+            android:layout_marginTop="80dp"></Button>
 
         <Button
             android:id="@+id/right"
@@ -59,19 +56,18 @@
             android:layout_below="@+id/up"
             android:layout_alignParentStart="true"
             android:layout_alignParentLeft="true"
-            android:layout_marginTop="15dp"
+            android:layout_alignParentRight="true"
             android:layout_marginLeft="80dp"
-            android:layout_alignParentRight="true"></Button>
+            android:layout_marginTop="15dp"></Button>
 
         <Button
             android:id="@+id/submit"
             android:layout_width="wrap_content"
-            android:text="submit"
             android:layout_height="40dp"
             android:layout_below="@+id/down"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="20dp"
-            ></Button>
+            android:text="submit"></Button>
 
     </RelativeLayout>
 

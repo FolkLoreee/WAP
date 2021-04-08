@@ -391,6 +391,7 @@ public class MapViewActivity extends AppCompatActivity {
                                 Toast.makeText(MapViewActivity.this, "Successfully created a point", Toast.LENGTH_SHORT).show();
                                 currentLocation.incrementSignalCounter();
                                 Log.d("FIREBASE", "signal successfully posted");
+                                Log.d("Location ID", locationID);
                                 locationWAPFirebase.update(currentLocation, locationID);
                             }
                         });

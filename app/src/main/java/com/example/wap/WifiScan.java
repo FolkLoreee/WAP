@@ -14,6 +14,10 @@ import java.util.List;
 
 public class WifiScan {
 
+    public WifiScan(){
+
+    }
+
     public static Double calculateAverage(List<Integer> readings) {
         //RANDOM ERROR: Data Cleaning - if there's a missed reading in readings, then, set the average to -100
         if (readings.contains(null)){
