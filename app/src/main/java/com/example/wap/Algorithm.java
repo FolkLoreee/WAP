@@ -1,9 +1,16 @@
 package com.example.wap;
 
+import com.example.wap.firebase.WAPFirebase;
 import com.example.wap.models.Coordinate;
+import com.example.wap.models.MapPoint;
+import com.example.wap.models.Signal;
+import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+
+import static com.example.wap.MapViewActivity.locationID;
+
 
 public class Algorithm {
 
@@ -20,7 +27,8 @@ public class Algorithm {
     ArrayList<Double> euclideanArray;
     // create an arraylist to store the jointprob i values
     ArrayList<Double> jointProbArray;
-
+    //coordinateKey
+    ArrayList<String> coordinateKey;
 
     // wifi scan data from target location
     ArrayList<Double> targetDataOriginal;
@@ -49,23 +57,27 @@ public class Algorithm {
 
     }
 
-    public Algorithm(HashMap<String, HashMap<String, Double>> fingerprintOriginalAvgSignal, HashMap<String, HashMap<String, Double>> fingerprintAvgSignal, HashMap<String, HashMap<String, Double>> fingerprintStdDevSignal, ArrayList<Coordinate> fingerprintCoordinate) {
+
+    public Algorithm(HashMap<String, HashMap<String, Double>> fingerprintOriginalAvgSignal, HashMap<String, HashMap<String, Double>> fingerprintOriginalAvgSignal1, HashMap<String, HashMap<String, Double>> fingerprintStdDevSignal, ArrayList<Coordinate> fingerprintCoordinate) {
         this.fingerprintData = new ArrayList<>();
         this.fingerprintCoordinate = fingerprintCoordinate;
 
         this.fingerprintOriginalAvgSignal = fingerprintOriginalAvgSignal;
-        this.fingerprintAvgSignal = fingerprintAvgSignal;
+        this.fingerprintAvgSignal = fingerprintOriginalAvgSignal;
         this.fingerprintStdDevSignal = fingerprintStdDevSignal;
+
 
 //        this.targetData = new ArrayList<>();
 //        this.targetMacAdd = new ArrayList<>();
 //        this.targetDataOriginal = new ArrayList<>();
 //        this.targetStdDev = new ArrayList<>();
+        this.coordinateKey = new ArrayList<>();
         this.euclideanArray = new ArrayList<>();
         this.jointProbArray = new ArrayList<>();
     }
+    /*
 
-    private String calculatePosition() {
+    public Coordinate calculatePosition(ArrayList<Double> targetDataOriginal,ArrayList<Double> targetData, ArrayList<Double> targetStdDev, ArrayList<String> targetMacAdd) {
         // pre-matching fingerprints
         //preMatching(targetData, targetMacAdd);
 
@@ -92,7 +104,7 @@ public class Algorithm {
         sb.append(", y = ");
         sb.append(finalPoint.getY());
 
-        return sb.toString();
+        return finalPoint;
     }
     /*
 
@@ -182,14 +194,18 @@ public class Algorithm {
 
     public Coordinate euclideanDistance(ArrayList<Double> targetData, ArrayList<Double> targetStdDev, ArrayList<String> targetMacAdd) {
 
-
-        //euclidean distance
-        double euclideanDis = 0;
+        //retrieve the keys of the fingerprint
+        for (String coorStr : fingerprintAvgSignal.keySet()){
+            coordinateKey.add(coorStr);
+        }
 
         //the number of coordinates
         for (int i = 1; i <= fingerprintCoordinate.size() ; i++) {
-            HashMap<String, Double> subFingerprintAvgSignal = fingerprintAvgSignal.get(fingerprintCoordinate.get(i-1));
-            HashMap<String, Double> subFingerprintStdDevSignal = fingerprintStdDevSignal.get(fingerprintCoordinate.get(i-1));
+            //euclidean distance
+            double euclideanDis = 0;
+
+            HashMap<String, Double> subFingerprintAvgSignal = fingerprintAvgSignal.get(coordinateKey.get(i-1));
+            HashMap<String, Double> subFingerprintStdDevSignal = fingerprintStdDevSignal.get(coordinateKey.get(i-1));
 
             //the number of the values of mac addresses
             for (int k = 1; k < targetData.size() + 1; k++) {
@@ -251,30 +267,50 @@ public class Algorithm {
     // wifi scan data from target location
     ;
     public Coordinate jointProbability(ArrayList<Double> targetDataOriginal, ArrayList<String> targetMacAdd) {
-        double Pik = 1;
-        double jointProbi = 1;
+
+        //retrieve the keys of the fingerprint
+        for (String coorStr : fingerprintAvgSignal.keySet()){
+            coordinateKey.add(coorStr);
+        }
+
+        for (int i = 1; i <fingerprintCoordinate.size()+1 ; i++) {
+
+            double Pik = 1;
+            double jointProbi = 1;
+
+            HashMap<String, Double> subFingerprintOriginalAvgSignalJP = fingerprintOriginalAvgSignal.get(coordinateKey.get(i - 1));
+            HashMap<String, Double> subFingerprintStdDevSignalJP = fingerprintStdDevSignal.get(coordinateKey.get(i - 1));
+            System.out.println("Std Dev signal JP : " +subFingerprintStdDevSignalJP);
+
+            //System.out.println(fingerprintOriginalAvgSignal);
 
 
-        for (int i = 1; i <fingerprintCoordinate.size()+1 ; i++){
-            HashMap<String, Double> subFingerprintOriginalAvgSignalJP = fingerprintOriginalAvgSignal.get(fingerprintCoordinate.get(i-1));
-            HashMap<String, Double> subFingerprintStdDevSignalJP = fingerprintStdDevSignal.get(fingerprintCoordinate.get(i-1));
 
             for (int k = 1; k < targetDataOriginal.size() + 1; k++) {
                 //AVGk, DEV of k-th wifi signals at the target place
                 //x value
                 Double avgTarget = targetDataOriginal.get(k - 1);
                 System.out.println("avgTarget: " + avgTarget);
+                System.out.println(subFingerprintOriginalAvgSignalJP.containsKey(targetMacAdd.get(k - 1)));
+
                 if (subFingerprintOriginalAvgSignalJP.containsKey(targetMacAdd.get(k - 1))){
                     //mu and sigma value
                     Double avgFingerprint = subFingerprintOriginalAvgSignalJP.get(targetMacAdd.get(k - 1));
                     Double devFingerprint = subFingerprintStdDevSignalJP.get(targetMacAdd.get(k - 1));
+                    System.out.println("StdDEV : "+devFingerprint);
 
                     //calculate Pik
                     Pik = calculateJointProb(avgTarget, avgFingerprint, devFingerprint);
 
                     //Pi = Pi1 * Pi2 * Pi3 * ... *Pik
-                    jointProbi = jointProbi * Pik;
+                    if (Pik != 0){
+                        jointProbi = jointProbi * Pik;
+                    }
+
                     System.out.println("avgFingerprint: " + avgFingerprint + ", devFingerprint: " + devFingerprint + ", Pik: " + Pik + ", Joint Prob: " + jointProbi);
+                }
+                if (jointProbi == 0){
+                    jointProbi = 1;
                 }
             }
             jointProbArray.add(jointProbi);
