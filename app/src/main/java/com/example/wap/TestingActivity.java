@@ -137,13 +137,6 @@ public class TestingActivity extends AppCompatActivity {
         calculatedPointData = findViewById(R.id.calculatedPointData);
         mapImageView = findViewById(R.id.mapImageView);
 
-        // delete old records
-        WAPFirebase<Signal> signalsWAPFirebase = new WAPFirebase<Signal>(Signal.class,"signals");
-        for (int i = 0; i < 71; i++) {
-            String uuid = "SG-TestLocation5-" + String.valueOf(i);
-            signalsWAPFirebase.delete(uuid);
-        }
-
         // TODO: Map should not be hardcoded; NEED TO CHANGE
         WAPFirebase<Location> locationWAPFirebase = new WAPFirebase<>(Location.class,"locations");
         locationWAPFirebase.compoundQuery("locationID", locationID).addOnSuccessListener(new OnSuccessListener<ArrayList<Location>>() {
@@ -169,7 +162,7 @@ public class TestingActivity extends AppCompatActivity {
                                 locateBtn.setVisibility(View.VISIBLE);
                                 calculatedPointData.setVisibility(View.VISIBLE);
                             } catch (IOException e) {
-                                Log.d("Help", String.valueOf(e));
+                                Log.d("Map cannot be displayed", String.valueOf(e));
                             }
                         }
                     }
@@ -188,93 +181,43 @@ public class TestingActivity extends AppCompatActivity {
         locateBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+//                String device1 = "SG-Bldg2ThinkTank-495-31-";
+//                String device2 = "SG-null-448-72-";
+//
+//                WifiScan.compareDeviceWifiValues(device1, device2);
 
-                compareDeviceWifiValues();
+                // Initialise hashmaps
+                // Re-initialise these maps upon each click
+                pointsFB = new HashMap<>();
+                pointsCoordinatesFB = new HashMap<>();
+                signalStrengthFB = new HashMap<>();
+                signalBSSIDFB = new HashMap<>();
+                signalStrengthSDFB = new HashMap<>();
+                signalStrengthOriginalFB = new HashMap<>();
 
-//                // Initialise hashmaps
-//                // Re-initialise these maps upon each click
-//                pointsFB = new HashMap<>();
-//                pointsCoordinatesFB = new HashMap<>();
-//                signalStrengthFB = new HashMap<>();
-//                signalBSSIDFB = new HashMap<>();
-//                signalStrengthSDFB = new HashMap<>();
-//                signalStrengthOriginalFB = new HashMap<>();
-//
-//                fingerprintData = new ArrayList<>();
-//                fingerprintCoordinate = new ArrayList<>();
-//
-//                fingerprintOriginalAvgSignal = new HashMap<>();
-//                fingerprintAvgSignal = new HashMap<>();
-//                fingerprintStdDevSignal = new HashMap<>();
-//                targetMacAdd = new ArrayList<>();
-//                targetData = new ArrayList<>();
-//                targetStdDev = new ArrayList<>();
-//                targetDataOriginal = new ArrayList<>();
-//
-//                // retrieve data from firebase
-//                retrievefromFirebase();
-//
-//                // collect wifi signals at target location
-//                numOfScans = 0;
-//                // re-initialise hash map each time the button is pressed
-//                allSignals = new HashMap<>();
-//                ssids = new HashMap<>();
-//                WifiScan.askAndStartScanWifi(LOG_TAG, MY_REQUEST_CODE, TestingActivity.this);
-//                wifiManager.startScan();
+                fingerprintData = new ArrayList<>();
+                fingerprintCoordinate = new ArrayList<>();
+
+                fingerprintOriginalAvgSignal = new HashMap<>();
+                fingerprintAvgSignal = new HashMap<>();
+                fingerprintStdDevSignal = new HashMap<>();
+                targetMacAdd = new ArrayList<>();
+                targetData = new ArrayList<>();
+                targetStdDev = new ArrayList<>();
+                targetDataOriginal = new ArrayList<>();
+
+                // retrieve data from firebase
+                retrievefromFirebase();
+
+                // collect wifi signals at target location
+                numOfScans = 0;
+                // re-initialise hash map each time the button is pressed
+                allSignals = new HashMap<>();
+                ssids = new HashMap<>();
+                WifiScan.askAndStartScanWifi(LOG_TAG, MY_REQUEST_CODE, TestingActivity.this);
+                wifiManager.startScan();
             }
         });
-    }
-
-    private void compareDeviceWifiValues() {
-        String device1 = "SG-Bldg2ThinkTank-495-31-0";
-        String device2 = "SG-null-448-72-0";
-
-        HashMap<String, ArrayList<Double>> wifiStrengths = new HashMap<>();
-
-        WAPFirebase<Signal> wapFirebaseSignal = new WAPFirebase<>(Signal.class,"signals");
-        wapFirebaseSignal.compoundQuery("signalID", device1).addOnSuccessListener(new OnSuccessListener<ArrayList<Signal>>() {
-            @Override
-            public void onSuccess(ArrayList<Signal> signals) {
-                for (Signal signal: signals) {
-                    System.out.println(signal.getSignalID());
-                    String bssid = signal.getWifiBSSID();
-                    double signalStrength = signal.getSignalStrength();
-                    if (wifiStrengths.containsKey(bssid)) {
-                        wifiStrengths.get(bssid).add(signalStrength);
-                    } else {
-                        ArrayList<Double> strengths = new ArrayList<>();
-                        strengths.add(signalStrength);
-                        wifiStrengths.put(bssid, strengths);
-                    }
-
-                }
-            }
-        });
-
-        wapFirebaseSignal.compoundQuery("signalID", device2).addOnSuccessListener(new OnSuccessListener<ArrayList<Signal>>() {
-            @Override
-            public void onSuccess(ArrayList<Signal> signals) {
-                for (Signal signal: signals) {
-                    System.out.println(signal.getSignalID());
-                    String bssid = signal.getWifiBSSID();
-                    if (wifiStrengths.containsKey(bssid)) {
-                        wifiStrengths.get(bssid).add(signal.getSignalStrength());
-                    }
-                }
-            }
-        });
-
-        // print to check if values are correctly retrieved
-        // compute the average difference between the 2 devices
-        double runningTotal = 0;
-        for (String bssid: wifiStrengths.keySet()) {
-            System.out.println(bssid);
-            System.out.println(wifiStrengths.get(bssid).toString());
-            runningTotal += wifiStrengths.get(bssid).get(0) - wifiStrengths.get(bssid).get(1);
-        }
-
-        double averageDifference = runningTotal / wifiStrengths.size();
-        System.out.println("Average Difference between 2 Devices: " + averageDifference);
     }
 
     private void retrievefromFirebase() {
@@ -299,10 +242,8 @@ public class TestingActivity extends AppCompatActivity {
                 for (Signal signal: signals) {
                     String signalID = signal.getSignalID();
                     String bssid = signal.getWifiBSSID();
-                    // TODO: NEED TO GET BACK THE PRECISION OF THE DOUBLE VALUES
                     double signalStrengthSD = signal.getSignalStrengthSD();
                     double signalStrength = signal.getSignalStrength();
-                    Log.d(LOG_TAG,"Strength SD is: "+ String.format("%.5f",signalStrengthSD));
                     signalStrengthFB.put(signalID, signalStrength);
                     signalStrengthOriginalFB.put(signalID, signalStrength);
                     signalStrengthSDFB.put(signalID, signalStrengthSD);
