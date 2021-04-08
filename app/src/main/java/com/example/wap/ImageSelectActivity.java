@@ -149,6 +149,7 @@ public class ImageSelectActivity extends ListFragment {
                 StrictMode.setThreadPolicy(policy);
                 try {
                     URL url = new URL(locationList.get(position).getMapImage());
+                    locationID = locationList.get(position).getLocationID();
                     bitmap = Utils.getBitmap(url);
                     imageView.setImageBitmap(bitmap);
                 } catch (IOException e) {
@@ -210,6 +211,7 @@ public class ImageSelectActivity extends ListFragment {
         MapViewActivity.imageCoords = coordImages;
 
         Intent intent = new Intent(getActivity(), MapViewActivity.class);
+        intent.putExtra("locationID",locationID);
         startActivity(intent);
 
     }
