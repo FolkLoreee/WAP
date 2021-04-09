@@ -71,7 +71,6 @@ public class TestingActivity extends AppCompatActivity {
     ArrayList<Double> targetStdDev;
     ArrayList<String> targetMacAdd;
 
-    // private final String locationID = "CCThinkTankLvl2";
     private final String locationID = "Bldg2ThinkTank";
 
     // data from firebase
@@ -91,15 +90,6 @@ public class TestingActivity extends AppCompatActivity {
     HashMap<String, HashMap<String, Double>> fingerprintOriginalAvgSignal;
     HashMap<String, HashMap<String, Double>> fingerprintAvgSignal;
     HashMap<String, HashMap<String, Double>> fingerprintStdDevSignal;
-
-    // create an arraylist to store the euclidean distance di values
-    ArrayList<Double> euclideanArray = new ArrayList<>();
-    // create an arraylist to store the jointprob i values
-    ArrayList<Double> jointProbArray = new ArrayList<>();
-
-    // Weights for each algorithm in the weighted fusion algorithm
-    private final double weightEuclidDist = 0.25;
-    private final double weightJointProb = 0.75;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -344,31 +334,14 @@ public class TestingActivity extends AppCompatActivity {
 
     private Coordinate calculatePosition() {
         // pre-matching fingerprints
-//        preMatching2();
-//
+        preMatching();
+
         //create the Algorithm object
         Algorithm algorithm = new Algorithm(fingerprintOriginalAvgSignal, fingerprintAvgSignal, fingerprintStdDevSignal, fingerprintCoordinate);
-//
-//        // weighted fusion
-//        Coordinate calculatedPoint1 = algorithm.euclideanDistance(targetData, targetStdDev, targetMacAdd);
-//        Coordinate calculatedPoint2 = algorithm.jointProbability(targetDataOriginal, targetMacAdd);
-//        Coordinate finalPoint = algorithm.weightedFusion(calculatedPoint1, calculatedPoint2);
-//
-//        System.out.println("SECOND PREMATCHING");
-//        System.out.println("Euclidean Distance results: " + stringifyPosition(calculatedPoint1));
-//        System.out.println("Joint Probability results: " + stringifyPosition(calculatedPoint2));
-//        System.out.println("Final results: " + stringifyPosition(finalPoint));
-
-        preMatching();
 
         Coordinate calculatedPoint1 = algorithm.euclideanDistance(targetData, targetStdDev, targetMacAdd);
         Coordinate calculatedPoint2 = algorithm.jointProbability(targetDataOriginal, targetMacAdd);
         Coordinate finalPoint = algorithm.weightedFusion(calculatedPoint1, calculatedPoint2);
-
-        System.out.println("FIRST PREMATCHING");
-        System.out.println("Euclidean Distance results: " + stringifyPosition(calculatedPoint1));
-        System.out.println("Joint Probability results: " + stringifyPosition(calculatedPoint2));
-        System.out.println("Final results: " + stringifyPosition(finalPoint));
 
         return finalPoint;
     }

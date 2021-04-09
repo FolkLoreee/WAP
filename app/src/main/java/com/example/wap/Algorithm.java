@@ -30,16 +30,9 @@ public class Algorithm {
     //coordinateKey
     ArrayList<String> coordinateKey;
 
-    // wifi scan data from target location
-    ArrayList<Double> targetDataOriginal;
-    ArrayList<Double> targetData;
-    ArrayList<Double> targetStdDev;
-    ArrayList<String> targetMacAdd;
-
     // weights
     private final double weightEuclidDist = 0.5;
     private final double weightJointProb = 0.5;
-    private final double weightCosineSim = 1/3;
 
     /**
      * fingerprintOriginalAvgSignal = HashMap<fingerprintCoordinate, HashMap<macAddress, originalAverageWifiSignal>>
@@ -345,22 +338,14 @@ public class Algorithm {
         return new Coordinate(x, y);
     }
 
-    public Coordinate cosineSimilarity() {
-        // TODO: cosine similarity positioning algorithm (Sherene)
-        Coordinate position = new Coordinate(0,0);
-        return position;
-    }
-
     public Coordinate weightedFusion(Coordinate euclidDistPosition, Coordinate jointProbPosition) {
         // Coordinate cosineSimPosition
 
         // Calculate the final X and Y
-        // + weightCosineSim * cosineSimPosition.getX()
-        // + weightCosineSim * cosineSimPosition.getY()
         double finalX = weightEuclidDist * euclidDistPosition.getX() + weightJointProb * jointProbPosition.getX();
         double finalY = weightEuclidDist * euclidDistPosition.getY() + weightJointProb * jointProbPosition.getY();
-        System.out.println("euclidean x: " + euclidDistPosition.getX() + ", euclidean y: " + euclidDistPosition.getY());
-        System.out.println("joint prob x: " + jointProbPosition.getX() + ", joint prob y: " + jointProbPosition.getY());
+        System.out.println("Euclidean x: " + euclidDistPosition.getX() + ", Euclidean y: " + euclidDistPosition.getY());
+        System.out.println("Joint Prob x: " + jointProbPosition.getX() + ", Joint Prob y: " + jointProbPosition.getY());
         System.out.println("Final coordinates: " + finalX + ", " + finalY);
 
         // return the calculated X and Y values
