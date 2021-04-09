@@ -46,7 +46,7 @@ public class LoginActivityTest extends TestCase {
     public void test_navMainActivity() {
         ActivityScenario activityscenario = ActivityScenario.launch(LoginActivity.class);
         onView(withId(R.id.loginfield)).perform(click(), typeText("admin"),closeSoftKeyboard());
-        onView(withId(R.id.passwordfield)).perform(click(), typeText("123"),closeSoftKeyboard());
+        onView(withId(R.id.passwordfield)).perform(click(), typeText("123"),closeSoftKeyboard());  
         onView(withId(R.id.login_button)).perform(click());
 
         onView(withId(R.id.mainActivity)).check(matches(isDisplayed()));
