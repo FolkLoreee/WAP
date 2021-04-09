@@ -49,8 +49,9 @@ public class ImageSelectActivity extends ListFragment {
     ListView listView;
     ImageView imageView;
     ArrayList<Location> locationList = new ArrayList<Location>();
+    ArrayAdapter<Location> locationArrayAdapter;
     LayoutInflater inflater;
-    Bitmap bitmap;
+    Bitmap bitmap = null;
 
     Uri filePath;
     private final int PICK_IMAGE_REQUEST = 71;
@@ -72,15 +73,26 @@ public class ImageSelectActivity extends ListFragment {
         return contextOfApplication;
     }
 
+
+
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         select = (ImageButton) view.findViewById(R.id.select);
 
+
+        contextOfApplication = getActivity().getApplicationContext();
+
         select.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                splitImage(bitmap);
+                if(bitmap == null){
+                    Toast.makeText(ImageSelectActivity.getContextOfApplication(), "No Image", Toast.LENGTH_SHORT).show();
+                }
+                else{
+                    splitImage(bitmap);
+                }
+
             }
         });
 
@@ -98,7 +110,7 @@ public class ImageSelectActivity extends ListFragment {
                     locationList.add(locations.get(i));
                     Log.d("Help", String.valueOf(locationList.get(i).getLocationID()));
                 }
-                ArrayAdapter<Location> locationArrayAdapter = new ImageSelectAdapter(getActivity(), R.layout.listview_item,locationList);
+                locationArrayAdapter = new ImageSelectAdapter(getActivity(), R.layout.listview_item,locationList);
                 getListView().setAdapter(locationArrayAdapter);
             }
         }).addOnFailureListener(new OnFailureListener() {
@@ -151,41 +163,42 @@ public class ImageSelectActivity extends ListFragment {
     }
 
     private void splitImage(Bitmap bitmap) {
+//
+//        //For the number of rows and columns of the grid to be displayed
+//        int rows, cols;
+//        //For height and width of the small image chunks
+//        int chunkHeight, chunkWidth;
+//        //To store all the small image chunks in bitmap format in this list
+//        //To store all the xy coordinate of the image chunks
+//        ArrayList<Bitmap> chunkedImages = new ArrayList<Bitmap>();
+//        ArrayList<Coordinate> coordImages = new ArrayList<Coordinate>();
+//
+//        //Getting the scaled bitmap of the source image
+//        Bitmap scaledBitmap = Bitmap.createScaledBitmap(bitmap, bitmap.getWidth(), bitmap.getHeight(), true);
+//        rows = cols = (int) Math.sqrt(300);
+//        chunkHeight = bitmap.getHeight() / rows;
+//        chunkWidth = bitmap.getWidth() / cols;
+//
+//        //xCoord and yCoord are the pixel positions of the image chunks
+//        int yCoord = 0;
+//        for (int x = 0; x < rows; x++) {
+//            int xCoord = 0;
+//            for (int y = 0; y < cols; y++) {
+//                chunkedImages.add(createBitmap(scaledBitmap, xCoord, yCoord, chunkWidth, chunkHeight));
+//                xCoord += chunkWidth;
+//                coordImages.add(new Coordinate(xCoord, yCoord));
+//
+//            }
+//            yCoord += chunkHeight;
+//        }
+//
+//        MapViewActivity.imageChunks = chunkedImages;
+//        MapViewActivity.imageChunksCopy = makeDeepCopyInteger(chunkedImages);
+//
+//        MapViewActivity.imageCoords = coordImages;
 
-        //For the number of rows and columns of the grid to be displayed
-        int rows, cols;
-        //For height and width of the small image chunks
-        int chunkHeight, chunkWidth;
-        //To store all the small image chunks in bitmap format in this list
-        //To store all the xy coordinate of the image chunks
-        ArrayList<Bitmap> chunkedImages = new ArrayList<Bitmap>();
-        ArrayList<Coordinate> coordImages = new ArrayList<Coordinate>();
-
-        //Getting the scaled bitmap of the source image
-        Bitmap scaledBitmap = Bitmap.createScaledBitmap(bitmap, bitmap.getWidth(), bitmap.getHeight(), true);
-        rows = cols = (int) Math.sqrt(300);
-        chunkHeight = bitmap.getHeight() / rows;
-        chunkWidth = bitmap.getWidth() / cols;
-
-        //xCoord and yCoord are the pixel positions of the image chunks
-        int yCoord = 0;
-        for (int x = 0; x < rows; x++) {
-            int xCoord = 0;
-            for (int y = 0; y < cols; y++) {
-                chunkedImages.add(createBitmap(scaledBitmap, xCoord, yCoord, chunkWidth, chunkHeight));
-                xCoord += chunkWidth;
-                coordImages.add(new Coordinate(xCoord, yCoord));
-
-            }
-            yCoord += chunkHeight;
-        }
-
-        MapViewActivity.imageChunks = chunkedImages;
-        MapViewActivity.imageChunksCopy = makeDeepCopyInteger(chunkedImages);
-
-        MapViewActivity.imageCoords = coordImages;
-
-        Intent intent = new Intent(getActivity(), MapViewActivity.class);
+        MapActivity.bitmapImg = bitmap;
+        Intent intent = new Intent(getActivity(), MapActivity.class);
         intent.putExtra("locationID",locationID);
         startActivity(intent);
 

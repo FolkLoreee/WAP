@@ -13,9 +13,6 @@ import static org.junit.Assert.assertNotEquals;
 public class WifiScanTest {
     private static final double DELTA = 1e-15;
 
-
-
-
     @Before
     public void runBeforeEachTest() {
         System.out.println("setting up");

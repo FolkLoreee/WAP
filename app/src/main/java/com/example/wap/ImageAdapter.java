@@ -9,10 +9,12 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.media.Image;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -36,7 +38,7 @@ public class ImageAdapter extends BaseAdapter {
     private Context mContext;
     private ArrayList<Bitmap> imageChunks;
     private ArrayList<Coordinate> imageCoords;
-    private int imageWidth, imageHeight;
+    private int imageWidth, imageHeight, screenWidth, columns;
     int numOfScans;
     HashMap<String, ArrayList> allSignals;
     HashMap<String, String> ssids;
@@ -49,12 +51,14 @@ public class ImageAdapter extends BaseAdapter {
     MapPoint point;
 
     //constructor
-    public ImageAdapter(Context c, ArrayList<Bitmap> images, ArrayList<Coordinate> coords ) {
+    public ImageAdapter(Context c, ArrayList<Bitmap> images, ArrayList<Coordinate> coords, int width, int cols ) {
         mContext = c;
         imageChunks = images;
         imageWidth = images.get(0).getWidth();
         imageHeight = images.get(0).getHeight();
         imageCoords = coords;
+        screenWidth = width;
+        columns = cols;
     }
 
     @Override
@@ -90,10 +94,14 @@ public class ImageAdapter extends BaseAdapter {
         gridView = inflater.inflate(R.layout.map_button, null);
 
         ImageView image = (ImageView) gridView.findViewById(R.id.map);
-        image.setLayoutParams(new GridView.LayoutParams(imageWidth+100, imageHeight+25));
-        image.setPadding(0, 0, -10, 10);
+        int w = screenWidth/columns;
+        image.setLayoutParams(new GridView.LayoutParams(imageWidth, imageHeight));
+        image.setPadding(0, 0, 0, 0);
 
         //set image of each grid
+
+//        Bitmap icon = BitmapFactory.decodeResource(mContext.getResources(),
+//                R.drawable.transparent);
         image.setImageBitmap(imageChunks.get(position));
         xCoord = (int) imageCoords.get(position).getX();
         yCoord = (int) imageCoords.get(position).getY();

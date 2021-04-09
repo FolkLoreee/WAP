@@ -11,12 +11,15 @@
 
     <GridView
         android:id="@+id/gridView"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
         android:gravity="center"
         android:numColumns="auto_fit"
-        android:horizontalSpacing="5dp"
-        android:verticalSpacing="5dp">
+        android:columnWidth="90dp"
+        android:verticalSpacing="0dp"
+        android:horizontalSpacing="-30dp"
+        android:stretchMode="columnWidth">
 
     </GridView>
 
@@ -24,7 +27,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/gridView"
-        android:layout_marginTop="-52dp">
+        android:layout_marginTop="52dp">
 
         <Button
             android:id="@+id/up"
