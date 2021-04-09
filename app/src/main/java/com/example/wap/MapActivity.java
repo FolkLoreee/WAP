@@ -68,6 +68,8 @@ public class MapActivity extends AppCompatActivity {
 
     Location currentLocation;
 
+    static Coordinate coordinate;
+
     //Firebase
     WAPFirebase<Signal> signalWAPFirebase;
     WAPFirebase<MapPoint> pointWAPFirebase;
@@ -143,7 +145,7 @@ public class MapActivity extends AppCompatActivity {
         scan = (Button) findViewById(R.id.scan);
 
         //set coordinate as (0,0) on creation
-        Coordinate coordinate = new Coordinate(0,0);
+        coordinate = new Coordinate(0,0);
 
 
         // Set up the map of level 1 by default
@@ -261,10 +263,7 @@ public class MapActivity extends AppCompatActivity {
         scan.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Path mPath = new Path();
-                float[] center = centerOfRect(coordinate, squareWidth, squareHeight);
-                mPath.addCircle(center[0], center[1], 15, Path.Direction.CW);
-                paths.add(mPath);
+
 
                 String pointID = "MP-" + currentLocation.getLocationID() + "-" + (int) (center[0]) + "-" + (int) (center[1]);
                 point = new MapPoint(pointID, new Coordinate(center[0], center[1]), currentLocation.getLocationID());
@@ -275,6 +274,8 @@ public class MapActivity extends AppCompatActivity {
                 ssids = new HashMap<>();
                 WifiScan.askAndStartScanWifi(LOG_TAG, MY_REQUEST_CODE, MapActivity.this);
                 wifiManager.startScan();
+
+
             }
         });
 
@@ -539,6 +540,12 @@ public class MapActivity extends AppCompatActivity {
 
                 // all scans completed, send data to firebase
                 if (numOfScans == 3) {
+
+                    Path mPath = new Path();
+                    float[] center = centerOfRect(MapActivity.coordinate, squareWidth, squareHeight);
+                    mPath.addCircle(center[0], center[1], 15, Path.Direction.CW);
+                    paths.add(mPath);
+
                     // initialise for firebase
                     WAPFirebase<Signal> signalWAPFirebase = new WAPFirebase<>(Signal.class, "signals");
                     WAPFirebase<MapPoint> pointWAPFirebase = new WAPFirebase<>(MapPoint.class, "points");
