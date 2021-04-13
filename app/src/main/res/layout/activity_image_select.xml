@@ -17,20 +17,19 @@
     <ListView
         android:id="@android:id/list"
         android:layout_width="match_parent"
-        android:layout_height="267dp"
+        android:layout_height="208dp"
         android:layout_below="@+id/imageSelect"
         tools:layout_editor_absoluteX="18dp"
-        tools:layout_editor_absoluteY="95dp" />
+        tools:layout_editor_absoluteY="50dp" />
 
     <ImageButton
         android:id="@+id/select"
         android:layout_width="131dp"
         android:layout_height="43dp"
         android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="240dp"
 
-        android:layout_alignParentRight="true"
-        android:layout_marginTop="542dp"
-        android:layout_marginRight="140dp"
         android:layout_marginBottom="0dp"
         android:src="@drawable/selectbutton"
         android:text="select" />

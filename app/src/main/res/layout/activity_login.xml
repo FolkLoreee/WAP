@@ -16,6 +16,9 @@
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="159dp"
         android:layout_centerHorizontal="true"
+        android:hint="Password"
+        android:maxLines="1"
+        android:inputType="text"
         android:background="@color/white"
         android:ems="10" />
 
@@ -25,10 +28,13 @@
         android:layout_height="40dp"
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="229dp"
+        android:hint="Username"
         android:background="@color/white"
+        android:maxLines="1"
         android:ems="10"
+        android:inputType="text"
         android:layout_centerHorizontal="true"
-        android:inputType="textPersonName" />
+        />
 
     <TextView
         android:id="@+id/textView3"
@@ -69,9 +75,7 @@
         android:layout_width="203dp"
         android:layout_height="197dp"
         android:layout_above="@+id/loginfield"
-
         android:layout_centerHorizontal="true"
-
         android:layout_marginBottom="102dp"
         android:background="@drawable/logo" />
 
