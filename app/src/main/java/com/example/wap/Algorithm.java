@@ -7,6 +7,7 @@ import com.example.wap.models.Signal;
 import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 
 import static com.example.wap.MapViewActivity.locationID;
@@ -147,10 +148,6 @@ public class Algorithm {
         return new Coordinate(x, y);
     }
 
-
-
-    // wifi scan data from target location
-    ;
     public Coordinate jointProbability(ArrayList<Double> targetDataOriginal, ArrayList<String> targetMacAdd) {
 
         //retrieve the keys of the fingerprint
@@ -227,6 +224,95 @@ public class Algorithm {
         double y = numeratorY / denominatorPart;
         return new Coordinate(x, y);
     }
+
+    public Coordinate jointProbabilityVer2(ArrayList<Double> targetData, ArrayList<Double> targetStdDev, ArrayList<String> targetMacAdd){
+        //step 1: calculate the distance between the unknown point and each of the n fingerprint
+        Coordinate euclideanDis = euclideanDistance(targetData, targetStdDev, targetMacAdd);
+
+        //Data pre-processing for step 2: fingerprint prematching
+        ArrayList<Coordinate> fingerprintCoorArray = prematchingJointProb(euclideanDis);
+        double mi = mCalculate(fingerprintCoorArray.get(0), euclideanDis);
+        double mj = mCalculate(fingerprintCoorArray.get(1), euclideanDis);
+
+        //requires actual distance
+        //for now, will put p as 0.5
+        double x_error = xError(mi, mj, 0.5);
+        //alpha, beta1 and beta2 requires actual distance which we don't have
+        double y_error = 0;
+
+
+
+
+        return new Coordinate(0 ,0);
+    }
+
+    public double mCalculate(Coordinate fingerprintCoor, Coordinate euclideanDis){
+        double xTemp = Math.pow(fingerprintCoor.getX() - euclideanDis.getX(), 2);
+        double yTemp = Math.pow(fingerprintCoor.getY() - euclideanDis.getY(), 2);
+        double m = Math.sqrt(xTemp+yTemp);
+        return m;
+    }
+
+    public double yError(){
+        return 0;
+    }
+
+    public double alpha(double di, double dj){
+        double diSqr = Math.pow(di, 2);
+        double diFor = Math.pow(di, 4);
+        double djSqr = Math.pow(dj, 2);
+        double djFor = Math.pow(dj, 4);
+        return -16 + 8 * djSqr + 8 * diSqr - djFor - diFor + 2* diSqr * djSqr;
+
+    }
+
+    public double xError(double mi, double mj, double p){
+        double x_error = xErrorSub(mi, p) - xErrorSub(mj, p);
+        x_error = x_error * 1/2;
+        return x_error;
+    }
+    public double xErrorSub(double m, double p){
+        double numerator = m * m * p;
+        double denominator = 1 + p;
+        return numerator / denominator ;
+    }
+
+    public ArrayList<Coordinate> prematchingJointProb(Coordinate euclideanDis){
+        ArrayList<Coordinate> output = new ArrayList<>();
+        //create a copy of fingerprint
+        for (int j = 0; j < fingerprintCoordinate.size(); j++){
+            output.add(fingerprintCoordinate.get(j));
+        }
+        double minX = euclideanDis.getX();
+        double maxX = euclideanDis.getX();
+
+        int minXindex = 0;
+        int maxXindex = 0;
+        while (output.size() > 2){
+            for (int i = 0; i < fingerprintCoordinate.size(); i++){
+                Coordinate temporary = fingerprintCoordinate.get(i);
+                if (temporary.getX() < minX){
+                    minX = temporary.getX();
+                    minXindex = i;
+
+                }else if (temporary.getX() > maxX){
+                    maxX = temporary.getX();
+                    maxXindex = i;
+                }
+
+            }
+            if (output.size() == 3){
+                output.remove(minXindex);
+            }else{
+                output.remove(minXindex);
+                output.remove(maxXindex);
+            }
+
+        }
+        return output;
+
+    }
+
 
     public Coordinate cosineSimilarity() {
         // TODO: cosine similarity positioning algorithm (Sherene)
