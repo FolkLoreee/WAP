@@ -267,7 +267,7 @@ public class MapActivity extends AppCompatActivity {
             public void onClick(View view) {
 
 
-                String pointID = "MP-" + currentLocation.getLocationID() + "-" + (int) (center[0]) + "-" + (int) (center[1]);
+                String pointID = "MP-" + currentLocation.getLocationID() + "-" + (int)  centerOfRect(coordinate, squareWidth, squareHeight)[0] + "-" + (int) centerOfRect(coordinate, squareWidth, squareHeight)[0];
                 point = new MapPoint(pointID, new Coordinate(center[0], center[1]), currentLocation.getLocationID());
 
                 numOfScans = 0;
@@ -540,6 +540,7 @@ public class MapActivity extends AppCompatActivity {
 
                 // all scans completed, send data to firebase
                 if (numOfScans == 3) {
+                    Path mPath = new Path();
                     mPath.addCircle((float) (centerOfRect(coordinate, squareWidth, squareHeight)[0]), (float)(centerOfRect(coordinate, squareWidth, squareHeight)[0]), 15, Path.Direction.CW);
                     paths.add(mPath);
                     // initialise for firebase
