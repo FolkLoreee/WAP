@@ -267,7 +267,7 @@ public class MapActivity extends AppCompatActivity {
             public void onClick(View view) {
 
 
-                String pointID = "MP-" + currentLocation.getLocationID() + "-" + (int)  centerOfRect(coordinate, squareWidth, squareHeight)[0] + "-" + (int) centerOfRect(coordinate, squareWidth, squareHeight)[0];
+                String pointID = "MP-" + currentLocation.getLocationID() + "-" + (int)  centerOfRect(coordinate, squareWidth, squareHeight)[0] + "-" + (int) centerOfRect(coordinate, squareWidth, squareHeight)[1];
                 point = new MapPoint(pointID, new Coordinate(center[0], center[1]), currentLocation.getLocationID());
 
                 numOfScans = 0;
