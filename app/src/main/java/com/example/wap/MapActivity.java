@@ -541,7 +541,7 @@ public class MapActivity extends AppCompatActivity {
                 // all scans completed, send data to firebase
                 if (numOfScans == 3) {
                     Path mPath = new Path();
-                    mPath.addCircle((float) (centerOfRect(coordinate, squareWidth, squareHeight)[0]), (float)(centerOfRect(coordinate, squareWidth, squareHeight)[0]), 15, Path.Direction.CW);
+                    mPath.addCircle((float) (centerOfRect(coordinate, squareWidth, squareHeight)[0]), (float)(centerOfRect(coordinate, squareWidth, squareHeight)[1]), 15, Path.Direction.CW);
                     paths.add(mPath);
                     // initialise for firebase
                     WAPFirebase<Signal> signalWAPFirebase = new WAPFirebase<>(Signal.class, "signals");
