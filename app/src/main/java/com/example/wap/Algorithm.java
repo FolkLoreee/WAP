@@ -39,11 +39,11 @@ public class Algorithm {
     HashMap<String, Double> signalStrengthSDFB;
 
     // constants
-    private final double weightEuclidDist = 0.5;
-    private final double weightJointProb = 0.5;
-    private final int k = 4;
-    private final double threshold = 0.5;
-    private final int wifiThreshold = -75;
+    private final double weightEuclidDist = 0.75;
+    private final double weightJointProb = 0.25;
+    private final int k = 3;
+    private final double threshold = 0.7;
+    private final int wifiThreshold = -60;
 
     /**
      * fingerprintOriginalAvgSignal = HashMap<fingerprintCoordinate, HashMap<macAddress, originalAverageWifiSignal>>
@@ -225,7 +225,7 @@ public class Algorithm {
         for (String pointID: pointsFB.keySet()) {
             // calculating the percentage match
             double percentMatch = checkPercentageMatch(pointID, filteredMac);
-            System.out.println(pointID + ": " + percentMatch);
+            // System.out.println(pointID + ": " + percentMatch);
             if (percentMatch > threshold) {
                 storeFingerprint(pointID);
             }
@@ -255,6 +255,8 @@ public class Algorithm {
         Collections.sort(matches);
         Collections.reverse(matches);
 
+        System.out.println("matches: " + matches);
+
         for (int i = 0; i < k; i++) {
             // retrieve the pointID of the fingerprint
             String fingerprintID = "";
@@ -262,6 +264,8 @@ public class Algorithm {
                 if (fingerprint.getValue().equals(matches.get(i))) {
                     // get the key of this particular value which is the ID of the fingerprint
                     fingerprintID = fingerprint.getKey();
+                    System.out.println("Top K fingerprints: " + fingerprintID + ", " + matches.get(i));
+                    break;
                 }
             }
 
@@ -274,11 +278,6 @@ public class Algorithm {
     }
     
     public Coordinate euclideanDistance(ArrayList<Double> targetData, ArrayList<Double> targetStdDev, ArrayList<String> targetMacAdd) {
-
-        System.out.println("Fingerprint Coordinates:" + fingerprintCoordinate);
-        System.out.println("Fingerprint Avg Signal:" + fingerprintAvgSignal);
-        System.out.println("Fingerprint Std Dev Signal:" + fingerprintStdDevSignal);
-
         //retrieve the keys of the fingerprint
         for (String coorStr : fingerprintAvgSignal.keySet()){
             coordinateKey.add(coorStr);
@@ -304,7 +303,7 @@ public class Algorithm {
                     //PAVG, DEV of k-th wifi signals at the i-th fingerprint
                     Double pavgFingerprint = subFingerprintAvgSignal.get(targetMacAdd.get(k - 1));
                     Double devFingerprint = subFingerprintStdDevSignal.get(targetMacAdd.get(k - 1));
-                    System.out.println("devFingerprint : "+ devFingerprint);
+                    // System.out.println("devFingerprint : "+ devFingerprint);
 
                     //sum it
                     euclideanDis += subDEuclideanDis(pavgTarget, devTarget, pavgFingerprint, devFingerprint);
@@ -376,8 +375,8 @@ public class Algorithm {
                 //AVGk, DEV of k-th wifi signals at the target place
                 //x value
                 Double avgTarget = targetDataOriginal.get(k - 1);
-                System.out.println("avgTarget: " + avgTarget);
-                System.out.println(subFingerprintOriginalAvgSignalJP.containsKey(targetMacAdd.get(k - 1)));
+                // System.out.println("avgTarget: " + avgTarget);
+                // System.out.println(subFingerprintOriginalAvgSignalJP.containsKey(targetMacAdd.get(k - 1)));
 
                 if (subFingerprintOriginalAvgSignalJP.containsKey(targetMacAdd.get(k - 1))){
                     //mu and sigma value

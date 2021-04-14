@@ -222,7 +222,7 @@ public class TestingActivity extends AppCompatActivity {
                 }
 
                 // all scans completed
-                if (numOfScans == 1) {
+                if (numOfScans == 3) {
                     Toast.makeText(TestingActivity.this, "Wifi Scan Complete", Toast.LENGTH_SHORT).show();
                     for (String macAddress: allSignals.keySet()) {
 
@@ -256,7 +256,7 @@ public class TestingActivity extends AppCompatActivity {
 
             // continue scanning if it has not reached 12 scans + increase numOfScans
             numOfScans++;
-            if (numOfScans < 2) {
+            if (numOfScans < 4) {
                 wifiManager.startScan();
             }
         }
@@ -280,7 +280,7 @@ public class TestingActivity extends AppCompatActivity {
 
     private Coordinate calculatePosition() {
         // pre-matching fingerprints
-        algorithm.preMatching(targetData, targetMacAdd);
+        algorithm.preMatchingK(targetData, targetMacAdd);
 
         Coordinate calculatedPoint1 = algorithm.euclideanDistance(targetData, targetStdDev, targetMacAdd);
         Coordinate calculatedPoint2 = algorithm.jointProbability(targetDataOriginal, targetMacAdd);
