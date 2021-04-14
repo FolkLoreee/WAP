@@ -106,12 +106,19 @@ public class ImageSelectActivity extends ListFragment {
             @Override
             public void onSuccess(ArrayList<Location> locations) {
                 Log.d("Help", "success");
-                for(int i = 0; i<locations.size(); i++){
-                    locationList.add(locations.get(i));
-                    Log.d("Help", String.valueOf(locationList.get(i).getLocationID()));
+                try {
+                    for (int i = 0; i < locations.size(); i++) {
+                        locationList.add(locations.get(i));
+                        Log.d("Help", String.valueOf(locationList.get(i).getLocationID()));
+                    }
+                    locationArrayAdapter = new ImageSelectAdapter(getActivity(), R.layout.listview_item, locationList);
+                    getListView().setAdapter(locationArrayAdapter);
                 }
-                locationArrayAdapter = new ImageSelectAdapter(getActivity(), R.layout.listview_item,locationList);
-                getListView().setAdapter(locationArrayAdapter);
+                catch (Exception e){
+                    e.printStackTrace();
+                }
+
+
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
@@ -139,6 +146,7 @@ public class ImageSelectActivity extends ListFragment {
                     locationID = locationList.get(position).getLocationID();
                     bitmap = Utils.getBitmap(url);
                     imageView.setImageBitmap(bitmap);
+                    MapActivity.bitmapImg = bitmap;
                 } catch (IOException e) {
                     Log.d("Help", String.valueOf(e));
                 }
