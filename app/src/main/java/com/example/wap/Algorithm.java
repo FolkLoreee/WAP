@@ -42,8 +42,8 @@ public class Algorithm {
     private final double weightEuclidDist = 0.5;
     private final double weightJointProb = 0.5;
     private final int k = 4;
-    private final double threshold = 0.8;
-    private final int wifiThreshold = -80;
+    private final double threshold = 0.5;
+    private final int wifiThreshold = -75;
 
     /**
      * fingerprintOriginalAvgSignal = HashMap<fingerprintCoordinate, HashMap<macAddress, originalAverageWifiSignal>>
@@ -72,6 +72,10 @@ public class Algorithm {
         fingerprintOriginalAvgSignal = new HashMap<>();
         fingerprintAvgSignal = new HashMap<>();
         fingerprintStdDevSignal = new HashMap<>();
+
+        euclideanArray = new ArrayList<>();
+        jointProbArray = new ArrayList<>();
+        coordinateKey = new ArrayList<>();
     }
 
     public Algorithm(HashMap<String, HashMap<String, Double>> fingerprintOriginalAvgSignal, HashMap<String, HashMap<String, Double>> fingerprintAvgSignal, HashMap<String, HashMap<String, Double>> fingerprintStdDevSignal, ArrayList<Coordinate> fingerprintCoordinate) {
@@ -221,6 +225,7 @@ public class Algorithm {
         for (String pointID: pointsFB.keySet()) {
             // calculating the percentage match
             double percentMatch = checkPercentageMatch(pointID, filteredMac);
+            System.out.println(pointID + ": " + percentMatch);
             if (percentMatch > threshold) {
                 storeFingerprint(pointID);
             }
@@ -270,12 +275,16 @@ public class Algorithm {
     
     public Coordinate euclideanDistance(ArrayList<Double> targetData, ArrayList<Double> targetStdDev, ArrayList<String> targetMacAdd) {
 
+        System.out.println("Fingerprint Coordinates:" + fingerprintCoordinate);
+        System.out.println("Fingerprint Avg Signal:" + fingerprintAvgSignal);
+        System.out.println("Fingerprint Std Dev Signal:" + fingerprintStdDevSignal);
+
         //retrieve the keys of the fingerprint
         for (String coorStr : fingerprintAvgSignal.keySet()){
             coordinateKey.add(coorStr);
         }
 
-        System.out.println(coordinateKey);
+        // System.out.println(coordinateKey);
 
         //the number of coordinates
         for (int i = 1; i <= fingerprintCoordinate.size() ; i++) {
@@ -359,11 +368,9 @@ public class Algorithm {
 
             HashMap<String, Double> subFingerprintOriginalAvgSignalJP = fingerprintOriginalAvgSignal.get(coordinateKey.get(i - 1));
             HashMap<String, Double> subFingerprintStdDevSignalJP = fingerprintStdDevSignal.get(coordinateKey.get(i - 1));
-            System.out.println("Std Dev signal JP : " +subFingerprintStdDevSignalJP);
+            // System.out.println("Std Dev signal JP : " +subFingerprintStdDevSignalJP);
 
-            //System.out.println(fingerprintOriginalAvgSignal);
-
-
+            // System.out.println(fingerprintOriginalAvgSignal);
 
             for (int k = 1; k < targetDataOriginal.size() + 1; k++) {
                 //AVGk, DEV of k-th wifi signals at the target place
@@ -376,7 +383,7 @@ public class Algorithm {
                     //mu and sigma value
                     Double avgFingerprint = subFingerprintOriginalAvgSignalJP.get(targetMacAdd.get(k - 1));
                     Double devFingerprint = subFingerprintStdDevSignalJP.get(targetMacAdd.get(k - 1));
-                    System.out.println("StdDEV : "+devFingerprint);
+                    // System.out.println("StdDEV : "+devFingerprint);
 
                     //calculate Pik
                     Pik = calculateJointProb(avgTarget, avgFingerprint, devFingerprint);
@@ -386,7 +393,7 @@ public class Algorithm {
                         jointProbi = jointProbi * Pik;
                     }
 
-                    System.out.println("avgFingerprint: " + avgFingerprint + ", devFingerprint: " + devFingerprint + ", Pik: " + Pik + ", Joint Prob: " + jointProbi);
+                    // System.out.println("avgFingerprint: " + avgFingerprint + ", devFingerprint: " + devFingerprint + ", Pik: " + Pik + ", Joint Prob: " + jointProbi);
                 }
                 if (jointProbi == 0){
                     jointProbi = 1;
@@ -395,7 +402,7 @@ public class Algorithm {
             jointProbArray.add(jointProbi);
         }
 
-        System.out.println("Joint Probability Array: " + jointProbArray.toString());
+        // System.out.println("Joint Probability Array: " + jointProbArray.toString());
         Coordinate position = calculateJointProbCoordinate(jointProbArray);
         //clear the array to be reusable
         jointProbArray.clear();
@@ -414,7 +421,7 @@ public class Algorithm {
                 numeratorY += calculateYJointProb(jointProbArray.get(j - 1), fingerprintCoordinate.get(j - 1));
                 //omega
                 denominatorPart += omegaJointProb(jointProbArray.get(j-1));
-                System.out.println("numeratorX: " + numeratorX + ", numeratorY: " + numeratorY + "denominatorPart: " + denominatorPart);
+                // System.out.println("numeratorX: " + numeratorX + ", numeratorY: " + numeratorY + "denominatorPart: " + denominatorPart);
             }
         }
         double x = numeratorX / denominatorPart;
@@ -446,7 +453,7 @@ public class Algorithm {
         double numerator = Math.pow(x-mu, 2);
         double denominator = 2* Math.pow(sigma, 2);
         double p2 = Math.exp(-numerator/denominator);
-        System.out.println("p1: "+ p1 + ", numerator: " + numerator + ", denominator: " + denominator + ", p2: " + p2 + ", p2/p1: " + p2/p1);
+        // System.out.println("p1: "+ p1 + ", numerator: " + numerator + ", denominator: " + denominator + ", p2: " + p2 + ", p2/p1: " + p2/p1);
         return p2 / p1;
     }
 

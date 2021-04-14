@@ -222,8 +222,8 @@ public class TestingActivity extends AppCompatActivity {
                 }
 
                 // all scans completed
-                if (numOfScans == 11) {
-                    Toast.makeText(TestingActivity.this, "Wifi Scan Complete" + (numOfScans+1), Toast.LENGTH_SHORT).show();
+                if (numOfScans == 1) {
+                    Toast.makeText(TestingActivity.this, "Wifi Scan Complete", Toast.LENGTH_SHORT).show();
                     for (String macAddress: allSignals.keySet()) {
 
                         // get the average wifi signal if the BSSID exists
@@ -256,7 +256,7 @@ public class TestingActivity extends AppCompatActivity {
 
             // continue scanning if it has not reached 12 scans + increase numOfScans
             numOfScans++;
-            if (numOfScans < 12) {
+            if (numOfScans < 2) {
                 wifiManager.startScan();
             }
         }
