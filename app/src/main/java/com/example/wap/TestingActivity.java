@@ -104,6 +104,17 @@ public class TestingActivity extends AppCompatActivity {
         calculatedPointData = findViewById(R.id.calculatedPointData);
         mapImageView = findViewById(R.id.mapImageView);
 
+        // delete signal records
+//        WAPFirebase<Signal> deleteSignals = new WAPFirebase<>(Signal.class,"signals");
+//        deleteSignals.compoundQuery("locationID", locationID).addOnSuccessListener(new OnSuccessListener<ArrayList<Signal>>() {
+//            @Override
+//            public void onSuccess(ArrayList<Signal> signals) {
+//                for (Signal s: signals) {
+//                    deleteSignals.delete(s.getSignalID());
+//                }
+//            }
+//        });
+
         // TODO: Map should not be hardcoded; NEED TO CHANGE
         WAPFirebase<Location> locationWAPFirebase = new WAPFirebase<>(Location.class,"locations");
         locationWAPFirebase.compoundQuery("locationID", locationID).addOnSuccessListener(new OnSuccessListener<ArrayList<Location>>() {
