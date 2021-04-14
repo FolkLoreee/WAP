@@ -514,7 +514,7 @@ public class MapActivity extends AppCompatActivity {
             boolean resultsReceived = intent.getBooleanExtra(WifiManager.EXTRA_RESULTS_UPDATED, false);
 
             if (resultsReceived) {
-                Toast.makeText(MapActivity.this, "Scan " + numOfScans + " Complete!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MapActivity.this, "Scan " + (numOfScans+1) + " Complete!", Toast.LENGTH_SHORT).show();
 
                 Log.d(LOG_TAG, "Result of Scan " + numOfScans);
 
@@ -564,7 +564,7 @@ public class MapActivity extends AppCompatActivity {
                         Log.d(LOG_TAG, "MAC Address: " + macAddress + " , Wifi Signal: " + averageSignal + " , Wifi Signal (SD): " + stdDevSignal);
 
                         // posting the result to firebase
-                        String signalID = "SG-" + locationID + "-" + signalCounter;
+                        String signalID = "SG-" + locationID + "-" + center[0] + "-" + center[1] + "-" + signalCounter;
                         Signal signal = new Signal(signalID, locationID, macAddress, ssids.get(macAddress), stdDevSignal, averageSignal, averageSignalProcessed, 10);
                         signals.add(signal);
                         point.addSignalID(signalID);

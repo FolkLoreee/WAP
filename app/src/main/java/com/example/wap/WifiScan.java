@@ -98,19 +98,18 @@ public class WifiScan {
         }
     }
 
-    public static void compareDeviceWifiValues(String device1, String device2) {
+    public static void compareDevices(String device1, String device2) {
+
         HashMap<String, ArrayList<Double>> wifiStrengths = new HashMap<>();
         WAPFirebase<Signal> wapFirebaseSignal = new WAPFirebase<>(Signal.class,"signals");
         AtomicDouble runningTotal = new AtomicDouble(0);
-        AtomicInteger secondCount = new AtomicInteger(0);
 
-        wapFirebaseSignal.compoundQuery("locationID", "Bldg2ThinkTank").addOnSuccessListener(new OnSuccessListener<ArrayList<Signal>>() {
+        wapFirebaseSignal.compoundQuery("locationID", device1).addOnSuccessListener(new OnSuccessListener<ArrayList<Signal>>() {
             @Override
             public void onSuccess(ArrayList<Signal> signals) {
                 int count = 0;
                 for (Signal signal : signals) {
-                    if (signal.getSignalID().equals(device1+count)) {
-                        System.out.println(signal.getSignalID());
+                    if (signal.getSignalID().equals(device1 + count)) {
                         String bssid = signal.getWifiBSSID();
                         double signalStrength = signal.getSignalStrength();
                         if (wifiStrengths.containsKey(bssid)) {
@@ -123,13 +122,16 @@ public class WifiScan {
                         count++;
                     }
                 }
-
-                for (int j = 0; j < 75; j++) {
-                    wapFirebaseSignal.compoundQuery("signalID", device2 + j).addOnSuccessListener(new OnSuccessListener<ArrayList<Signal>>() {
-                        @Override
-                        public void onSuccess(ArrayList<Signal> signals) {
-                            for (Signal signal : signals) {
-                                System.out.println(signal.getSignalID());
+            }
+        }).addOnCompleteListener(new OnCompleteListener<ArrayList<Signal>>() {
+            @Override
+            public void onComplete(@NonNull Task<ArrayList<Signal>> task) {
+                wapFirebaseSignal.compoundQuery("locationID", device2).addOnSuccessListener(new OnSuccessListener<ArrayList<Signal>>() {
+                    @Override
+                    public void onSuccess(ArrayList<Signal> signals) {
+                        int count = 0;
+                        for (Signal signal : signals) {
+                            if (signal.getSignalID().equals(device2 + count)) {
                                 String bssid = signal.getWifiBSSID();
                                 if (wifiStrengths.containsKey(bssid)) {
                                     wifiStrengths.get(bssid).add(signal.getSignalStrength());
@@ -138,22 +140,76 @@ public class WifiScan {
                                     runningTotal.getAndAdd(difference);
                                 }
                             }
+                            count++;
                         }
-                    }).addOnCompleteListener(new OnCompleteListener<ArrayList<Signal>>() {
-                        @Override
-                        public void onComplete(@NonNull Task<ArrayList<Signal>> task) {
-                            int previousCount = secondCount.getAndAdd(1);
-                            System.out.println(previousCount);
-
-                            // once retrieved all values, then it will compute the average difference between the 2 devices
-                            if (previousCount == 74) {
-                                double averageDifference = runningTotal.doubleValue() / wifiStrengths.size();
-                                System.out.println("Average Difference between 2 Devices: " + averageDifference);
-                            }
-                        }
-                    });
-                }
+                    }
+                }).addOnCompleteListener(new OnCompleteListener<ArrayList<Signal>>() {
+                    @Override
+                    public void onComplete(@NonNull Task<ArrayList<Signal>> task) {
+                        double averageDifference = runningTotal.doubleValue() / wifiStrengths.size();
+                        System.out.println("Average Difference between 2 Devices: " + averageDifference);
+                    }
+                });
             }
         });
     }
+
+//    public static void compareDeviceWifiValues(String device1, String device2) {
+//        HashMap<String, ArrayList<Double>> wifiStrengths = new HashMap<>();
+//        WAPFirebase<Signal> wapFirebaseSignal = new WAPFirebase<>(Signal.class,"signals");
+//        AtomicDouble runningTotal = new AtomicDouble(0);
+//        AtomicInteger secondCount = new AtomicInteger(0);
+//
+//        wapFirebaseSignal.compoundQuery("locationID", "Bldg2ThinkTank").addOnSuccessListener(new OnSuccessListener<ArrayList<Signal>>() {
+//            @Override
+//            public void onSuccess(ArrayList<Signal> signals) {
+//                int count = 0;
+//                for (Signal signal : signals) {
+//                    if (signal.getSignalID().equals(device1+count)) {
+//                        System.out.println(signal.getSignalID());
+//                        String bssid = signal.getWifiBSSID();
+//                        double signalStrength = signal.getSignalStrength();
+//                        if (wifiStrengths.containsKey(bssid)) {
+//                            wifiStrengths.get(bssid).add(signalStrength);
+//                        } else {
+//                            ArrayList<Double> strengths = new ArrayList<>();
+//                            strengths.add(signalStrength);
+//                            wifiStrengths.put(bssid, strengths);
+//                        }
+//                        count++;
+//                    }
+//                }
+//
+//                for (int j = 0; j < 75; j++) {
+//                    wapFirebaseSignal.compoundQuery("signalID", device2 + j).addOnSuccessListener(new OnSuccessListener<ArrayList<Signal>>() {
+//                        @Override
+//                        public void onSuccess(ArrayList<Signal> signals) {
+//                            for (Signal signal : signals) {
+//                                System.out.println(signal.getSignalID());
+//                                String bssid = signal.getWifiBSSID();
+//                                if (wifiStrengths.containsKey(bssid)) {
+//                                    wifiStrengths.get(bssid).add(signal.getSignalStrength());
+//                                    double difference = wifiStrengths.get(bssid).get(0) - wifiStrengths.get(bssid).get(1);
+//                                    System.out.println("BSSID: " + bssid + ", Difference: " + difference);
+//                                    runningTotal.getAndAdd(difference);
+//                                }
+//                            }
+//                        }
+//                    }).addOnCompleteListener(new OnCompleteListener<ArrayList<Signal>>() {
+//                        @Override
+//                        public void onComplete(@NonNull Task<ArrayList<Signal>> task) {
+//                            int previousCount = secondCount.getAndAdd(1);
+//                            System.out.println(previousCount);
+//
+//                            // once retrieved all values, then it will compute the average difference between the 2 devices
+//                            if (previousCount == 74) {
+//                                double averageDifference = runningTotal.doubleValue() / wifiStrengths.size();
+//                                System.out.println("Average Difference between 2 Devices: " + averageDifference);
+//                            }
+//                        }
+//                    });
+//                }
+//            }
+//        });
+//    }
 }

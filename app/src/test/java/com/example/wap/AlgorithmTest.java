@@ -8,6 +8,7 @@ import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -79,7 +80,6 @@ public class AlgorithmTest{
         subfingerprintStdDevSignalCoor03.put("wifi-signal-4", 1.5678);
         subfingerprintStdDevSignalCoor03.put("wifi-signal-6", 2.457);
         subfingerprintStdDevSignalCoor03.put("wifi-signal-0", 1.474);
-
 
         HashMap<String, Double> subfingerprintStdDevSignalCoor04 = new HashMap<>();
         subfingerprintStdDevSignalCoor04.put("wifi-signal-3", 2.0453);
@@ -166,8 +166,6 @@ public class AlgorithmTest{
         subfingerprintOriginalAvgSignalCoor06.put("wifi-signal-4", -29.0);
         subfingerprintOriginalAvgSignalCoor06.put("wifi-signal-5", 98.0);
 
-
-
         HashMap<String, HashMap<String, Double>> fingerprintOriginalAvgSignal = new HashMap<>();
         fingerprintOriginalAvgSignal.put("(1,1)", subfingerprintOriginalAvgSignalCoor01);
         fingerprintOriginalAvgSignal.put("(2,5)", subfingerprintOriginalAvgSignalCoor02);
@@ -176,14 +174,31 @@ public class AlgorithmTest{
         fingerprintOriginalAvgSignal.put("(6,7)", subfingerprintOriginalAvgSignalCoor05);
         fingerprintOriginalAvgSignal.put("(3,8)", subfingerprintOriginalAvgSignalCoor06);
 
-
-
         algo = new Algorithm(fingerprintOriginalAvgSignal, fingerprintOriginalAvgSignal, fingerprintStdDevSignal, fingerprintCoordinate);
+        algo.retrievefromFirebase("Bldg2ThinkTank");
     }
     /*
     *Test cases for calculating X,Y Coordinate from Joint Probability method
      */
 
+    @Test
+    public void calculateFlagTestIfEmpty() {
+        ArrayList<Double> testData = new ArrayList<>();
+        double flagValue = algo.calculateFlag(testData);
+        assertEquals(0.0, flagValue, DELTA);
+    }
+
+    @Test
+    public void calculateFlagTest() {
+        ArrayList<Double> testData = new ArrayList<>();
+        testData.add(-85.1);
+        testData.add(-45.9);
+        testData.add(-52.1);
+        testData.add(-63.2);
+        testData.add(-78.6);
+        double flagValue = algo.calculateFlag(testData);
+        assertEquals(-59.949999999999996, flagValue, DELTA);
+    }
 
     @Test
     public void omegaJointProbTest(){

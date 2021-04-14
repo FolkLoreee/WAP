@@ -29,6 +29,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.wap.firebase.WAPFirebase;
 import com.example.wap.models.Coordinate;
 import com.example.wap.models.Location;
+import com.example.wap.models.Signal;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
@@ -67,7 +68,7 @@ public class TestingActivity extends AppCompatActivity {
     ArrayList<Double> targetStdDev;
     ArrayList<String> targetMacAdd;
 
-    private final String locationID = "Bldg2ThinkTank";
+    private final String locationID = "CCLvl1";
 
     Algorithm algorithm;
 
@@ -186,12 +187,12 @@ public class TestingActivity extends AppCompatActivity {
     class WifiBroadcastReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.d(LOG_TAG, "onReceive()");
+            Log.d(LOG_TAG, "Wifi Scan: onReceive()");
 
             boolean resultsReceived = intent.getBooleanExtra(WifiManager.EXTRA_RESULTS_UPDATED, false);
 
             if (resultsReceived) {
-                Toast.makeText(TestingActivity.this, "Processing Wifi Scan " + numOfScans, Toast.LENGTH_SHORT).show();
+                Toast.makeText(TestingActivity.this, "Processing Wifi Scan " + (numOfScans+1), Toast.LENGTH_SHORT).show();
 
                 List<ScanResult> list = wifiManager.getScanResults();
 
@@ -210,8 +211,8 @@ public class TestingActivity extends AppCompatActivity {
                 }
 
                 // all scans completed
-                if (numOfScans == 1) {
-                    calculatedPointData.setText("Wifi Scan Complete");
+                if (numOfScans == 11) {
+                    Toast.makeText(TestingActivity.this, "Wifi Scan Complete" + (numOfScans+1), Toast.LENGTH_SHORT).show();
                     for (String macAddress: allSignals.keySet()) {
 
                         // get the average wifi signal if the BSSID exists
@@ -227,7 +228,6 @@ public class TestingActivity extends AppCompatActivity {
                         targetStdDev.add(stdDevSignal);
                     }
 
-                    calculatedPointData.setText("Calculating Position...");
                     Coordinate position = calculatePosition();
                     calculatedPointData.setText(stringifyPosition(position));
 
@@ -240,13 +240,12 @@ public class TestingActivity extends AppCompatActivity {
                     canvas.drawCircle(doubleToFloat(position.getX()), doubleToFloat(position.getY()), 10, paint);
                 }
             } else {
-                Toast.makeText(TestingActivity.this, "Wifi scan failed. Please try again in 2 minutes.", Toast.LENGTH_SHORT).show();
-                Log.d(LOG_TAG, "Wifi scan failed");
+                Toast.makeText(TestingActivity.this, "Wifi scan failed", Toast.LENGTH_SHORT).show();
             }
 
-            // continue scanning if it has not reached 4 scans + increase numOfScans
+            // continue scanning if it has not reached 12 scans + increase numOfScans
             numOfScans++;
-            if (numOfScans < 2) {
+            if (numOfScans < 12) {
                 wifiManager.startScan();
             }
         }

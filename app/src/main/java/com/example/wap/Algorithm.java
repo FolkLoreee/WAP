@@ -42,6 +42,8 @@ public class Algorithm {
     private final double weightEuclidDist = 0.5;
     private final double weightJointProb = 0.5;
     private final int k = 4;
+    private final double threshold = 0.8;
+    private final int wifiThreshold = -80;
 
     /**
      * fingerprintOriginalAvgSignal = HashMap<fingerprintCoordinate, HashMap<macAddress, originalAverageWifiSignal>>
@@ -70,6 +72,14 @@ public class Algorithm {
         fingerprintOriginalAvgSignal = new HashMap<>();
         fingerprintAvgSignal = new HashMap<>();
         fingerprintStdDevSignal = new HashMap<>();
+    }
+
+    public Algorithm(HashMap<String, HashMap<String, Double>> fingerprintOriginalAvgSignal, HashMap<String, HashMap<String, Double>> fingerprintAvgSignal, HashMap<String, HashMap<String, Double>> fingerprintStdDevSignal, ArrayList<Coordinate> fingerprintCoordinate) {
+        this.fingerprintOriginalAvgSignal = fingerprintOriginalAvgSignal;
+        this.fingerprintAvgSignal = fingerprintAvgSignal;
+        this.fingerprintStdDevSignal = fingerprintStdDevSignal;
+
+        this.fingerprintCoordinate = fingerprintCoordinate;
     }
 
     public void retrievefromFirebase(String locationID) {
@@ -105,18 +115,40 @@ public class Algorithm {
         });
     }
 
-    public void preMatching(ArrayList<Double> targetData, ArrayList<String> targetMacAdd) {
+    public double calculateFlag(ArrayList<Double> targetData) {
 
-        double threshold = 0.8;
-
-        // get FLAG value
         double total = 0;
-        for (double strength: targetData) {
-            total += strength;
+        int numOfSignals = 0;
+
+        // cover for edge case where targetData is empty
+        if (targetData.size() == 0) {
+            return 0.0;
         }
 
-        final double FLAG = total / targetData.size();
+        for (double strength: targetData) {
+            // only wifi signals that are above -80 will be taken into calculation
+            // this is so that the average values are computed with stronger wifi signals and do not deviate because of weaker signals
+            if (strength > wifiThreshold) {
+                total += strength;
+                numOfSignals += 1;
+            }
+        }
 
+        return total / numOfSignals;
+    }
+
+    private String stringifyCoordinates(Coordinate coordinates) {
+        // convert coordinates to string to store as key values for the hashmaps
+        StringBuilder str = new StringBuilder();
+        str.append(coordinates.getX());
+        str.append(", ");
+        str.append(coordinates.getY());
+        String coordinatesStr = str.toString();
+
+        return coordinatesStr;
+    }
+
+    private ArrayList<String> filterWifiByFlag(ArrayList<Double> targetData, double FLAG, ArrayList<String> targetMacAdd) {
         // get a list of mac address where the signal strength pass the FLAG value
         ArrayList<String> filteredMac = new ArrayList<>();
         for (int i = 0; i < targetData.size(); i++) {
@@ -126,82 +158,82 @@ public class Algorithm {
             }
         }
 
+        return filteredMac;
+    }
+
+    private double checkPercentageMatch(String pointID, ArrayList<String> filteredMac) {
+        // cover for the edge case where filteredMac is empty
+        if (filteredMac.size() == 0) {
+            return 0.0;
+        }
+
+        int count = 0;
+
+        ArrayList<String> listOfBSSID = new ArrayList<>();
+
+        // for each signal, retrieve the corresponding bssid
+        for (String signalID: pointsFB.get(pointID)) {
+            listOfBSSID.add(signalBSSIDFB.get(signalID));
+        }
+
+        // compare the bssid between fingerprint and target location
+        for (String bssid : filteredMac) {
+            if (listOfBSSID.contains(bssid)) {
+                count++;
+            }
+        }
+
+        return (double) count / filteredMac.size();
+    }
+
+    private void storeFingerprint(String pointID) {
+        // get coordinates of this fingerprint
+        Coordinate coordinates = pointsCoordinatesFB.get(pointID);
+        fingerprintCoordinate.add(coordinates);
+
+        // convert coordinates to string to store as key values for the hashmaps
+        String coordinatesStr = stringifyCoordinates(coordinates);
+
+        // create a hashmap for each mac address and corresponding signal strength at this fingerprint
+        HashMap<String, Double> avgSignalFingerprint = new HashMap<>();
+        HashMap<String, Double> stdDevSignalFingerprint = new HashMap<>();
+        HashMap<String, Double> originalAvgSignalFingerprint = new HashMap<>();
+
+        for (String signalID: pointsFB.get(pointID)) {
+            originalAvgSignalFingerprint.put(signalBSSIDFB.get(signalID), signalStrengthOriginalFB.get(signalID));
+            avgSignalFingerprint.put(signalBSSIDFB.get(signalID), signalStrengthFB.get(signalID));
+            stdDevSignalFingerprint.put(signalBSSIDFB.get(signalID), signalStrengthSDFB.get(signalID));
+        }
+
+        fingerprintOriginalAvgSignal.put(coordinatesStr, originalAvgSignalFingerprint);
+        fingerprintAvgSignal.put(coordinatesStr, avgSignalFingerprint);
+        fingerprintStdDevSignal.put(coordinatesStr, stdDevSignalFingerprint);
+    }
+
+    public void preMatching(ArrayList<Double> targetData, ArrayList<String> targetMacAdd) {
+        // obtain FLAG value to filter out weak wifi signals
+        final double FLAG = calculateFlag(targetData);
+
+        // get a list of mac address where the signal strength pass the FLAG value
+        ArrayList<String> filteredMac = filterWifiByFlag(targetData, FLAG, targetMacAdd);
+
         // compare bssid in each fingerprint with the list of bssid from wifi scan at target location
         for (String pointID: pointsFB.keySet()) {
-            // System.out.println("Size of each fingerprint: " + pointsFB.get(pointID).size());
-            int count = 0;
-            boolean check = true;
-            ArrayList<String> allSignals = pointsFB.get(pointID);
-            ArrayList<String> listOfBSSID = new ArrayList<>();
-
-            // for each signal, retrieve the corresponding bssid
-            for (String signalID: allSignals) {
-                listOfBSSID.add(signalBSSIDFB.get(signalID));
-            }
-
-            // compare the bssid between fingerprint and target location
-            // if the bssid of the target location is not in the fingerprint, eliminate the fingerprint
-            for (String bssid : filteredMac) {
-                if (listOfBSSID.contains(bssid)) {
-                    count++;
-                }
-            }
-
             // calculating the percentage match
-            double percentMatch = (double) count / filteredMac.size();
-            if (percentMatch < threshold) {
-                check = false;
-            }
-
-            // if all the bssids are in the fingerprint, add fingerprint
-            if (check) {
-                // get coordinates of this fingerprint
-                Coordinate coordinates = pointsCoordinatesFB.get(pointID);
-                fingerprintCoordinate.add(coordinates);
-
-                // convert coordinates to string to store as key values for the hashmaps
-                StringBuilder str = new StringBuilder();
-                str.append(coordinates.getX());
-                str.append(", ");
-                str.append(coordinates.getY());
-                String coordinatesStr = str.toString();
-
-                // create a hashmap for each mac address and corresponding signal strength at this fingerprint
-                HashMap<String, Double> avgSignalFingerprint = new HashMap<>();
-                HashMap<String, Double> stdDevSignalFingerprint = new HashMap<>();
-                HashMap<String, Double> originalAvgSignalFingerprint = new HashMap<>();
-
-                for (String signalID: allSignals) {
-                    originalAvgSignalFingerprint.put(signalBSSIDFB.get(signalID), signalStrengthOriginalFB.get(signalID));
-                    avgSignalFingerprint.put(signalBSSIDFB.get(signalID), signalStrengthFB.get(signalID));
-                    stdDevSignalFingerprint.put(signalBSSIDFB.get(signalID), signalStrengthSDFB.get(signalID));
-                }
-
-                fingerprintOriginalAvgSignal.put(coordinatesStr, originalAvgSignalFingerprint);
-                fingerprintAvgSignal.put(coordinatesStr, avgSignalFingerprint);
-                fingerprintStdDevSignal.put(coordinatesStr, stdDevSignalFingerprint);
+            double percentMatch = checkPercentageMatch(pointID, filteredMac);
+            if (percentMatch > threshold) {
+                storeFingerprint(pointID);
             }
         }
     }
 
-    public void preMatching2 (ArrayList<Double> targetData, ArrayList<String> targetMacAdd) {
+    public void preMatchingK (ArrayList<Double> targetData, ArrayList<String> targetMacAdd) {
 
-        // get FLAG value
-        double total = 0;
-        for (double strength: targetData) {
-            total += strength;
-        }
-
-        final double FLAG = total / targetData.size();
+        // obtain FLAG value to filter out weak wifi signals
+        final double FLAG = calculateFlag(targetData);;
 
         // get a list of mac address where the signal strength pass the FLAG value
-        ArrayList<String> filteredMac = new ArrayList<>();
-        for (int i = 0; i < targetData.size(); i++) {
-            double strength = targetData.get(i);
-            if (Math.abs(strength) > Math.abs(FLAG)) {
-                filteredMac.add(targetMacAdd.get(i));
-            }
-        }
+        ArrayList<String> filteredMac = filterWifiByFlag(targetData, FLAG, targetMacAdd);
 
         // Hashmap to store the percentMatch to each fingerprint
         HashMap<String, Double> fingerprintsMatch = new HashMap<>();
@@ -209,25 +241,7 @@ public class Algorithm {
 
         // compare bssid in each fingerprint with the list of bssid from wifi scan at target location
         for (String pointID: pointsFB.keySet()) {
-            int count = 0;
-            ArrayList<String> allSignals = pointsFB.get(pointID);
-            ArrayList<String> listOfBSSID = new ArrayList<>();
-
-            // for each signal, retrieve the corresponding bssid
-            for (String signalID: allSignals) {
-                listOfBSSID.add(signalBSSIDFB.get(signalID));
-            }
-
-            // compare the bssid between fingerprint and target location
-            // if the bssid of the target location is not in the fingerprint, eliminate the fingerprint
-            for (String bssid : filteredMac) {
-                if (listOfBSSID.contains(bssid)) {
-                    count++;
-                }
-            }
-
-            // calculating the percentage match
-            double percentMatch = (double) count / filteredMac.size();
+            double percentMatch = checkPercentageMatch(pointID, filteredMac);
             fingerprintsMatch.put(pointID, percentMatch);
             matches.add(percentMatch);
         }
@@ -236,7 +250,8 @@ public class Algorithm {
         Collections.sort(matches);
         Collections.reverse(matches);
 
-        for (int i = 0; i < 6; i++) {
+        for (int i = 0; i < k; i++) {
+            // retrieve the pointID of the fingerprint
             String fingerprintID = "";
             for (Map.Entry<String, Double> fingerprint: fingerprintsMatch.entrySet()) {
                 if (fingerprint.getValue().equals(matches.get(i))) {
@@ -245,32 +260,10 @@ public class Algorithm {
                 }
             }
 
-            // get coordinates of this fingerprint
-            Coordinate coordinates = pointsCoordinatesFB.get(fingerprintID);
-            fingerprintCoordinate.add(coordinates);
+            // store the fingerprint into the data variables
+            storeFingerprint(fingerprintID);
 
-            // convert coordinates to string to store as key values for the hashmaps
-            StringBuilder str = new StringBuilder();
-            str.append(coordinates.getX());
-            str.append(", ");
-            str.append(coordinates.getY());
-            String coordinatesStr = str.toString();
-
-            // create a hashmap for each mac address and corresponding signal strength at this fingerprint
-            HashMap<String, Double> avgSignalFingerprint = new HashMap<>();
-            HashMap<String, Double> stdDevSignalFingerprint = new HashMap<>();
-            HashMap<String, Double> originalAvgSignalFingerprint = new HashMap<>();
-
-            for (String signalID: pointsFB.get(fingerprintID)) {
-                originalAvgSignalFingerprint.put(signalBSSIDFB.get(signalID), signalStrengthOriginalFB.get(signalID));
-                avgSignalFingerprint.put(signalBSSIDFB.get(signalID), signalStrengthFB.get(signalID));
-                stdDevSignalFingerprint.put(signalBSSIDFB.get(signalID), signalStrengthSDFB.get(signalID));
-            }
-
-            fingerprintOriginalAvgSignal.put(coordinatesStr, originalAvgSignalFingerprint);
-            fingerprintAvgSignal.put(coordinatesStr, avgSignalFingerprint);
-            fingerprintStdDevSignal.put(coordinatesStr, stdDevSignalFingerprint);
-
+            // remove fingerprint once it is added to the filtered list of fingerprints
             fingerprintsMatch.remove(fingerprintID);
         }
     }
