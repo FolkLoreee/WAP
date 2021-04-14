@@ -97,6 +97,8 @@ public class MapActivity extends AppCompatActivity {
     ArrayList<Path> paths = new ArrayList<Path>();
     ArrayList<Path> undonePaths = new ArrayList<Path>();
 
+    public float[] pointToUpload = new float[2];
+
     Path mPath;
     boolean drag = false;
     boolean hasPath = false;
@@ -267,8 +269,8 @@ public class MapActivity extends AppCompatActivity {
             public void onClick(View view) {
 
 
-                String pointID = "MP-" + currentLocation.getLocationID() + "-" + (int)  centerOfRect(coordinate, squareWidth, squareHeight)[0] + "-" + (int) centerOfRect(coordinate, squareWidth, squareHeight)[1];
-                point = new MapPoint(pointID, new Coordinate(center[0], center[1]), currentLocation.getLocationID());
+                String pointID = "MP-" + currentLocation.getLocationID() + "-" + (int)  pointToUpload[0] + "-" + (int) pointToUpload[1];
+                point = new MapPoint(pointID, new Coordinate(pointToUpload[0], pointToUpload[1]), currentLocation.getLocationID());
 
                 numOfScans = 0;
                 // re-initialise hash map each time the button is pressed
@@ -304,6 +306,10 @@ public class MapActivity extends AppCompatActivity {
         }
         float[] center = centerOfRect(coordinate, squareWidth, squareHeight);
         coordinatesText.setText("( " + String.valueOf(center[0]) + " ," + String.valueOf(center[1]) + ")");
+
+        pointToUpload[0] = center[0];
+        pointToUpload[1] = center[1];
+
         mPath.addCircle(center[0], center[1], 15, Path.Direction.CW);
 
         canvas.drawPath(mPath, paint);
@@ -541,7 +547,7 @@ public class MapActivity extends AppCompatActivity {
                 // all scans completed, send data to firebase
                 if (numOfScans == 3) {
                     Path mPath = new Path();
-                    mPath.addCircle((float) (centerOfRect(coordinate, squareWidth, squareHeight)[0]), (float)(centerOfRect(coordinate, squareWidth, squareHeight)[0]), 15, Path.Direction.CW);
+                    mPath.addCircle((float) pointToUpload[0], (float) pointToUpload[1], 15, Path.Direction.CW);
                     paths.add(mPath);
                     // initialise for firebase
                     WAPFirebase<Signal> signalWAPFirebase = new WAPFirebase<>(Signal.class, "signals");
@@ -561,7 +567,7 @@ public class MapActivity extends AppCompatActivity {
                         Log.d(LOG_TAG, "MAC Address: " + macAddress + " , Wifi Signal: " + averageSignal + " , Wifi Signal (SD): " + stdDevSignal);
 
                         // posting the result to firebase
-                        String signalID = "SG-" + locationID + "-" + (int) (centerOfRect(coordinate, squareWidth, squareHeight)[0]) + "-" + (int) (centerOfRect(coordinate, squareWidth, squareHeight)[1]) + "-" + signalCounter;
+                        String signalID = "SG-" + locationID + "-" + (int) (pointToUpload[0]) + "-" + (int) (pointToUpload[1]) + "-" + signalCounter;
                         Signal signal = new Signal(signalID, locationID, macAddress, ssids.get(macAddress), stdDevSignal, averageSignal, averageSignalProcessed, 10);
                         signals.add(signal);
                         point.addSignalID(signalID);
