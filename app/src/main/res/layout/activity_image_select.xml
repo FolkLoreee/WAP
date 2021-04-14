@@ -18,10 +18,10 @@
     <ListView
         android:id="@android:id/list"
         android:layout_width="match_parent"
-        android:layout_height="208dp"
+        android:layout_height="260dp"
+        android:paddingHorizontal="10dp"
         android:layout_below="@+id/imageSelect"
-        tools:layout_editor_absoluteX="18dp"
-        tools:layout_editor_absoluteY="50dp" />
+        tools:layout_editor_absoluteY="260dp" />
 
     <ImageButton
         android:id="@+id/select"
@@ -29,7 +29,7 @@
         android:layout_height="43dp"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="240dp"
+        android:layout_marginTop="540dp"
 
         android:layout_marginBottom="0dp"
         android:src="@drawable/selectbutton"
