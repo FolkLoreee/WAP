@@ -521,7 +521,7 @@ public class MapActivity extends AppCompatActivity {
             boolean resultsReceived = intent.getBooleanExtra(WifiManager.EXTRA_RESULTS_UPDATED, false);
 
             if (resultsReceived) {
-                Toast.makeText(MapActivity.this, "Scan " + numOfScans + " Complete!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MapActivity.this, "Scan " + (numOfScans+1) + " Complete!", Toast.LENGTH_SHORT).show();
 
                 Log.d(LOG_TAG, "Result of Scan " + numOfScans);
 
