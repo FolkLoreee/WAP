@@ -47,7 +47,8 @@
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:background="@drawable/background"
-
+        app:itemIconTint="@drawable/colour_navbar"
+        app:itemTextColor="@drawable/colour_navbar"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="1.0"

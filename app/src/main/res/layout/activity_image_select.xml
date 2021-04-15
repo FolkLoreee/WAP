@@ -12,14 +12,17 @@
         android:layout_width="wrap_content"
         android:layout_height="250dp"
         android:background="@drawable/background"
-        android:layout_marginTop="0dp"
+        android:layout_marginTop="10dp"
         android:src="@drawable/image_here" />
 
     <ListView
+        android:layout_marginTop="10dp"
         android:id="@android:id/list"
         android:layout_width="match_parent"
         android:layout_height="260dp"
         android:paddingHorizontal="10dp"
+        android:divider="@android:color/transparent"
+        android:dividerHeight="5dp"
         android:layout_below="@+id/imageSelect"
         tools:layout_editor_absoluteY="260dp" />
 
@@ -29,7 +32,7 @@
         android:layout_height="43dp"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="540dp"
+        android:layout_marginTop="550dp"
 
         android:layout_marginBottom="0dp"
         android:src="@drawable/selectbutton"
