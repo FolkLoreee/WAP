@@ -42,8 +42,6 @@ public class LoginActivity extends AppCompatActivity {
                     startActivity(new Intent(LoginActivity.this,ChooseMapActivity.class));
                     finish();
 
-
-
                 }
                 else{
                     Toast.makeText(LoginActivity.this, "Invalid User/Pass", Toast.LENGTH_SHORT).show();

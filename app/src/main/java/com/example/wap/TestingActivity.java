@@ -90,10 +90,7 @@ public class TestingActivity extends AppCompatActivity {
                         startActivity(new Intent(getApplicationContext(),ChooseMapActivity.class));
                         overridePendingTransition(0,0);
                         return true;
-//                    case R.id.mainActivity:
-//                        startActivity(new Intent(getApplicationContext(),MainActivity.class));
-//                        overridePendingTransition(0,0);
-//                        return true;
+
                 }
                 return false;
             }

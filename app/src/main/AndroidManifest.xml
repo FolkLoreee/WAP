@@ -29,12 +29,8 @@
         <activity android:name=".TrackingActivity"></activity>
         <activity android:name=".TestingActivity"></activity>
         <activity android:name=".MapActivity" />
-        <activity android:name=".MapViewActivity" />
-       <activity android:name=".ChooseMapActivity" />
+        <activity android:name=".ChooseMapActivity" />
 
-        <activity android:name=".MainActivity">
-
-        </activity>
     </application>
 
 </manifest>
