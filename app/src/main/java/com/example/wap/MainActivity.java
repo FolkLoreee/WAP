@@ -31,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_choose_map);
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_nav_bar);
         bottomNavigationView.setSelectedItemId(R.id.mainActivity);
@@ -45,12 +45,10 @@ public class MainActivity extends AppCompatActivity {
                         overridePendingTransition(0,0);
                         return true;
                     case R.id.mappingActivity:
-//                        startActivity(new Intent(getApplicationContext(),MappingActivity.class));
-//                        overridePendingTransition(0,0);
+                        startActivity(new Intent(getApplicationContext(),ChooseMapActivity.class));
+                        overridePendingTransition(0,0);
                         return true;
-                    case R.id.mainActivity:
 
-                        return true;
                 }
                 return false;
             }

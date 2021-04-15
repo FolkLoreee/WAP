@@ -87,13 +87,13 @@ public class TestingActivity extends AppCompatActivity {
                     case R.id.testingActivity:
                         return true;
                     case R.id.mappingActivity:
-                        startActivity(new Intent(getApplicationContext(),MappingActivity.class));
+                        startActivity(new Intent(getApplicationContext(),ChooseMapActivity.class));
                         overridePendingTransition(0,0);
                         return true;
-                    case R.id.mainActivity:
-                        startActivity(new Intent(getApplicationContext(),MainActivity.class));
-                        overridePendingTransition(0,0);
-                        return true;
+//                    case R.id.mainActivity:
+//                        startActivity(new Intent(getApplicationContext(),MainActivity.class));
+//                        overridePendingTransition(0,0);
+//                        return true;
                 }
                 return false;
             }

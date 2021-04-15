@@ -39,7 +39,7 @@ public class LoginActivity extends AppCompatActivity {
                     AlertDialog alertDialog = builder.create();
                     alertDialog.show();
 
-                    startActivity(new Intent(LoginActivity.this,MainActivity.class));
+                    startActivity(new Intent(LoginActivity.this,ChooseMapActivity.class));
                     finish();
 
 
