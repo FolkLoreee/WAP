@@ -17,18 +17,24 @@
     <EditText
         android:id="@+id/locationIDEditText"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="40dp"
         android:ems="10"
         android:inputType="textPersonName"
-        android:text="Location ID" />
+        android:layout_marginTop="10dp"
+        android:paddingHorizontal="15dp"
+        android:background="@drawable/rounded_corner"
+        android:hint="Location ID" />
 
     <EditText
         android:id="@+id/locationNameEditText"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="40dp"
         android:ems="10"
+        android:layout_marginTop="20dp"
+        android:paddingHorizontal="15dp"
+        android:background="@drawable/rounded_corner"
         android:inputType="textPersonName"
-        android:text="Location Name" />
+        android:hint="Location Name" />
 
     <ImageButton
         android:id="@+id/UploadBtn"

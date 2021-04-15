@@ -157,8 +157,6 @@ public class MapActivity extends AppCompatActivity {
 //        mapImage.setBackground(getResources().getDrawable(R.drawable.black));
 
 
-
-
         //original height and width of the bitmap
 
         intrinsicHeight = bitmapImg.getHeight();
@@ -274,6 +272,7 @@ public class MapActivity extends AppCompatActivity {
 
                 numOfScans = 0;
                 // re-initialise hash map each time the button is pressed
+
                 allSignals = new HashMap<>();
                 ssids = new HashMap<>();
                 WifiScan.askAndStartScanWifi(LOG_TAG, MY_REQUEST_CODE, MapActivity.this);
@@ -304,6 +303,7 @@ public class MapActivity extends AppCompatActivity {
                 canvas.drawPath(path, paint);
             }
         }
+        paint.setColor(Color.RED);
         float[] center = centerOfRect(coordinate, squareWidth, squareHeight);
         coordinatesText.setText("( " + String.valueOf(center[0]) + " ," + String.valueOf(center[1]) + ")");
 

@@ -13,23 +13,25 @@
         android:id="@+id/passwordfield"
         android:layout_width="243dp"
         android:layout_height="40dp"
+        android:background="@drawable/rounded_corner"
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="159dp"
         android:layout_centerHorizontal="true"
         android:hint="Password"
         android:maxLines="1"
         android:inputType="text"
-        android:background="@color/white"
+        android:paddingHorizontal="15dp"
         android:ems="10" />
 
     <EditText
         android:id="@+id/loginfield"
-        android:layout_width="234dp"
+        android:layout_width="245dp"
         android:layout_height="40dp"
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="229dp"
         android:hint="Username"
-        android:background="@color/white"
+        android:paddingHorizontal="15dp"
+        android:background="@drawable/rounded_corner"
         android:maxLines="1"
         android:ems="10"
         android:inputType="text"
@@ -45,6 +47,7 @@
         android:layout_alignParentBottom="true"
         android:layout_marginStart="0dp"
         android:layout_marginLeft="0dp"
+        android:textStyle="bold"
         android:layout_marginBottom="276dp"
         android:text="@string/login_id" />
 
@@ -57,6 +60,7 @@
         android:layout_alignParentBottom="true"
         android:layout_marginStart="0dp"
         android:layout_marginLeft="0dp"
+        android:textStyle="bold"
         android:layout_marginBottom="205dp"
         android:text="@string/password" />
 
