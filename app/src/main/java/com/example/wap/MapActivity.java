@@ -18,6 +18,8 @@ import android.util.Log;
 import android.view.Display;
 import android.view.View;
 import android.widget.Button;
+import android.view.View;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -49,11 +51,12 @@ public class MapActivity extends AppCompatActivity {
 
     // XML Elements
     ImageView mapImage;
-    Button up;
-    Button down;
-    Button left;
-    Button right;
-    Button scan;
+    ImageButton up;
+    ImageButton down;
+    ImageButton left;
+    ImageButton right;
+    ImageButton scan;
+    ImageButton mappinghelp;
     TextView coordinatesText;
 
     //TODO: locationID will follow the locationID from the previous screen
@@ -136,11 +139,12 @@ public class MapActivity extends AppCompatActivity {
 
         //set up the XML items
         coordinatesText = (TextView) findViewById(R.id.coordinatesText);
-        up = (Button) findViewById(R.id.up);
-        down = (Button) findViewById(R.id.down);
-        left = (Button) findViewById(R.id.left);
-        right = (Button) findViewById(R.id.right);
-        scan = (Button) findViewById(R.id.scan);
+        up = (ImageButton) findViewById(R.id.up);
+        down = (ImageButton) findViewById(R.id.down);
+        left = (ImageButton) findViewById(R.id.left);
+        right = (ImageButton) findViewById(R.id.right);
+        scan = (ImageButton) findViewById(R.id.scan);
+        mappinghelp = (ImageButton) findViewById(R.id.mappinghelp);
 
         //set coordinate as (0,0) on creation
         coordinate = new Coordinate(0, 0);
@@ -264,6 +268,14 @@ public class MapActivity extends AppCompatActivity {
                 ssids = new HashMap<>();
                 WifiScan.askAndStartScanWifi(LOG_TAG, MY_REQUEST_CODE, MapActivity.this);
                 wifiManager.startScan();
+            }
+        });
+
+        mappinghelp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MapActivity.this, Popupactivity.class));
+
             }
         });
 

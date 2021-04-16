@@ -71,5 +71,5 @@ public class LoginActivityTest extends TestCase {
 
         onView(withId(R.id.mainActivity)).check(ViewAssertions.doesNotExist());
     }
-
 }
+

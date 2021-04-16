@@ -28,7 +28,12 @@
         </activity>
         <activity android:name=".TrackingActivity"></activity>
         <activity android:name=".TestingActivity"></activity>
+
         <activity android:name=".MapActivity" />
+        <activity
+            android:name=".Popupactivity"
+            android:theme="@style/Theme.Wap.customstyle" />
+
         <activity android:name=".ChooseMapActivity" />
 
     </application>
