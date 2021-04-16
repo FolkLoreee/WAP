@@ -14,12 +14,16 @@ import android.graphics.PorterDuff;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.StrictMode;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -44,6 +48,8 @@ public class TestingActivity extends AppCompatActivity {
     ImageButton locateBtn;
     TextView calculatedPointData;
     ImageView mapImageView;
+    TextView selectLocationText;
+    Spinner locationSpinner;
 
     // Bitmap
     Bitmap mapImage;
@@ -68,9 +74,17 @@ public class TestingActivity extends AppCompatActivity {
     ArrayList<Double> targetStdDev;
     ArrayList<String> targetMacAdd;
 
-    private final String locationID = "CCLvl1";
-
     Algorithm algorithm;
+
+    // Store locations available in firebase
+    private final String locationID = ""; // variable based on the image selected
+    HashMap<String, String> availableLocations;
+    HashMap<String, String> availableLocationsID;
+
+    // Locating at regular interval
+    Handler handler = new Handler();
+    Runnable runnable;
+    int delay = 30000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,6 +114,8 @@ public class TestingActivity extends AppCompatActivity {
         locateBtn = findViewById(R.id.locateBtn);
         calculatedPointData = findViewById(R.id.calculatedPointData);
         mapImageView = findViewById(R.id.mapImageView);
+        locationSpinner = findViewById(R.id.locationSpinner);
+        selectLocationText = findViewById(R.id.selectLocationText);
 
         // delete signal records
 //        WAPFirebase<Signal> deleteSignals = new WAPFirebase<>(Signal.class,"signals");
@@ -112,15 +128,38 @@ public class TestingActivity extends AppCompatActivity {
 //            }
 //        });
 
-        // TODO: Map should not be hardcoded; NEED TO CHANGE
+        // Retrieve all the locations
         WAPFirebase<Location> locationWAPFirebase = new WAPFirebase<>(Location.class,"locations");
-        locationWAPFirebase.compoundQuery("locationID", locationID).addOnSuccessListener(new OnSuccessListener<ArrayList<Location>>() {
+        locationWAPFirebase.getCollection().addOnSuccessListener(new OnSuccessListener<ArrayList<Location>>() {
             @Override
             public void onSuccess(ArrayList<Location> locations) {
+                availableLocations = new HashMap<>();
+
                 for (Location l: locations) {
-                    if (l.getLocationID().equals(locationID)) {
-                        String mapImageAdd = l.getMapImage();
-                        System.out.println("mapImage: " + mapImageAdd);
+                    String name = l.getName();
+                    String imageLink = l.getMapImage();
+                    String locationID = l.getLocationID();
+                    availableLocations.put(name, imageLink);
+                    availableLocationsID.put(name, locationID);
+                }
+
+                // Set visibility
+                selectLocationText.setVisibility(View.VISIBLE);
+                locationSpinner.setVisibility(View.VISIBLE);
+
+                // Populate the spinner
+                String[] locationNames = availableLocations.keySet().toArray(new String[availableLocations.size()]);
+                ArrayAdapter<String> adapter = new ArrayAdapter<String>(TestingActivity.this, android.R.layout.simple_spinner_item, locationNames);
+
+                locationSpinner.setAdapter(adapter);
+
+                locationSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                        // retrieve the selection location and get the image link of the map for that location
+                        String selectedLocation = (String) parent.getItemAtPosition(position);
+                        String mapImageAdd = availableLocations.get(selectedLocation);
+
                         if (android.os.Build.VERSION.SDK_INT > 9) {
                             StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
                             StrictMode.setThreadPolicy(policy);
@@ -134,14 +173,18 @@ public class TestingActivity extends AppCompatActivity {
                                 paint = new Paint();
                                 paint.setColor(Color.RED);
                                 mapImageView.setImageBitmap(bitmap);
-                                locateBtn.setVisibility(View.VISIBLE);
+                                // locateBtn.setVisibility(View.VISIBLE);
                                 calculatedPointData.setVisibility(View.VISIBLE);
                             } catch (IOException e) {
                                 Log.d("Map cannot be displayed", String.valueOf(e));
                             }
                         }
                     }
-                }
+
+                    @Override
+                    public void onNothingSelected(AdapterView<?> parent) {
+                    }
+                });
             }
         });
 
@@ -171,6 +214,7 @@ public class TestingActivity extends AppCompatActivity {
                 algorithm = new Algorithm();
 
                 // retrieve data from firebase
+                System.out.println("current location ID: " + locationID);
                 algorithm.retrievefromFirebase(locationID);
 
                 // collect wifi signals at target location
@@ -183,6 +227,46 @@ public class TestingActivity extends AppCompatActivity {
                 wifiManager.startScan();
             }
         });
+    }
+
+    @Override
+    protected void onResume() {
+        handler.postDelayed(runnable = new Runnable() {
+            public void run() {
+                handler.postDelayed(runnable, delay);
+                Toast.makeText(TestingActivity.this, "This method is run every 30 seconds", Toast.LENGTH_SHORT).show();
+
+                /*
+                // Initialise hashmaps
+                targetMacAdd = new ArrayList<>();
+                targetData = new ArrayList<>();
+                targetStdDev = new ArrayList<>();
+                targetDataOriginal = new ArrayList<>();
+
+                // initialise algorithm object
+                algorithm = new Algorithm();
+
+                // retrieve data from firebase
+                algorithm.retrievefromFirebase(locationID);
+
+                // collect wifi signals at target location
+                numOfScans = 0;
+
+                // re-initialise hash map each time the button is pressed
+                allSignals = new HashMap<>();
+                ssids = new HashMap<>();
+                WifiScan.askAndStartScanWifi(LOG_TAG, MY_REQUEST_CODE, TestingActivity.this);
+                wifiManager.startScan();
+                 */
+            }
+        }, delay);
+        super.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        handler.removeCallbacks(runnable); //stop handler when activity not visible super.onPause();
+        super.onPause();
     }
 
     @Override
@@ -251,7 +335,7 @@ public class TestingActivity extends AppCompatActivity {
                 Toast.makeText(TestingActivity.this, "Wifi scan failed", Toast.LENGTH_SHORT).show();
             }
 
-            // continue scanning if it has not reached 12 scans + increase numOfScans
+            // continue scanning if it has not reached 4 scans + increase numOfScans
             numOfScans++;
             if (numOfScans < 4) {
                 wifiManager.startScan();
