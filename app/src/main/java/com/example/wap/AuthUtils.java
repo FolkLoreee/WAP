@@ -27,4 +27,11 @@ public class AuthUtils {
             return matcher.find();
     }
 
+    public static boolean validateInputField(String input,String type){
+        if(input.length() == 0) return false;
+        if(type.equals("password") && input.length()<6) return false;
+
+        return true;
+    }
+
 }

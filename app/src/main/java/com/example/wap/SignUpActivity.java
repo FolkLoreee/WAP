@@ -24,13 +24,15 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
+import com.google.firebase.auth.FirebaseAuthWeakPasswordException;
+
 import static com.example.wap.R.layout.activity_signup;
 
 public class SignUpActivity extends AppCompatActivity {
 
     private final String TAG = "SignUpActivity";
-    protected final String PASSWORD_KEY = "passwordKey";
-    protected final String USERNAME_KEY = "usernameKey";
+    protected static final String PASSWORD_KEY = "passwordKey";
+    protected static final String EMAIL_KEY = "emailKey";
     EditText etUsernameSignup, etPasswordSignup, etEmailSignup;
     Button signupButton;
     Spinner authSpinner;
@@ -40,6 +42,8 @@ public class SignUpActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(@NonNull Bundle savedInstanceState) {
+    //TODO: Handle the back button behaviour
+    //TODO: Handle the application lifecycle
         super.onCreate(savedInstanceState);
         setContentView(activity_signup);
         //Fetch resources
@@ -88,7 +92,7 @@ public class SignUpActivity extends AppCompatActivity {
                                             //Go back to Login Activity
                                             Intent loginIntent = new Intent(SignUpActivity.this, LoginActivity.class);
                                             loginIntent.putExtra(PASSWORD_KEY, etPasswordSignup.getText().toString());
-                                            loginIntent.putExtra(USERNAME_KEY, newUser.getUsername());
+                                            loginIntent.putExtra(EMAIL_KEY, newUser.getEmail());
                                             startActivity(loginIntent);
                                         }
                                     });
@@ -103,7 +107,12 @@ public class SignUpActivity extends AppCompatActivity {
                                             Log.w(TAG, "Email is already in use.");
                                             Toast.makeText(SignUpActivity.this, "Email is already in use", Toast.LENGTH_SHORT).show();
                                         }
-                                    } else {
+                                    }
+                                    else if(e instanceof FirebaseAuthWeakPasswordException){
+                                        Log.w(TAG, "Weak password detected.");
+                                        Toast.makeText(SignUpActivity.this, "Password must be at least 6 characters long", Toast.LENGTH_SHORT).show();
+                                    }
+                                    else {
                                         Log.e(TAG, "Error in creating Firebase Auth user: "+e.toString(),e);
                                         Toast.makeText(SignUpActivity.this, "Sign up failed", Toast.LENGTH_SHORT).show();
                                     }
