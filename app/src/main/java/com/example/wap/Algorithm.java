@@ -1,15 +1,21 @@
 package com.example.wap;
 
+import androidx.annotation.NonNull;
+
 import com.example.wap.firebase.WAPFirebase;
 import com.example.wap.models.Coordinate;
 import com.example.wap.models.MapPoint;
 import com.example.wap.models.Signal;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 public class Algorithm {
@@ -29,6 +35,8 @@ public class Algorithm {
     ArrayList<Double> jointProbArray;
     //coordinateKey
     ArrayList<String> coordinateKey;
+
+    boolean filteredFailed = false;
 
     // data from firebase
     HashMap<String, ArrayList<String>> pointsFB;
@@ -87,33 +95,47 @@ public class Algorithm {
     }
 
     public void retrievefromFirebase(String locationID) {
+        AtomicBoolean locationMapped = new AtomicBoolean(false);
+
+        // just to add another layer of security, in case user misclicks
         WAPFirebase<MapPoint> wapFirebasePoints = new WAPFirebase<>(MapPoint.class,"points");
         WAPFirebase<Signal> wapFirebaseSignal = new WAPFirebase<>(Signal.class,"signals");
 
         wapFirebasePoints.compoundQuery("locationID", locationID).addOnSuccessListener(new OnSuccessListener<ArrayList<MapPoint>>() {
             @Override
             public void onSuccess(ArrayList<MapPoint> mapPoints) {
-                for (MapPoint point: mapPoints) {
-                    String pointID = point.getPointID();
-                    ArrayList<String> signalsIDs = point.getSignalIDs();
-                    pointsFB.put(pointID, signalsIDs);
-                    pointsCoordinatesFB.put(pointID, point.getCoordinate());
+                // used to handle if location is not mapped in database
+                if (mapPoints != null) {
+                    for (MapPoint point: mapPoints) {
+                        String pointID = point.getPointID();
+                        ArrayList<String> signalsIDs = point.getSignalIDs();
+                        pointsFB.put(pointID, signalsIDs);
+                        pointsCoordinatesFB.put(pointID, point.getCoordinate());
+                    }
+                }
+                else {
+                    locationMapped.getAndSet(false);
                 }
             }
-        });
-
-        wapFirebaseSignal.compoundQuery("locationID", locationID).addOnSuccessListener(new OnSuccessListener<ArrayList<Signal>>() {
+        }).addOnCompleteListener(new OnCompleteListener<ArrayList<MapPoint>>() {
             @Override
-            public void onSuccess(ArrayList<Signal> signals) {
-                for (Signal signal: signals) {
-                    String signalID = signal.getSignalID();
-                    String bssid = signal.getWifiBSSID();
-                    double signalStrengthSD = signal.getSignalStrengthSD();
-                    double signalStrength = signal.getSignalStrength();
-                    signalStrengthFB.put(signalID, signalStrength);
-                    signalStrengthOriginalFB.put(signalID, signalStrength);
-                    signalStrengthSDFB.put(signalID, signalStrengthSD);
-                    signalBSSIDFB.put(signalID, bssid);
+            public void onComplete(@NonNull Task<ArrayList<MapPoint>> task) {
+                if (locationMapped.get()) {
+                    wapFirebaseSignal.compoundQuery("locationID", locationID).addOnSuccessListener(new OnSuccessListener<ArrayList<Signal>>() {
+                        @Override
+                        public void onSuccess(ArrayList<Signal> signals) {
+                            for (Signal signal: signals) {
+                                String signalID = signal.getSignalID();
+                                String bssid = signal.getWifiBSSID();
+                                double signalStrengthSD = signal.getSignalStrengthSD();
+                                double signalStrength = signal.getSignalStrength();
+                                signalStrengthFB.put(signalID, signalStrength);
+                                signalStrengthOriginalFB.put(signalID, signalStrength);
+                                signalStrengthSDFB.put(signalID, signalStrengthSD);
+                                signalBSSIDFB.put(signalID, bssid);
+                            }
+                        }
+                    });
                 }
             }
         });
@@ -247,8 +269,10 @@ public class Algorithm {
         // compare bssid in each fingerprint with the list of bssid from wifi scan at target location
         for (String pointID: pointsFB.keySet()) {
             double percentMatch = checkPercentageMatch(pointID, filteredMac);
-            fingerprintsMatch.put(pointID, percentMatch);
-            matches.add(percentMatch);
+            if (percentMatch != 0.0) {
+                fingerprintsMatch.put(pointID, percentMatch);
+                matches.add(percentMatch);
+            }
         }
 
         // sort the matches list in descending order to find top 4 fingerprints
@@ -257,23 +281,30 @@ public class Algorithm {
 
         System.out.println("matches: " + matches);
 
-        for (int i = 0; i < k; i++) {
-            // retrieve the pointID of the fingerprint
-            String fingerprintID = "";
-            for (Map.Entry<String, Double> fingerprint: fingerprintsMatch.entrySet()) {
-                if (fingerprint.getValue().equals(matches.get(i))) {
-                    // get the key of this particular value which is the ID of the fingerprint
-                    fingerprintID = fingerprint.getKey();
-                    System.out.println("Top K fingerprints: " + fingerprintID + ", " + matches.get(i));
-                    break;
+        if (matches.size() != 0) {
+            for (int i = 0; i < k; i++) {
+                // retrieve the pointID of the fingerprint
+                String fingerprintID = "";
+                for (Map.Entry<String, Double> fingerprint: fingerprintsMatch.entrySet()) {
+                    if (fingerprint.getValue().equals(matches.get(i))) {
+                        // get the key of this particular value which is the ID of the fingerprint
+                        fingerprintID = fingerprint.getKey();
+                        System.out.println("Top K fingerprints: " + fingerprintID + ", " + matches.get(i));
+                        break;
+                    }
                 }
+
+                // store the fingerprint into the data variables
+                storeFingerprint(fingerprintID);
+
+                // remove fingerprint once it is added to the filtered list of fingerprints
+                fingerprintsMatch.remove(fingerprintID);
             }
-
-            // store the fingerprint into the data variables
-            storeFingerprint(fingerprintID);
-
-            // remove fingerprint once it is added to the filtered list of fingerprints
-            fingerprintsMatch.remove(fingerprintID);
+        }
+        else {
+            // if all fingerprints don't match i.e. user is out of the location selected
+            // this will be set to true
+            filteredFailed = true;
         }
     }
     
@@ -429,9 +460,7 @@ public class Algorithm {
     }
 
     public Coordinate weightedFusion(Coordinate euclidDistPosition, Coordinate jointProbPosition) {
-        // Coordinate cosineSimPosition
-
-        // Calculate the final X and Y
+       // Calculate the final X and Y
         double finalX = weightEuclidDist * euclidDistPosition.getX() + weightJointProb * jointProbPosition.getX();
         double finalY = weightEuclidDist * euclidDistPosition.getY() + weightJointProb * jointProbPosition.getY();
         System.out.println("Euclidean x: " + euclidDistPosition.getX() + ", Euclidean y: " + euclidDistPosition.getY());
