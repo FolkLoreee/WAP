@@ -2,6 +2,7 @@
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:background="@drawable/background"
     android:id="@+id/loginActivity"
@@ -10,40 +11,43 @@
 
     <EditText
         android:id="@+id/passwordfield"
-        android:layout_width="234dp"
+        android:layout_width="243dp"
         android:layout_height="40dp"
-        android:layout_alignEnd="@+id/loginfield"
-        android:layout_alignRight="@+id/loginfield"
+        android:background="@drawable/rounded_corner"
         android:layout_alignParentBottom="true"
-        android:layout_marginEnd="0dp"
-        android:layout_marginRight="0dp"
         android:layout_marginBottom="159dp"
-        android:background="@color/white"
+        android:layout_centerHorizontal="true"
+        android:hint="Password"
+        android:maxLines="1"
+        android:inputType="text"
+        android:paddingHorizontal="15dp"
         android:ems="10" />
 
     <EditText
         android:id="@+id/loginfield"
-        android:layout_width="234dp"
+        android:layout_width="245dp"
         android:layout_height="40dp"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginEnd="86dp"
-        android:layout_marginRight="86dp"
         android:layout_marginBottom="229dp"
-        android:background="@color/white"
+        android:hint="Username"
+        android:paddingHorizontal="15dp"
+        android:background="@drawable/rounded_corner"
+        android:maxLines="1"
         android:ems="10"
-        android:inputType="textPersonName" />
+        android:inputType="text"
+        android:layout_centerHorizontal="true"
+        />
 
     <TextView
         android:id="@+id/textView3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
+        android:layout_alignStart="@+id/textView4"
+        android:layout_alignLeft="@+id/textView4"
         android:layout_alignParentBottom="true"
-        android:layout_marginEnd="263dp"
-        android:layout_marginRight="263dp"
+        android:layout_marginStart="0dp"
+        android:layout_marginLeft="0dp"
+        android:textStyle="bold"
         android:layout_marginBottom="276dp"
         android:text="@string/login_id" />
 
@@ -51,11 +55,12 @@
         android:id="@+id/textView4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
+        android:layout_alignStart="@+id/passwordfield"
+        android:layout_alignLeft="@+id/passwordfield"
         android:layout_alignParentBottom="true"
-        android:layout_marginEnd="256dp"
-        android:layout_marginRight="256dp"
+        android:layout_marginStart="0dp"
+        android:layout_marginLeft="0dp"
+        android:textStyle="bold"
         android:layout_marginBottom="205dp"
         android:text="@string/password" />
 
@@ -63,26 +68,20 @@
         android:id="@+id/login_button"
         android:layout_width="167dp"
         android:layout_height="43dp"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginEnd="120dp"
-        android:layout_marginRight="120dp"
-        android:layout_marginBottom="42dp"
-        android:src="@drawable/submitbutton" />
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="72dp"
+        android:src="@drawable/submitbutton"
+         />
 
     <ImageView
+        android:id="@+id/applogo"
         android:layout_width="203dp"
         android:layout_height="197dp"
         android:layout_above="@+id/loginfield"
-        android:id="@+id/applogo"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
-        android:layout_marginEnd="106dp"
-        android:layout_marginRight="106dp"
-        android:layout_marginBottom="116dp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="102dp"
         android:background="@drawable/logo" />
-
     <TextView
         android:id="@+id/tvClickToRegister"
         android:layout_width="326dp"
@@ -100,5 +99,6 @@
         android:clickable="true"
         android:focusable="true"
         android:text="@string/click_to_register" />
+
 
 </RelativeLayout>

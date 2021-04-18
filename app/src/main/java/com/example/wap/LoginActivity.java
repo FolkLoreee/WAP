@@ -41,7 +41,6 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(activity_login);
         etId = findViewById(R.id.loginfield);
         etPassword = findViewById(R.id.passwordfield);
-        etEmail = findViewById(R.id.etEmail);
         loginBtn = findViewById(R.id.login_button);
 
         tvClickToRegister = findViewById(R.id.tvClickToRegister);
@@ -79,7 +78,7 @@ public class LoginActivity extends AppCompatActivity {
                         AlertDialog alertDialog = builder.create();
                         alertDialog.show();
 
-                        startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                        startActivity(new Intent(LoginActivity.this, ChooseMapActivity.class));
                         finish();
                     } else {
                         Toast.makeText(LoginActivity.this, "Invalid User/Pass", Toast.LENGTH_SHORT).show();

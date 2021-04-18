@@ -15,6 +15,9 @@ import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Display;
+import android.view.View;
+import android.widget.Button;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -48,11 +51,11 @@ public class MapActivity extends AppCompatActivity {
 
     // XML Elements
     ImageView mapImage;
-    ImageButton up;
-    ImageButton down;
-    ImageButton left;
-    ImageButton right;
-    ImageButton scan;
+    Button up;
+    Button down;
+    Button left;
+    Button right;
+    Button scan;
     ImageButton mappinghelp;
     TextView coordinatesText;
 
@@ -136,11 +139,11 @@ public class MapActivity extends AppCompatActivity {
 
         //set up the XML items
         coordinatesText = (TextView) findViewById(R.id.coordinatesText);
-        up = (ImageButton) findViewById(R.id.up);
-        down = (ImageButton) findViewById(R.id.down);
-        left = (ImageButton) findViewById(R.id.left);
-        right = (ImageButton) findViewById(R.id.right);
-        scan = (ImageButton) findViewById(R.id.scan);
+        up = (Button) findViewById(R.id.up);
+        down = (Button) findViewById(R.id.down);
+        left = (Button) findViewById(R.id.left);
+        right = (Button) findViewById(R.id.right);
+        scan = (Button) findViewById(R.id.scan);
         mappinghelp = (ImageButton) findViewById(R.id.mappinghelp);
 
         //set coordinate as (0,0) on creation
@@ -267,16 +270,16 @@ public class MapActivity extends AppCompatActivity {
                 wifiManager.startScan();
             }
         });
-
         mappinghelp.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(MapActivity.this, Popupactivity.class));
+                    @Override
+                    public void onClick(View v) {
+                        startActivity(new Intent(MapActivity.this, Popupactivity.class));
 
-            }
-        });
+                    }
+                });
 
     }
+
 
     public void drawFunction(Coordinate coordinate, int squareHeight, int squareWidth, int intrinsicHeight, int intrinsicWidth, ImageView mapImage, ArrayList<Path> paths, TextView coordinatesText) {
 

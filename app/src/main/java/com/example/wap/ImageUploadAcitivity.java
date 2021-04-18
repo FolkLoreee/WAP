@@ -1,5 +1,6 @@
 package com.example.wap;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -52,6 +53,7 @@ public class ImageUploadAcitivity extends Fragment {
     ImageView uploadImg;
     EditText locationIDText,locationNameText;
     ImageButton uploadBtn;
+    Bitmap bitmap;
     Uri filePath;
     private final int PICK_IMAGE_REQUEST = 71;
 
@@ -69,6 +71,7 @@ public class ImageUploadAcitivity extends Fragment {
         return contextOfApplication;
     }
 
+    @SuppressLint("WrongViewCast")
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
 
@@ -100,7 +103,16 @@ public class ImageUploadAcitivity extends Fragment {
             public void onClick(View v) {
                 locationID = locationIDText.getText().toString();
                 locationName = locationNameText.getText().toString();
-                splitImage(uploadImg);
+                if(locationID == "" || locationID == null){
+                    Toast.makeText(ImageUploadAcitivity.getContextOfApplication(), "No location ID", Toast.LENGTH_SHORT).show();
+                }
+                else if(locationName == "" || locationName == null){
+                    Toast.makeText(ImageUploadAcitivity.getContextOfApplication(), "No Location Name", Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    splitImage(bitmap);
+                }
+
             }
         });
     }
@@ -120,7 +132,7 @@ public class ImageUploadAcitivity extends Fragment {
         {
             filePath = data.getData();
             try {
-                Bitmap bitmap = MediaStore.Images.Media.getBitmap(ImageUploadAcitivity.getContextOfApplication().getContentResolver(), filePath);
+                bitmap = MediaStore.Images.Media.getBitmap(ImageUploadAcitivity.getContextOfApplication().getContentResolver(), filePath);
                 uploadImg.setImageBitmap(bitmap);
             }
             catch (IOException e)
@@ -142,53 +154,60 @@ public class ImageUploadAcitivity extends Fragment {
     }
 
 
-    private void splitImage(ImageView image) {
-
-        //For the number of rows and columns of the grid to be displayed
-        int rows, cols;
-        //For height and width of the small image chunks
-        int chunkHeight, chunkWidth;
-        //To store all the small image chunks in bitmap format in this list
-        //To store all the xy coordinate of the image chunks
-        ArrayList<Bitmap> chunkedImages = new ArrayList<Bitmap>();
-        ArrayList<Coordinate> coordImages = new ArrayList<Coordinate>();
-
-        //Getting the scaled bitmap of the source image
-        BitmapDrawable drawable = (BitmapDrawable) image.getDrawable();
-        Bitmap bitmap = drawable.getBitmap();
-        Bitmap scaledBitmap = Bitmap.createScaledBitmap(bitmap, bitmap.getWidth(), bitmap.getHeight(), true);
-        rows = cols = (int) Math.sqrt(300);
-        chunkHeight = bitmap.getHeight() / rows;
-        chunkWidth = bitmap.getWidth() / cols;
-
-        //xCoord and yCoord are the pixel positions of the image chunks
-        int yCoord = 0;
-        for (int x = 0; x < rows; x++) {
-            int xCoord = 0;
-            for (int y = 0; y < cols; y++) {
-                chunkedImages.add(createBitmap(scaledBitmap, xCoord, yCoord, chunkWidth, chunkHeight));
-                xCoord += chunkWidth;
-                coordImages.add(new Coordinate(xCoord, yCoord));
-
-            }
-            yCoord += chunkHeight;
+    private void splitImage(Bitmap bitmap) {
+//
+//        //For the number of rows and columns of the grid to be displayed
+//        int rows, cols;
+//        //For height and width of the small image chunks
+//        int chunkHeight, chunkWidth;
+//        //To store all the small image chunks in bitmap format in this list
+//        //To store all the xy coordinate of the image chunks
+//        ArrayList<Bitmap> chunkedImages = new ArrayList<Bitmap>();
+//        ArrayList<Coordinate> coordImages = new ArrayList<Coordinate>();
+//
+//        //Getting the scaled bitmap of the source image
+//        BitmapDrawable drawable = (BitmapDrawable) image.getDrawable();
+//        Bitmap bitmap = drawable.getBitmap();
+//        Bitmap scaledBitmap = Bitmap.createScaledBitmap(bitmap, bitmap.getWidth(), bitmap.getHeight(), true);
+//        rows = cols = (int) Math.sqrt(16);
+//        chunkHeight = bitmap.getHeight() / rows;
+//        chunkWidth = bitmap.getWidth() / cols;
+//
+//        //xCoord and yCoord are the pixel positions of the image chunks
+//        int yCoord = 0;
+//        for (int x = 0; x < rows; x++) {
+//            int xCoord = 0;
+//            for (int y = 0; y < cols; y++) {
+//                chunkedImages.add(createBitmap(scaledBitmap, xCoord, yCoord, chunkWidth, chunkHeight));
+//                xCoord += chunkWidth;
+//                coordImages.add(new Coordinate(xCoord, yCoord));
+//
+//            }
+//            yCoord += chunkHeight;
+//        }
+//        uploadMapImage();
+//        MapViewActivity.imageChunks = chunkedImages;
+//        MapViewActivity.imageChunksCopy = makeDeepCopyInteger(chunkedImages);
+//
+//        MapViewActivity.imageCoords = coordImages;
+//
+////        MapViewActivity.locationID = locationIDText.getText().toString();
+//        MapViewActivity.locationName = locationNameText.getText().toString();
+        if (filePath == null) {
+            Toast.makeText(ImageUploadAcitivity.getContextOfApplication(), "Upload an image", Toast.LENGTH_SHORT).show();
+        } else {
+            uploadMapImage();
+            MapActivity.bitmapImg = bitmap;
+            Intent intent = new Intent(getActivity(), MapActivity.class);
+            intent.putExtra("locationID", locationID);
+            startActivity(intent);
         }
-        uploadMapImage();
-        MapViewActivity.imageChunks = chunkedImages;
-        MapViewActivity.imageChunksCopy = makeDeepCopyInteger(chunkedImages);
-
-        MapViewActivity.imageCoords = coordImages;
-
-//        MapViewActivity.locationID = locationIDText.getText().toString();
-        MapViewActivity.locationName = locationNameText.getText().toString();
-        Intent intent = new Intent(getActivity(), MapViewActivity.class);
-        intent.putExtra("locationID",locationID);
-        startActivity(intent);
     }
 
     private void uploadMapImage(){
 
         final StorageReference ref = storageRef.child("maps/" + locationID);
+
             UploadTask uploadTask = ref.putFile(filePath);
             // Retrieve the download url for the image uploaded to Firebase Storage
             // Download url is to be used to store in Firestore and to display later using Picasso
@@ -196,6 +215,7 @@ public class ImageUploadAcitivity extends Fragment {
                 @Override
                 public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
                     if (!task.isSuccessful()) {
+                        Log.e("error", "null here");
                         throw task.getException();
                     }
 
@@ -236,13 +256,13 @@ public class ImageUploadAcitivity extends Fragment {
         });
     }
 
-    class CoordImages {
-        int xcoord;
-        int ycoord;
-        CoordImages(int xcoord, int ycoord){
-            this.xcoord = xcoord;
-            this.ycoord = ycoord;
-        }
-    }
+//    class CoordImages {
+//        int xcoord;
+//        int ycoord;
+//        CoordImages(int xcoord, int ycoord){
+//            this.xcoord = xcoord;
+//            this.ycoord = ycoord;
+//        }
+//    }
 
 }

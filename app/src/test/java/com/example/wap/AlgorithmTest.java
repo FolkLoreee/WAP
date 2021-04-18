@@ -8,6 +8,7 @@ import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -48,7 +49,6 @@ public class AlgorithmTest{
         // Algorithm algo = new Algorithm()
 
          */
-
         ArrayList<Coordinate> fingerprintCoordinate = new ArrayList<>();
         fingerprintCoordinate.add(new Coordinate(1,1));
         fingerprintCoordinate.add(new Coordinate(2, 5));
@@ -81,7 +81,6 @@ public class AlgorithmTest{
         subfingerprintStdDevSignalCoor03.put("wifi-signal-6", 2.457);
         subfingerprintStdDevSignalCoor03.put("wifi-signal-0", 1.474);
 
-
         HashMap<String, Double> subfingerprintStdDevSignalCoor04 = new HashMap<>();
         subfingerprintStdDevSignalCoor04.put("wifi-signal-3", 2.0453);
         subfingerprintStdDevSignalCoor04.put("wifi-signal-5", 0.98439);
@@ -107,12 +106,12 @@ public class AlgorithmTest{
         subfingerprintStdDevSignalCoor06.put("wifi-signal-5", 2.415957);
 
         HashMap<String, HashMap<String, Double>> fingerprintStdDevSignal = new HashMap<>();
-        fingerprintStdDevSignal.put(new Coordinate(1,1).toString(), subfingerprintStdDevSignalCoor01);
-        fingerprintStdDevSignal.put(new Coordinate(2, 5).toString(), subfingerprintStdDevSignalCoor02);
-        fingerprintStdDevSignal.put(new Coordinate(3, 4).toString(), subfingerprintStdDevSignalCoor03);
-        fingerprintStdDevSignal.put(new Coordinate(9,1).toString(), subfingerprintStdDevSignalCoor04);
-        fingerprintStdDevSignal.put(new Coordinate(6, 7).toString(), subfingerprintStdDevSignalCoor05);
-        fingerprintStdDevSignal.put(new Coordinate(3, 8).toString(), subfingerprintStdDevSignalCoor06);
+        fingerprintStdDevSignal.put("(1,1)", subfingerprintStdDevSignalCoor01);
+        fingerprintStdDevSignal.put("(2,5)", subfingerprintStdDevSignalCoor02);
+        fingerprintStdDevSignal.put("(3,4)", subfingerprintStdDevSignalCoor03);
+        fingerprintStdDevSignal.put("(9,1)", subfingerprintStdDevSignalCoor04);
+        fingerprintStdDevSignal.put("(6,7)", subfingerprintStdDevSignalCoor05);
+        fingerprintStdDevSignal.put("(3,8)", subfingerprintStdDevSignalCoor06);
 
 
         /**
@@ -167,24 +166,39 @@ public class AlgorithmTest{
         subfingerprintOriginalAvgSignalCoor06.put("wifi-signal-4", -29.0);
         subfingerprintOriginalAvgSignalCoor06.put("wifi-signal-5", 98.0);
 
-
-
         HashMap<String, HashMap<String, Double>> fingerprintOriginalAvgSignal = new HashMap<>();
-        fingerprintOriginalAvgSignal.put(new Coordinate(1,1).toString(), subfingerprintOriginalAvgSignalCoor01);
-        fingerprintOriginalAvgSignal.put(new Coordinate(2, 5).toString(), subfingerprintOriginalAvgSignalCoor02);
-        fingerprintOriginalAvgSignal.put(new Coordinate(3, 4).toString(), subfingerprintOriginalAvgSignalCoor03);
-        fingerprintOriginalAvgSignal.put(new Coordinate(9,1).toString(), subfingerprintOriginalAvgSignalCoor04);
-        fingerprintOriginalAvgSignal.put(new Coordinate(6, 7).toString(), subfingerprintOriginalAvgSignalCoor05);
-        fingerprintOriginalAvgSignal.put(new Coordinate(3, 8).toString(), subfingerprintOriginalAvgSignalCoor06);
-
-
-
+        fingerprintOriginalAvgSignal.put("(1,1)", subfingerprintOriginalAvgSignalCoor01);
+        fingerprintOriginalAvgSignal.put("(2,5)", subfingerprintOriginalAvgSignalCoor02);
+        fingerprintOriginalAvgSignal.put("(3,4)", subfingerprintOriginalAvgSignalCoor03);
+        fingerprintOriginalAvgSignal.put("(9,1)", subfingerprintOriginalAvgSignalCoor04);
+        fingerprintOriginalAvgSignal.put("(6,7)", subfingerprintOriginalAvgSignalCoor05);
+        fingerprintOriginalAvgSignal.put("(3,8)", subfingerprintOriginalAvgSignalCoor06);
 
         algo = new Algorithm(fingerprintOriginalAvgSignal, fingerprintOriginalAvgSignal, fingerprintStdDevSignal, fingerprintCoordinate);
+        algo.retrievefromFirebase("Bldg2ThinkTank");
     }
     /*
     *Test cases for calculating X,Y Coordinate from Joint Probability method
      */
+
+    @Test
+    public void calculateFlagTestIfEmpty() {
+        ArrayList<Double> testData = new ArrayList<>();
+        double flagValue = algo.calculateFlag(testData);
+        assertEquals(0.0, flagValue, DELTA);
+    }
+
+    @Test
+    public void calculateFlagTest() {
+        ArrayList<Double> testData = new ArrayList<>();
+        testData.add(-85.1);
+        testData.add(-45.9);
+        testData.add(-52.1);
+        testData.add(-63.2);
+        testData.add(-78.6);
+        double flagValue = algo.calculateFlag(testData);
+        assertEquals(-59.949999999999996, flagValue, DELTA);
+    }
 
     @Test
     public void omegaJointProbTest(){
@@ -245,8 +259,9 @@ public class AlgorithmTest{
         targetMacAddress.add("wifi-signal-6");
 
         Coordinate output = algo.jointProbability(targetDataOriginal, targetMacAddress);
-        assertEquals(3.0356561839986136, output.getX(), DELTA);
-        assertEquals(4.589661312280158, output.getY(), DELTA);
+
+        assertEquals(5.086800936887126, output.getX(), DELTA);
+        assertEquals(4.818239369094473, output.getY(), DELTA);
     }
 
     @Test
@@ -269,8 +284,8 @@ public class AlgorithmTest{
         targetMacAddress.add("wifi-signal-6");
 
         Coordinate output = algo.jointProbability(targetDataOriginal, targetMacAddress);
-        assertEquals(3.161159868266154, output.getX(), DELTA);
-        assertEquals(4.072148893640588, output.getY(), DELTA);
+        assertEquals(4.002195680812009, output.getX(), DELTA);
+        assertEquals(3.6850819739876397, output.getY(), DELTA);
 
 
     }
@@ -311,7 +326,6 @@ public class AlgorithmTest{
     /*
     *Unit tests for Euclidean distance
      */
-
     @Test
     public void calculateEuclideanCoordinateTest(){
         ArrayList<Double> euclideanArray = new ArrayList<>();
@@ -326,6 +340,8 @@ public class AlgorithmTest{
         assertEquals( 3.8455745350405257, output.getX(), DELTA);
         assertEquals(5.863858525140664, output.getY(), DELTA);
     }
+
+
 
     @Test
     public void euclideanDistanceTest(){
@@ -354,13 +370,14 @@ public class AlgorithmTest{
         targetMacAddress.add("wifi-signal-6");
 
         Coordinate output = algo.euclideanDistance(targetData,  targetStdDev,  targetMacAddress);
-        double coorX = (double) Math.round(output.getX() * 10000) / 10000;
-        double coorY = (double) Math.round(output.getY() * 10000) / 10000;
-        assertEquals(4.4827, coorX, DELTA);
-        assertEquals(4.7050, coorY, DELTA);
+        assertEquals( 4.283169849490053, output.getX(), DELTA);
+        assertEquals(3.3002643872956865, output.getY(), DELTA);
+
 
 
     }
+
+
 
     @Test
     public void subDEuclideanDisTest(){
@@ -392,7 +409,4 @@ public class AlgorithmTest{
         assertEquals(424.5955, output.getX(), DELTA);
         assertEquals(32.66, output.getY(), DELTA);
     }
-
-
-
 }

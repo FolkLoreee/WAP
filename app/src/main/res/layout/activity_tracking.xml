@@ -17,13 +17,11 @@
         app:tabTextColor="#FFFFFF">
 
         <com.google.android.material.tabs.TabItem
-            android:id="@+id/tracking"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Tracking" />
 
         <com.google.android.material.tabs.TabItem
-            android:id="@+id/assets"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Assets" />
