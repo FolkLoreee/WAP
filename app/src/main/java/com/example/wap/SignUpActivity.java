@@ -24,6 +24,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
+import static com.example.wap.R.layout.activity_signup;
 
 public class SignUpActivity extends AppCompatActivity {
 
@@ -38,9 +39,9 @@ public class SignUpActivity extends AppCompatActivity {
     WAPFirebase<User> userWAPFirebase;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@NonNull Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_signup);
+        setContentView(activity_signup);
         //Fetch resources
         etUsernameSignup = findViewById(R.id.etUsernameSignup);
         etPasswordSignup = findViewById(R.id.etPasswordSignup);

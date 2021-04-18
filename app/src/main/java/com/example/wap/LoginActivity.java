@@ -29,7 +29,7 @@ public class LoginActivity extends AppCompatActivity {
     //MainApplication mApplication;
     private final String TAG = "LoginActivity";
     EditText etId, etPassword, etEmail;
-    TextView tvClickToRegister, tvEmail;
+    TextView tvClickToRegister;
     ImageButton loginBtn;
     FirebaseAuth firebaseAuth;
     WAPFirebase<User> userWAPFirebase;
@@ -44,7 +44,6 @@ public class LoginActivity extends AppCompatActivity {
         etEmail = findViewById(R.id.etEmail);
         loginBtn = findViewById(R.id.login_button);
 
-        tvEmail = findViewById(R.id.tvEmail);
         tvClickToRegister = findViewById(R.id.tvClickToRegister);
 
         //Firebase Auth
