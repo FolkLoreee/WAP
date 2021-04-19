@@ -16,12 +16,12 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 
-public class MapViewActivityTest {
-    private static final String TAG = "MapViewActivity Instrumented Testing";
+public class MapActivityTest {
+    private static final String TAG = "MapActivity Instrumented Testing";
     Context activityContext;
     FirebaseFirestore db;
     FirebaseStorage storage;
-    ActivityScenario<MapViewActivity> activityScenario;
+    ActivityScenario<MapActivity> activityScenario;
     WAPFirebase<Signal> signalWAPFirebase;
 
     @Before

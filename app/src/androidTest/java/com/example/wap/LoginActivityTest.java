@@ -50,7 +50,7 @@ public class LoginActivityTest extends TestCase {
         onView(withId(R.id.passwordfield)).perform(click(), typeText("123"),closeSoftKeyboard());  
         onView(withId(R.id.login_button)).perform(click());
 
-        onView(withId(R.id.mainActivity)).check(matches(isDisplayed()));
+        onView(withId(R.id.choosemapactivity)).check(matches(isDisplayed()));
     }
 
     @Test
@@ -60,7 +60,7 @@ public class LoginActivityTest extends TestCase {
         onView(withId(R.id.passwordfield)).perform(click(), typeText("123"),closeSoftKeyboard());
         onView(withId(R.id.login_button)).perform(click());
 
-        onView(withId(R.id.mainActivity)).check(ViewAssertions.doesNotExist());
+        onView(withId(R.id.choosemapactivity)).check(ViewAssertions.doesNotExist());
     }
     @Test
     public void test_navMainActivityFailPw() {
@@ -69,7 +69,7 @@ public class LoginActivityTest extends TestCase {
         onView(withId(R.id.passwordfield)).perform(click(), typeText("ESC rules"),closeSoftKeyboard());
         onView(withId(R.id.login_button)).perform(click());
 
-        onView(withId(R.id.mainActivity)).check(ViewAssertions.doesNotExist());
+        onView(withId(R.id.choosemapactivity)).check(ViewAssertions.doesNotExist());
     }
 }
 

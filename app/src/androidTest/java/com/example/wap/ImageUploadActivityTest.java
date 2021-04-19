@@ -38,23 +38,58 @@ import static org.junit.Assert.*;
 @RunWith(AndroidJUnit4.class)
 public class ImageUploadActivityTest {
 
-
     private static final String TAG = "ImageUploadActivity Instrumented Test";
     Context activityContext;
     WAPFirebase<Location> locationWAPFirebase;
     FirebaseFirestore db;
     FirebaseStorage storage;
     ActivityScenario<ChooseMapActivity> activityScenario;
+    private ImageUploadAcitivity imageUploadAcitivity;
     Location testLocation;
 
     @Before
     public void setup() {
+        System.out.println("setting up ImageUploadAcitivityTest");
+        imageUploadAcitivity = new ImageUploadAcitivity();
         locationWAPFirebase = new WAPFirebase<>(Location.class, "locations");
     }
 
     @After
     public void teardown() {
         if (activityScenario != null) activityScenario.close();
+    }
+
+
+    @Test
+    public void imageUploadFailNoImage(){
+        try{
+            imageUploadAcitivity.uploadBtn.callOnClick();
+        }
+        catch (NullPointerException e){
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void imageUploadFailNoID(){
+        try{
+            imageUploadAcitivity.locationIDText.setText("");
+            imageUploadAcitivity.uploadBtn.callOnClick();
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void imageUploadFailNoName(){
+        try{
+            imageUploadAcitivity.locationNameText.setText("");
+            imageUploadAcitivity.uploadBtn.callOnClick();
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     @Test

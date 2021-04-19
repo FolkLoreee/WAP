@@ -74,12 +74,10 @@ public class ImageSelectActivity extends ListFragment {
     }
 
 
-
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         select = (ImageButton) view.findViewById(R.id.select);
-
 
         contextOfApplication = getActivity().getApplicationContext();
 
