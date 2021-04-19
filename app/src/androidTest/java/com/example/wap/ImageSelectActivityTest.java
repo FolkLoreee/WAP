@@ -69,6 +69,9 @@ public class ImageSelectActivityTest extends TestCase {
     //testing that item clicked return correct image
     @Test
     public void imageUploadActivityImageSelectedPass(){
+
+        //TODO: click list view and verify that the image matches the firebase
+
         ActivityScenario activityScenario = ActivityScenario.launch(ChooseMapActivity.class);
         onView(withId(R.id.choosemapactivity)).check(matches(isDisplayed()));
         onView(withId(R.id.tabLayout)).perform(selectTabAtPosition(1));
