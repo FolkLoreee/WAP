@@ -219,6 +219,7 @@ public class TestingActivity extends AppCompatActivity {
                             // TODO: Need to edit once pointCounter is updated
                             if (availableLocations.get(selectedLocation).get(3).equals("0")) {
                                 locationMapped = false;
+                                Toast.makeText(TestingActivity.this, "Location has not been mapped, unable to locate user", Toast.LENGTH_SHORT).show();
                             } else {
                                 locationMapped = true;
                             }

@@ -95,8 +95,6 @@ public class Algorithm {
     }
 
     public void retrievefromFirebase(String locationID) {
-        AtomicBoolean locationMapped = new AtomicBoolean(false);
-
         // just to add another layer of security, in case user misclicks
         WAPFirebase<MapPoint> wapFirebasePoints = new WAPFirebase<>(MapPoint.class,"points");
         WAPFirebase<Signal> wapFirebaseSignal = new WAPFirebase<>(Signal.class,"signals");
@@ -104,41 +102,44 @@ public class Algorithm {
         wapFirebasePoints.compoundQuery("locationID", locationID).addOnSuccessListener(new OnSuccessListener<ArrayList<MapPoint>>() {
             @Override
             public void onSuccess(ArrayList<MapPoint> mapPoints) {
-                // used to handle if location is not mapped in database
-                if (mapPoints != null) {
-                    for (MapPoint point: mapPoints) {
-                        String pointID = point.getPointID();
-                        ArrayList<String> signalsIDs = point.getSignalIDs();
-                        pointsFB.put(pointID, signalsIDs);
-                        pointsCoordinatesFB.put(pointID, point.getCoordinate());
-                    }
-                }
-                else {
-                    locationMapped.getAndSet(false);
+                for (MapPoint point: mapPoints) {
+                    String pointID = point.getPointID();
+                    ArrayList<String> signalsIDs = point.getSignalIDs();
+                    pointsFB.put(pointID, signalsIDs);
+                    pointsCoordinatesFB.put(pointID, point.getCoordinate());
                 }
             }
         }).addOnCompleteListener(new OnCompleteListener<ArrayList<MapPoint>>() {
             @Override
             public void onComplete(@NonNull Task<ArrayList<MapPoint>> task) {
-                if (locationMapped.get()) {
-                    wapFirebaseSignal.compoundQuery("locationID", locationID).addOnSuccessListener(new OnSuccessListener<ArrayList<Signal>>() {
-                        @Override
-                        public void onSuccess(ArrayList<Signal> signals) {
-                            for (Signal signal: signals) {
-                                String signalID = signal.getSignalID();
-                                String bssid = signal.getWifiBSSID();
-                                double signalStrengthSD = signal.getSignalStrengthSD();
-                                double signalStrength = signal.getSignalStrength();
-                                signalStrengthFB.put(signalID, signalStrength);
-                                signalStrengthOriginalFB.put(signalID, signalStrength);
-                                signalStrengthSDFB.put(signalID, signalStrengthSD);
-                                signalBSSIDFB.put(signalID, bssid);
-                            }
+                wapFirebaseSignal.compoundQuery("locationID", locationID).addOnSuccessListener(new OnSuccessListener<ArrayList<Signal>>() {
+                    @Override
+                    public void onSuccess(ArrayList<Signal> signals) {
+                        for (Signal signal: signals) {
+                            String signalID = signal.getSignalID();
+                            String bssid = signal.getWifiBSSID();
+                            double signalStrengthSD = signal.getSignalStrengthSD();
+                            double signalStrength = signal.getSignalStrength();
+                            signalStrengthFB.put(signalID, signalStrength);
+                            signalStrengthOriginalFB.put(signalID, signalStrength);
+                            signalStrengthSDFB.put(signalID, signalStrengthSD);
+                            signalBSSIDFB.put(signalID, bssid);
                         }
-                    });
-                }
+                    }
+                });
             }
         });
+    }
+
+    private String stringifyCoordinates(Coordinate coordinates) {
+        // convert coordinates to string to store as key values for the hashmaps
+        StringBuilder str = new StringBuilder();
+        str.append(coordinates.getX());
+        str.append(", ");
+        str.append(coordinates.getY());
+        String coordinatesStr = str.toString();
+
+        return coordinatesStr;
     }
 
     public double calculateFlag(ArrayList<Double> targetData) {
@@ -161,17 +162,6 @@ public class Algorithm {
         }
 
         return total / numOfSignals;
-    }
-
-    private String stringifyCoordinates(Coordinate coordinates) {
-        // convert coordinates to string to store as key values for the hashmaps
-        StringBuilder str = new StringBuilder();
-        str.append(coordinates.getX());
-        str.append(", ");
-        str.append(coordinates.getY());
-        String coordinatesStr = str.toString();
-
-        return coordinatesStr;
     }
 
     private ArrayList<String> filterWifiByFlag(ArrayList<Double> targetData, double FLAG, ArrayList<String> targetMacAdd) {
@@ -269,19 +259,20 @@ public class Algorithm {
         // compare bssid in each fingerprint with the list of bssid from wifi scan at target location
         for (String pointID: pointsFB.keySet()) {
             double percentMatch = checkPercentageMatch(pointID, filteredMac);
-            if (percentMatch != 0.0) {
+            // filters out fingerprints that do not even contain any of the bssid at the target location
+            if (percentMatch > 0.0) {
                 fingerprintsMatch.put(pointID, percentMatch);
                 matches.add(percentMatch);
             }
         }
 
-        // sort the matches list in descending order to find top 4 fingerprints
+        // sort the matches list in descending order to find top k fingerprints
         Collections.sort(matches);
         Collections.reverse(matches);
 
         System.out.println("matches: " + matches);
 
-        if (matches.size() != 0) {
+        if (matches.size() > 0) {
             for (int i = 0; i < k; i++) {
                 // retrieve the pointID of the fingerprint
                 String fingerprintID = "";
@@ -302,8 +293,7 @@ public class Algorithm {
             }
         }
         else {
-            // if all fingerprints don't match i.e. user is out of the location selected
-            // this will be set to true
+            // if all fingerprints don't match i.e. user is out of the location selected, this will be set to true
             filteredFailed = true;
         }
     }
