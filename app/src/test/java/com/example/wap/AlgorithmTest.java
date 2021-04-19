@@ -175,7 +175,6 @@ public class AlgorithmTest{
         fingerprintOriginalAvgSignal.put("(3,8)", subfingerprintOriginalAvgSignalCoor06);
 
         algo = new Algorithm(fingerprintOriginalAvgSignal, fingerprintOriginalAvgSignal, fingerprintStdDevSignal, fingerprintCoordinate);
-        algo.retrievefromFirebase("Bldg2ThinkTank");
     }
     /*
     *Test cases for calculating X,Y Coordinate from Joint Probability method
@@ -197,7 +196,7 @@ public class AlgorithmTest{
         testData.add(-63.2);
         testData.add(-78.6);
         double flagValue = algo.calculateFlag(testData);
-        assertEquals(-59.949999999999996, flagValue, DELTA);
+        assertEquals(-49.0, flagValue, DELTA);
     }
 
     @Test
@@ -372,12 +371,7 @@ public class AlgorithmTest{
         Coordinate output = algo.euclideanDistance(targetData,  targetStdDev,  targetMacAddress);
         assertEquals( 4.283169849490053, output.getX(), DELTA);
         assertEquals(3.3002643872956865, output.getY(), DELTA);
-
-
-
     }
-
-
 
     @Test
     public void subDEuclideanDisTest(){
