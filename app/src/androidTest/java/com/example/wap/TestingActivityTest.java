@@ -53,7 +53,7 @@ public class TestingActivityTest {
     ArrayList<Double> targetData;
     ArrayList<Double> targetStdDev;
     ArrayList<String> targetMacAdd;
-    final String locationID = "Bldg2ThinkTank";
+    final String locationID = "CCLvl1";
 
     Context appContext;
 
@@ -171,9 +171,11 @@ public class TestingActivityTest {
         });
     }
 
+    //TODO: Fix the URL
+
     @Test
     public void testUtilsGetBitmapNotNull() throws IOException {
-        String URL = "https://firebasestorage.googleapis.com/v0/b/wapsutd-e0016.appspot.com/o/maps%2FBldg2ThinkTank-1?alt=media&token=77401b4d-02bb-4789-b278-055cf4c0efb6";
+        String URL = "https://firebasestorage.googleapis.com/v0/b/wapsutd-e0016.appspot.com/o/maps%2FCCLvl1?alt=media&token=d882eab4-c435-4cb7-8b82-e13fc298629c";
         Bitmap bitmap = Utils.getBitmap(new URL(URL));
         assertNotNull(bitmap);
     }

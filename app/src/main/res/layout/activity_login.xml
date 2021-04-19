@@ -17,7 +17,7 @@
         android:background="@drawable/rounded_corner"
         android:layout_marginTop="10dp"
         android:layout_centerHorizontal="true"
-        android:hint="Password"
+        android:hint="@string/password"
         android:maxLines="1"
         android:inputType="textPassword"
         android:paddingHorizontal="15dp"
