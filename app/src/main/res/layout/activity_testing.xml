@@ -7,28 +7,35 @@
     android:background="@drawable/background"
     tools:context=".TestingActivity">
 
-    <ImageView
-        android:id="@+id/mapImageView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="1.0"
-        tools:ignore="MissingConstraints"
-        tools:layout_editor_absoluteX="0dp" />
-
-    <ImageButton
-        android:id="@+id/locateBtn"
+    <TextView
+        android:id="@+id/selectLocationText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-
-        android:src="@drawable/locatebutton"
         android:layout_marginTop="32dp"
+        android:text="Select your location:"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Spinner
+        android:id="@+id/locationSpinner"
+        android:layout_marginTop="12dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/selectLocationText"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/mapImageView"
         tools:ignore="MissingConstraints"
-        android:visibility="invisible" />
+        android:backgroundTint="@color/black"/>
+
+    <ImageView
+        android:id="@+id/mapImageView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/locationSpinner" />
 
     <TextView
         android:id="@+id/calculatedPointData"
@@ -37,9 +44,8 @@
         android:layout_marginTop="32dp"
         android:text="Calculated Coordinates will appear"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/locateBtn"
+        app:layout_constraintTop_toBottomOf="@+id/mapImageView"
         android:visibility="invisible" />
 
     <com.google.android.material.bottomnavigation.BottomNavigationView

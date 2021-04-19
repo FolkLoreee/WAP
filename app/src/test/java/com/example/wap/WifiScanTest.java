@@ -41,7 +41,6 @@ public class WifiScanTest {
     public void calculateProcessedAverageTest(){
         double average = 49.06579;
         double output = WifiScan.calculateProcessedAverage(average);
-        //  TODO: CHANGE AFTER THE FUNCTION UPDATED
         assertEquals(51.47412333333333, output, DELTA);
     }
 
