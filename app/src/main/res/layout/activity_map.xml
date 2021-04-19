@@ -45,14 +45,30 @@
         app:layout_constraintVertical_bias="0.0"
         tools:ignore="MissingConstraints"></ImageView>
 
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_nav_bar"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="0dp"
+        android:background="@drawable/background"
+        app:itemIconTint="@drawable/colour_navbar"
+        app:itemTextColor="@drawable/colour_navbar"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0"
+
+        app:menu="@menu/bottom_menu"
+        tools:layout_editor_absoluteX="0dp" />
+
     <ImageButton
         android:id="@+id/up"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/mapImage"
-        android:layout_marginTop="30dp"
-        android:src="@drawable/uparrowbutton"
+        android:layout_marginTop="10dp"
         android:background="@drawable/rounded_corner"
+        android:src="@drawable/uparrowbutton"
         android:layout_centerHorizontal="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -103,7 +119,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/right"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="26dp"
         android:background="@drawable/rounded_corner"
         android:src="@drawable/downarrowbutton"
         app:layout_constraintBottom_toBottomOf="parent"

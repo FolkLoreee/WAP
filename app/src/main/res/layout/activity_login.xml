@@ -69,10 +69,9 @@
         android:layout_width="167dp"
         android:layout_height="43dp"
         android:layout_below="@+id/tvClickToRegister"
+        android:layout_marginTop="20dp"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="40dp"
-        android:src="@drawable/submitbutton"
-         />
+        android:src="@drawable/submitbutton" />
 
     <ImageView
         android:id="@+id/applogo"

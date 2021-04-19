@@ -48,24 +48,25 @@ public class LoginActivityTest extends TestCase {
         onView(withId(R.id.textView4)).check(matches(isDisplayed()));
     }
 
-//    @Test
-//    public void test_navMainActivity() {
-//        ActivityScenario activityscenario = ActivityScenario.launch(LoginActivity.class);
-//        onView(withId(R.id.loginfield)).perform(click(), typeText("admin"),closeSoftKeyboard());
-//        onView(withId(R.id.passwordfield)).perform(click(), typeText("123"),closeSoftKeyboard());
-//        onView(withId(R.id.login_button)).perform(click());
+    @Test
+    public void test_navMainActivity() {
+        ActivityScenario activityscenario = ActivityScenario.launch(LoginActivity.class);
+        onView(withId(R.id.loginfield)).perform(click(), typeText("wesley_quek@mymail.sutd.edu.sg"),closeSoftKeyboard());
+        onView(withId(R.id.passwordfield)).perform(click(), typeText("123456"),closeSoftKeyboard());
+        onView(withId(R.id.login_button)).perform(click());
+
+        onView(withId(R.id.choosemapactivity)).check(matches(isDisplayed()));
+    }
 //
-//        onView(withId(R.id.mainActivity)).check(matches(isDisplayed()));
-//    }
-//
-//    @Test
-//    public void test_navMainActivityFailId() {
-//        ActivityScenario activityscenario = ActivityScenario.launch(LoginActivity.class);
-//        onView(withId(R.id.loginfield)).perform(click(), typeText("Hi prof"),closeSoftKeyboard());
-//        onView(withId(R.id.passwordfield)).perform(click(), typeText("123"),closeSoftKeyboard());
-//        onView(withId(R.id.login_button)).perform(click());
-//
-//        onView(withId(R.id.mainActivity)).check(ViewAssertions.doesNotExist());
+    @Test
+    public void test_navMainActivityFailId() {
+        ActivityScenario activityscenario = ActivityScenario.launch(LoginActivity.class);
+        onView(withId(R.id.loginfield)).perform(click(), typeText("Hi prof"), closeSoftKeyboard());
+        onView(withId(R.id.passwordfield)).perform(click(), typeText("123"), closeSoftKeyboard());
+        onView(withId(R.id.login_button)).perform(click());
+
+        onView(withId(R.id.choosemapactivity)).check(ViewAssertions.doesNotExist());
+    }
 //    }
 //    @Test
 //    public void test_navMainActivityFailPw() {

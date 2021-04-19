@@ -21,7 +21,6 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.ListFragment;
 
 import com.example.wap.firebase.WAPFirebase;
-import com.example.wap.models.Coordinate;
 import com.example.wap.models.Location;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -34,9 +33,7 @@ import java.util.ArrayList;
 
 import static android.graphics.Bitmap.createBitmap;
 
-//import androidx.appcompat.app.AppCompatActivity;
-
-public class ImageSelectActivity extends ListFragment {
+public class ImageSelectActivity extends ListFragment  {
 
     public static final String KEY_User_Document1 = "doc1";
     private final String TAG = "Image Upload Activity";
@@ -66,6 +63,9 @@ public class ImageSelectActivity extends ListFragment {
         storage = FirebaseStorage.getInstance();
         storageRef = storage.getReference();
         return inflater.inflate(R.layout.activity_image_select, parent, false);
+
+
+
     }
 
     public static Context getContextOfApplication()

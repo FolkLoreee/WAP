@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:padding="15dp"
     android:background="@drawable/background"
     android:orientation="vertical">
@@ -10,39 +12,48 @@
         android:id="@+id/imageUpload"
         android:layout_width="wrap_content"
         android:layout_height="329dp"
-        android:layout_marginTop="20dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dp"
         android:background="@drawable/background"
         android:src="@drawable/image_upload" />
+
+
 
     <EditText
         android:id="@+id/locationIDEditText"
         android:layout_width="match_parent"
         android:layout_height="40dp"
-        android:ems="10"
-        android:inputType="textPersonName"
-        android:layout_marginTop="10dp"
-        android:paddingHorizontal="15dp"
+        android:layout_below="@+id/imageUpload"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="0dp"
         android:background="@drawable/rounded_corner"
-        android:hint="Location ID" />
+        android:ems="10"
+        android:hint="Location ID"
+        android:inputType="textPersonName"
+        android:paddingHorizontal="15dp" />
 
     <EditText
         android:id="@+id/locationNameEditText"
         android:layout_width="match_parent"
         android:layout_height="40dp"
-        android:ems="10"
-        android:layout_marginTop="20dp"
-        android:paddingHorizontal="15dp"
+        android:layout_below="@+id/locationIDEditText"
+        android:layout_marginTop="10dp"
         android:background="@drawable/rounded_corner"
+        android:ems="10"
+        android:hint="Location Name"
         android:inputType="textPersonName"
-        android:hint="Location Name" />
+        android:paddingHorizontal="15dp" />
 
     <ImageButton
         android:id="@+id/UploadBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_below="@+id/locationNameEditText"
         android:layout_gravity="center"
-        android:layout_marginTop="20dp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="40dp"
         android:src="@drawable/submitbutton"
         android:textStyle="bold" />
 
-</LinearLayout>
+</RelativeLayout>

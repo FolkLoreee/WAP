@@ -8,26 +8,22 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
-import android.graphics.PorterDuff;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.StrictMode;
-import android.util.Log;
-import android.view.View;
-import android.widget.Toast;
 
+import androidx.test.core.app.ActivityScenario;
+import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.example.wap.firebase.WAPFirebase;
-import com.example.wap.models.Coordinate;
 import com.example.wap.models.Location;
 import com.example.wap.models.MapPoint;
 import com.example.wap.models.Signal;
 import com.google.android.gms.tasks.OnSuccessListener;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,7 +34,17 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static androidx.test.espresso.matcher.ViewMatchers.withContentDescription;
+import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
+import static androidx.test.espresso.matcher.ViewMatchers.withId;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(AndroidJUnit4.class)
 public class TestingActivityTest {
@@ -228,6 +234,30 @@ public class TestingActivityTest {
                 wifiManager.startScan();
             }
         }
+    }
+
+    //UI testing
+    @Test
+    public void test_IsTestingInView(){
+        ActivityScenario activityScenario = ActivityScenario.launch(TestingActivity.class);
+        onView(withId(R.id.testingActivity)).check(matches(isDisplayed()));
+    }
+    //testing elements display correctly
+    @Test
+    public void test_IsItemsDisplayed(){
+        ActivityScenario activityscenario = ActivityScenario.launch(TestingActivity.class);
+        onView(withId(R.id.selectLocationText)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
+        onView(withId(R.id.mapImageView)).check(matches(isDisplayed()));
+        onView(withId(R.id.calculatedPointData)).check(matches(isDisplayed()));
+        ;
+    }
+    //test Navigation on bottomnavbar
+    @Test
+    public void test_navTestingactivity(){
+        ActivityScenario activityscenario = ActivityScenario.launch(TestingActivity.class);
+        onView(withId(R.id.testingActivity)).check(matches(isDisplayed()));
+        onView(withContentDescription(R.string.mapping)).perform(click());
+        onView(withId(R.id.mappingActivity)).check(matches(isDisplayed()));
     }
 
 
