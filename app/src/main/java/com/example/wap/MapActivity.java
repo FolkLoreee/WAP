@@ -38,8 +38,6 @@ import java.util.HashMap;
 import java.util.List;
 
 //firebase stuff
-
-
 public class MapActivity extends AppCompatActivity {
 
     // Wifi Stuff
@@ -63,9 +61,7 @@ public class MapActivity extends AppCompatActivity {
     public static String locationID;
    public static String locationName;
 
-
     Location currentLocation;
-
     static Coordinate coordinate;
 
     //Firebase
