@@ -33,15 +33,11 @@ public class ImageSelectActivityTest extends TestCase {
     private ImageSelectActivity imageSelectActivity;
     private ImageSelectAdapter imageSelectAdapter;
 
-    @Before
-    public void runBeforeEachTest() {
-        System.out.println("setting up ImageUploadAcitivityTest");
-        imageSelectActivity = new ImageSelectActivity();
-    }
-
     @Test
     public void imageSelectFailNoImage(){
         try{
+            System.out.println("setting up ImageUploadAcitivityTest");
+            imageSelectActivity = new ImageSelectActivity();
             imageSelectActivity.select.callOnClick();
         }
         catch (Exception e){
