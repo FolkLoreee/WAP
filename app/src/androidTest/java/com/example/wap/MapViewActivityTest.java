@@ -21,7 +21,7 @@ public class MapViewActivityTest {
     Context activityContext;
     FirebaseFirestore db;
     FirebaseStorage storage;
-    ActivityScenario<MapViewActivity> activityScenario;
+    ActivityScenario<MapActivity> activityScenario;
     WAPFirebase<Signal> signalWAPFirebase;
 
     @Before

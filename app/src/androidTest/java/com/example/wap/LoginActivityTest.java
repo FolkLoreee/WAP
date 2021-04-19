@@ -25,8 +25,13 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 
 
 public class LoginActivityTest extends TestCase {
+//! Instrumented Tests
+    @Test
+    public void test_instantiating_firebase_auth(){
+        ActivityScenario activityScenario = ActivityScenario.launch(LoginActivity.class);
 
-    
+    }
+//? UI Tests
     @Test
     public void test_IsLoginInView(){
         ActivityScenario activityScenario = ActivityScenario.launch(LoginActivity.class);
@@ -43,33 +48,33 @@ public class LoginActivityTest extends TestCase {
         onView(withId(R.id.textView4)).check(matches(isDisplayed()));
     }
 
-    @Test
-    public void test_navMainActivity() {
-        ActivityScenario activityscenario = ActivityScenario.launch(LoginActivity.class);
-        onView(withId(R.id.loginfield)).perform(click(), typeText("admin"),closeSoftKeyboard());
-        onView(withId(R.id.passwordfield)).perform(click(), typeText("123"),closeSoftKeyboard());  
-        onView(withId(R.id.login_button)).perform(click());
-
-        onView(withId(R.id.mainActivity)).check(matches(isDisplayed()));
-    }
-
-    @Test
-    public void test_navMainActivityFailId() {
-        ActivityScenario activityscenario = ActivityScenario.launch(LoginActivity.class);
-        onView(withId(R.id.loginfield)).perform(click(), typeText("Hi prof"),closeSoftKeyboard());
-        onView(withId(R.id.passwordfield)).perform(click(), typeText("123"),closeSoftKeyboard());
-        onView(withId(R.id.login_button)).perform(click());
-
-        onView(withId(R.id.mainActivity)).check(ViewAssertions.doesNotExist());
-    }
-    @Test
-    public void test_navMainActivityFailPw() {
-        ActivityScenario activityscenario = ActivityScenario.launch(LoginActivity.class);
-        onView(withId(R.id.loginfield)).perform(click(), typeText("admin"),closeSoftKeyboard());
-        onView(withId(R.id.passwordfield)).perform(click(), typeText("ESC rules"),closeSoftKeyboard());
-        onView(withId(R.id.login_button)).perform(click());
-
-        onView(withId(R.id.mainActivity)).check(ViewAssertions.doesNotExist());
-    }
+//    @Test
+//    public void test_navMainActivity() {
+//        ActivityScenario activityscenario = ActivityScenario.launch(LoginActivity.class);
+//        onView(withId(R.id.loginfield)).perform(click(), typeText("admin"),closeSoftKeyboard());
+//        onView(withId(R.id.passwordfield)).perform(click(), typeText("123"),closeSoftKeyboard());
+//        onView(withId(R.id.login_button)).perform(click());
+//
+//        onView(withId(R.id.mainActivity)).check(matches(isDisplayed()));
+//    }
+//
+//    @Test
+//    public void test_navMainActivityFailId() {
+//        ActivityScenario activityscenario = ActivityScenario.launch(LoginActivity.class);
+//        onView(withId(R.id.loginfield)).perform(click(), typeText("Hi prof"),closeSoftKeyboard());
+//        onView(withId(R.id.passwordfield)).perform(click(), typeText("123"),closeSoftKeyboard());
+//        onView(withId(R.id.login_button)).perform(click());
+//
+//        onView(withId(R.id.mainActivity)).check(ViewAssertions.doesNotExist());
+//    }
+//    @Test
+//    public void test_navMainActivityFailPw() {
+//        ActivityScenario activityscenario = ActivityScenario.launch(LoginActivity.class);
+//        onView(withId(R.id.loginfield)).perform(click(), typeText("admin"),closeSoftKeyboard());
+//        onView(withId(R.id.passwordfield)).perform(click(), typeText("ESC rules"),closeSoftKeyboard());
+//        onView(withId(R.id.login_button)).perform(click());
+//
+//        onView(withId(R.id.mainActivity)).check(ViewAssertions.doesNotExist());
+//    }
 
 }
