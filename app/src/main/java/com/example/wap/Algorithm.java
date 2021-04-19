@@ -33,8 +33,7 @@ public class Algorithm {
     ArrayList<Double> euclideanArray;
     // create an arraylist to store the jointprob i values
     ArrayList<Double> jointProbArray;
-    //coordinateKey
-    ArrayList<String> coordinateKey;
+
 
     boolean filteredFailed = false;
 
@@ -83,7 +82,7 @@ public class Algorithm {
 
         euclideanArray = new ArrayList<>();
         jointProbArray = new ArrayList<>();
-        coordinateKey = new ArrayList<>();
+
     }
 
     public Algorithm(HashMap<String, HashMap<String, Double>> fingerprintOriginalAvgSignal, HashMap<String, HashMap<String, Double>> fingerprintAvgSignal, HashMap<String, HashMap<String, Double>> fingerprintStdDevSignal, ArrayList<Coordinate> fingerprintCoordinate) {
@@ -92,6 +91,8 @@ public class Algorithm {
         this.fingerprintStdDevSignal = fingerprintStdDevSignal;
 
         this.fingerprintCoordinate = fingerprintCoordinate;
+        this.euclideanArray = new ArrayList<>();
+        this.jointProbArray = new ArrayList<>();
     }
 
     public void retrievefromFirebase(String locationID) {
@@ -297,8 +298,9 @@ public class Algorithm {
             filteredFailed = true;
         }
     }
-    
+
     public Coordinate euclideanDistance(ArrayList<Double> targetData, ArrayList<Double> targetStdDev, ArrayList<String> targetMacAdd) {
+        ArrayList<String> coordinateKey = new ArrayList<>();
         //retrieve the keys of the fingerprint
         for (String coorStr : fingerprintAvgSignal.keySet()){
             coordinateKey.add(coorStr);
@@ -375,7 +377,7 @@ public class Algorithm {
     // wifi scan data from target location
     ;
     public Coordinate jointProbability(ArrayList<Double> targetDataOriginal, ArrayList<String> targetMacAdd) {
-
+        ArrayList<String> coordinateKey = new ArrayList<>();
         //retrieve the keys of the fingerprint
         for (String coorStr : fingerprintAvgSignal.keySet()){
             coordinateKey.add(coorStr);
@@ -450,7 +452,7 @@ public class Algorithm {
     }
 
     public Coordinate weightedFusion(Coordinate euclidDistPosition, Coordinate jointProbPosition) {
-       // Calculate the final X and Y
+        // Calculate the final X and Y
         double finalX = weightEuclidDist * euclidDistPosition.getX() + weightJointProb * jointProbPosition.getX();
         double finalY = weightEuclidDist * euclidDistPosition.getY() + weightJointProb * jointProbPosition.getY();
         System.out.println("Euclidean x: " + euclidDistPosition.getX() + ", Euclidean y: " + euclidDistPosition.getY());

@@ -22,8 +22,8 @@ public class AlgorithmTest{
     {
         System.out.println("setting up");
         /*
-        *inputs
-        * * fingerprintOriginalAvgSignal = HashMap<fingerprintCoordinate, HashMap<macAddress, originalAverageWifiSignal>>
+         *inputs
+         * * fingerprintOriginalAvgSignal = HashMap<fingerprintCoordinate, HashMap<macAddress, originalAverageWifiSignal>>
          * fingerprintAvgSignal = HashMap<fingerprintCoordinate, HashMap<macAddress, averageWifiSignal>>
          * fingerprintStdDevSignal = HashMap<fingerprintCoordinate, HashMap<macAddress, standardDeviationSignal>>
          * fingerprintCoordinate = list of filtered fingerprints
@@ -177,7 +177,7 @@ public class AlgorithmTest{
         algo = new Algorithm(fingerprintOriginalAvgSignal, fingerprintOriginalAvgSignal, fingerprintStdDevSignal, fingerprintCoordinate);
     }
     /*
-    *Test cases for calculating X,Y Coordinate from Joint Probability method
+     *Test cases for calculating X,Y Coordinate from Joint Probability method
      */
 
     @Test
@@ -323,7 +323,7 @@ public class AlgorithmTest{
     }
 
     /*
-    *Unit tests for Euclidean distance
+     *Unit tests for Euclidean distance
      */
     @Test
     public void calculateEuclideanCoordinateTest(){
@@ -400,7 +400,7 @@ public class AlgorithmTest{
     @Test
     public void weightedFusionTest(){
         Coordinate output = algo.weightedFusion(new Coordinate(415.667, 31.2), new Coordinate(433.524, 34.12));
-        assertEquals(424.5955, output.getX(), DELTA);
-        assertEquals(32.66, output.getY(), DELTA);
+        assertEquals(420.13125, output.getX(), DELTA);
+        assertEquals(31.93, output.getY(), DELTA);
     }
 }
