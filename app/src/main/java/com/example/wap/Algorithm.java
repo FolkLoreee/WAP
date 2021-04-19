@@ -49,7 +49,7 @@ public class Algorithm {
     // constants
     private final double weightEuclidDist = 0.75;
     private final double weightJointProb = 0.25;
-    private final int k = 3;
+    private final int k = 4;
     private final double threshold = 0.7;
     private final int wifiThreshold = -60;
 
