@@ -270,16 +270,16 @@ public class MapActivity extends AppCompatActivity {
                 wifiManager.startScan();
             }
         });
-
         mappinghelp.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(MapActivity.this, Popupactivity.class));
+                    @Override
+                    public void onClick(View v) {
+                        startActivity(new Intent(MapActivity.this, Popupactivity.class));
 
-            }
-        });
+                    }
+                });
 
     }
+
 
     public void drawFunction(Coordinate coordinate, int squareHeight, int squareWidth, int intrinsicHeight, int intrinsicWidth, ImageView mapImage, ArrayList<Path> paths, TextView coordinatesText) {
 

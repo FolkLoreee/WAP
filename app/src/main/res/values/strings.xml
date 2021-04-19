@@ -10,6 +10,11 @@
     <string name="password">Password</string>
     <string name="Testing">Testing</string>
     <string name="mapping">Mapping</string>
+    <string name="main">Main</string>
+    <string name="click_to_register">Don\'t have an account yet? Click here to register.</string>
+    <string name="email">Email</string>
+    <string name="username">Username</string>
+    <string name="sign_up">Sign up</string>
 
 
 </resources>
