@@ -146,8 +146,8 @@ public class TestingActivity extends AppCompatActivity {
                     ArrayList<String> info = new ArrayList<>();
                     info.add(l.getLocationID());
                     info.add(l.getMapImage());
-                    info.add(Integer.toString(l.getPointCounter()));
-                    info.add(Integer.toString(l.getSignalCounter()));
+                    info.add(Integer.toString(l.getMapPointCounts()));
+                    info.add(Integer.toString(l.getSignalCounts()));
                     // if location name is null, it will save the location ID instead
                     if (l.getName() != null) {
                         availableLocations.put(l.getName(), info);

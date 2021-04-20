@@ -37,9 +37,13 @@ public class ImageSelectActivity extends ListFragment  {
 
     public static final String KEY_User_Document1 = "doc1";
     private final String TAG = "Image Upload Activity";
+    public static final String LOCATION_ID_KEY = "locationID";
+    public static final String LOCATION_NAME_KEY = "locationName";
+    public static final String LOCATION_URL_KEY = "locationURL";
     FirebaseStorage storage;
     StorageReference storageRef;
     String locationName;
+    String locationURL;
     String locationID;
     ImageButton select;
     WAPFirebase<Location> locationWAPFirebase;
@@ -142,6 +146,8 @@ public class ImageSelectActivity extends ListFragment  {
                 try {
                     URL url = new URL(locationList.get(position).getMapImage());
                     locationID = locationList.get(position).getLocationID();
+                    locationName = locationList.get(position).getName();
+                    locationURL = locationList.get(position).getMapImage();
                     bitmap = Utils.getBitmap(url);
                     imageView.setImageBitmap(bitmap);
                     MapActivity.bitmapImg = bitmap;
@@ -205,7 +211,9 @@ public class ImageSelectActivity extends ListFragment  {
 
         MapActivity.bitmapImg = bitmap;
         Intent intent = new Intent(getActivity(), MapActivity.class);
-        intent.putExtra("locationID",locationID);
+        intent.putExtra(LOCATION_ID_KEY,locationID);
+        intent.putExtra(LOCATION_URL_KEY,locationURL);
+        intent.putExtra(LOCATION_NAME_KEY,locationName);
         startActivity(intent);
 
     }

@@ -3,22 +3,25 @@ package com.example.wap.models;
 import android.graphics.Bitmap;
 import android.location.Address;
 
+import java.util.ArrayList;
+
 public class Location {
     private String locationID;
     private String name;
-    private int pointCounter;
-    private int signalCounter;
     private String mapImage;
-    private Address address;
+    private ArrayList<String> mapPointIDs;
+    private int signalCounts;
+    private int mapPointCounts;
 
-    public Location(String locationID, String name){
+    public Location(String locationID, String name, String mapImage) {
         this.locationID = locationID;
         this.name = name;
-        this.pointCounter = 0;
-        this.signalCounter = 0;
+        this.mapPointIDs = new ArrayList<>();
+        this.mapImage = mapImage;
     }
 
-    public Location(){}
+    public Location() {
+    }
 
     public String getLocationID() {
         return locationID;
@@ -44,33 +47,29 @@ public class Location {
         this.mapImage = mapImage;
     }
 
-    public Address getAddress() {
-        return address;
+    public void addMapPointID(String pointID){
+        ArrayList<String> newMapPoints = getMapPointIDs();
+        newMapPoints.add(pointID);
+        setMapPointIDs(newMapPoints);
+    }
+    public ArrayList<String> getMapPointIDs(){return mapPointIDs;}
+    public void setMapPointIDs(ArrayList<String> mapPointIDs){this.mapPointIDs = mapPointIDs;}
+    public int getSignalCounts(){return signalCounts;}
+    public int getMapPointCounts(){return mapPointCounts;}
+    public void setSignalCounts(int signalCounts){this.signalCounts = signalCounts;}
+    public void setMapPointCounts(int mapPointCounts){this.mapPointCounts = mapPointCounts;}
+
+    public void incrementSignalCounts(){
+        int newCount = getSignalCounts();
+        newCount++;
+        setSignalCounts(newCount);
     }
 
-    public void setAddress(Address address) {
-        this.address = address;
-    }
-
-    public int getPointCounter() {
-        return pointCounter;
-    }
-
-    public int getSignalCounter() {
-        return signalCounter;
-    }
-
-    public void setPointCounter(int pointCounter) {
-        this.pointCounter = pointCounter;
-    }
-
-    public void setSignalCounter(int signalCounter) {
-        this.signalCounter = signalCounter;
-    }
-    public void incrementSignalCounter(){
-        this.setSignalCounter(this.getSignalCounter()+1);
-    }
-    public void incrementPointCounter(){
-        this.setPointCounter(this.getPointCounter()+1);
+    public void incrementMapPointCounts(){
+        int newCount = getMapPointCounts();
+        newCount++;
+        setMapPointCounts(newCount);
     }
 }
+
+
