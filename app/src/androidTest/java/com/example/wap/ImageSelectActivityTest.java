@@ -18,9 +18,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static androidx.test.espresso.Espresso.onData;
 import static androidx.test.espresso.Espresso.onView;
-import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
@@ -92,7 +90,7 @@ public class ImageSelectActivityTest extends TestCase {
     }
 
     @NonNull
-    private static ViewAction selectTabAtPosition(final int position) {
+    public static ViewAction selectTabAtPosition(final int position) {
         return new ViewAction() {
             @Override
             public Matcher<View> getConstraints() {
@@ -140,5 +138,17 @@ public class ImageSelectActivityTest extends TestCase {
             }
         };
     }
+
+//    @Test
+//    public void test_NavButtons(){
+//        ActivityScenario activityScenario = ActivityScenario.launch(ChooseMapActivity.class);
+//        onView(withId(R.id.tabLayout)).perform(selectTabAtPosition(1));
+//        onView(withId(android.R.id.list)).perform(selectListAtPosition(2));
+////        onView(withContentDescription("CCLvl2")).perform(click());
+//        onView(withId(R.id.right)).perform(click());
+//        onView(withContentDescription("(96.0,21.5)")).check(matches(isDisplayed()));
+//
+//    }
+
 
 }

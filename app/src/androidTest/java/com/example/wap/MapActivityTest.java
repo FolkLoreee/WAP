@@ -5,7 +5,6 @@ import android.content.Context;
 import androidx.test.core.app.ActivityScenario;
 
 import com.example.wap.firebase.WAPFirebase;
-import com.example.wap.models.Location;
 import com.example.wap.models.MapPoint;
 import com.example.wap.models.Signal;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -15,6 +14,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
+
 
 public class MapActivityTest {
     private static final String TAG = "MapActivity Instrumented Testing";
@@ -42,4 +42,17 @@ public class MapActivityTest {
 
 
     }
+    //ui Tests
+//    @Test
+//    public void test_IsItemsDisplayed(){
+//        ActivityScenario activityscenario = ActivityScenario.launch(MapActivity.class);
+//        onView(withId(R.id.bottom)).check(matches(isDisplayed()));
+//        onView(withId(R.id.right)).check(matches(isDisplayed()));
+//        onView(withId(R.id.left)).check(matches(isDisplayed()));
+//        onView(withId(R.id.down)).check(matches(isDisplayed()));
+//        onView(withId(R.id.bottom_nav_bar)).check(matches(isDisplayed()));
+//        onView(withId(R.id.scan)).check(matches(isDisplayed()));
+//        onView(withId(R.id.coordinatesText)).check(matches(isDisplayed()));
+//        onView(withId(R.id.mapImageView)).check(matches(isDisplayed()));
+//    }
 }

@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@drawable/background"
     android:layout_height="match_parent">
+
 
     <ImageView
         android:id="@+id/imageSelect"
@@ -15,26 +16,24 @@
         android:src="@drawable/image_here" />
 
     <ListView
-        android:layout_marginTop="10dp"
         android:id="@android:id/list"
         android:layout_width="match_parent"
-        android:layout_height="260dp"
-        android:paddingHorizontal="10dp"
+        android:layout_height="250dp"
+        android:layout_below="@+id/imageSelect"
+        android:layout_marginTop="10dp"
         android:divider="@android:color/transparent"
         android:dividerHeight="5dp"
-        android:layout_below="@+id/imageSelect"
+        android:paddingHorizontal="10dp"
         tools:layout_editor_absoluteY="260dp" />
 
     <ImageButton
         android:id="@+id/select"
         android:layout_width="131dp"
         android:layout_height="43dp"
-        android:layout_alignParentTop="true"
+        android:layout_below="@android:id/list"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="550dp"
-
+        android:layout_marginTop="10dp"
         android:layout_marginBottom="0dp"
-        android:src="@drawable/selectbutton"
-        android:text="select" />
+        android:src="@drawable/selectbutton" />
 
 </RelativeLayout>
