@@ -26,7 +26,10 @@ import static androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static org.hamcrest.Matchers.allOf;
-import static org.hamcrest.Matchers.instanceOf;
+import static androidx.test.espresso.matcher.RootMatchers.withDecorView;
+import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 
 @RunWith(AndroidJUnit4.class)
 public class ImageSelectActivityTest extends TestCase {
@@ -34,16 +37,19 @@ public class ImageSelectActivityTest extends TestCase {
     private ImageSelectAdapter imageSelectAdapter;
 
     @Test
-    public void imageSelectFailNoImage(){
+    public void imageSelectFailNoImageBitmap(){
         try{
-            System.out.println("setting up ImageUploadAcitivityTest");
+            System.out.println("Setting up ImageUploadAcitivityTest");
             imageSelectActivity = new ImageSelectActivity();
             imageSelectActivity.select.callOnClick();
+            onView(withText("No Image")).inRoot(withDecorView(not(is(imageSelectActivity.getActivity().getWindow().getDecorView())))).check(matches(isDisplayed()));
         }
         catch (Exception e){
             e.printStackTrace();
         }
     }
+
+
 
     //test that fragments are transitioning properly
     @Test
@@ -65,14 +71,24 @@ public class ImageSelectActivityTest extends TestCase {
     //testing that item clicked return correct image
     @Test
     public void imageUploadActivityImageSelectedPass(){
-
         //TODO: click list view and verify that the image matches the firebase
-
         ActivityScenario activityScenario = ActivityScenario.launch(ChooseMapActivity.class);
         onView(withId(R.id.choosemapactivity)).check(matches(isDisplayed()));
         onView(withId(R.id.tabLayout)).perform(selectTabAtPosition(1));
         onView(withId(R.id.imageSelect)).check(matches(isDisplayed()));
 //        onView(withId(R.id.imageSelect)).perform();
+    }
+
+    @Test
+    public void onListItemClickTest(){
+        try{
+            imageSelectActivity = new ImageSelectActivity();
+            imageSelectActivity.onListItemClick(imageSelectActivity.getListView(), imageSelectActivity.getView(), 0, android.R.id.list);
+            assertEquals(imageSelectActivity.locationName, );
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     @NonNull
