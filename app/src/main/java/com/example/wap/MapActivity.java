@@ -69,42 +69,24 @@ public class MapActivity extends AppCompatActivity {
     WAPFirebase<Signal> signalWAPFirebase;
     WAPFirebase<MapPoint> pointWAPFirebase;
      WAPFirebase<Location> locationWAPFirebase;
-    // These matrices will be used to move and zoom image
-    Matrix matrix = new Matrix();
-    Matrix savedMatrix = new Matrix();
 
     // We can be in one of these 3 states
-    static final int NONE = 0;
-    // --Commented out by Inspection (15/4/2021 6:14 PM):static final int DRAG = 1;
-    static final int ZOOM = 2;
-    int mode = NONE;
-
-    // Remember some things for zooming
-    PointF start = new PointF();
-    PointF mid = new PointF();
-    float oldDist = 1f;
 
     // Bitmap
     public static Bitmap bitmapImg;
-    // --Commented out by Inspection (15/4/2021 6:14 PM):Bitmap bitmap;
     Canvas canvas;
     Paint paint;
     ArrayList<Path> paths = new ArrayList<Path>();
-    ArrayList<Path> undonePaths = new ArrayList<Path>();
 
     public float[] pointToUpload = new float[2];
 
     Path mPath;
-    // --Commented out by Inspection (15/4/2021 6:14 PM):boolean drag = false;
-    // --Commented out by Inspection (15/4/2021 6:14 PM):boolean hasPath = false;
     int intrinsicHeight;
     int intrinsicWidth;
     int row = 20;
     int col = 20;
-    // --Commented out by Inspection (15/4/2021 6:14 PM):int[] displaySize = new int[2];
     int squareWidth, squareHeight;
-//    int floor = R.drawable.floor_wap_1;
-//    Drawable drawable;
+
 
     // Wifi Data and Scans
     int numOfScans;
@@ -112,23 +94,10 @@ public class MapActivity extends AppCompatActivity {
     HashMap<String, String> ssids;
 
 
-// --Commented out by Inspection START (15/4/2021 6:14 PM):
-//    @SuppressWarnings("deprecation")
-//    private static int[] getDisplaySizeV9(Display display) {
-//        int x = display.getWidth();
-//        int y = display.getHeight();
-//        int[] displaySize = new int[2];
-//        displaySize[0] = x;
-//        displaySize[1] = y;
-//        return displaySize;
-//    }
-// --Commented out by Inspection STOP (15/4/2021 6:14 PM)
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
-
 
         signalWAPFirebase = new WAPFirebase<>(Signal.class, "signals");
         pointWAPFirebase = new WAPFirebase<>(MapPoint.class, "points");
@@ -146,19 +115,11 @@ public class MapActivity extends AppCompatActivity {
         //set coordinate as (0,0) on creation
         coordinate = new Coordinate(0, 0);
 
-
         // Set up the map
         mapImage = (ImageView) findViewById(R.id.mapImage);
-//        mapImage.setImageBitmap(bitmapImg);
-
-
-//        mapImage.setBackground(getResources().getDrawable(R.drawable.black));
-
 
         //original height and width of the bitmap
-
         intrinsicHeight = bitmapImg.getHeight();
-
         intrinsicWidth = bitmapImg.getWidth();
 
         //get the height and width of the square drawn
@@ -259,7 +220,6 @@ public class MapActivity extends AppCompatActivity {
 
                 numOfScans = 0;
                 // re-initialise hash map each time the button is pressed
-
                 allSignals = new HashMap<>();
                 ssids = new HashMap<>();
                 WifiScan.askAndStartScanWifi(LOG_TAG, MY_REQUEST_CODE, MapActivity.this);
@@ -273,6 +233,7 @@ public class MapActivity extends AppCompatActivity {
 
                     }
                 });
+
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_nav_bar);
         bottomNavigationView.setSelectedItemId(R.id.choosemapactivity);
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -288,10 +249,6 @@ public class MapActivity extends AppCompatActivity {
                         startActivity(new Intent(getApplicationContext(),ChooseMapActivity.class));
                         overridePendingTransition(0,0);
                         return true;
-//                    case R.id.mainActivity:
-//                        startActivity(new Intent(getApplicationContext(),MainActivity.class));
-//                        overridePendingTransition(0,0);
-//                        return true;
                 }
                 return false;
             }
@@ -301,17 +258,15 @@ public class MapActivity extends AppCompatActivity {
 
     public void drawFunction(Coordinate coordinate, int squareHeight, int squareWidth, int intrinsicHeight, int intrinsicWidth, ImageView mapImage, ArrayList<Path> paths, TextView coordinatesText) {
 
-//        bitmap = bitmapImg.copy(bitmapImg.getConfig(), true);
         Bitmap bitmap = Bitmap.createBitmap((int) intrinsicWidth, (int) intrinsicHeight, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(bitmap);
         Path mPath = new Path();
         canvas.drawBitmap(bitmapImg, 0, 0, null);
         Paint paint = new Paint();
         paint.setColor(Color.RED);
-//        paint.setStyle(Paint.Style.STROKE);
+
         paint.setStrokeWidth(10);
         mapImage.setImageBitmap(bitmap);
-//        mPath.addRect((float)coordinate.getX(), (float) coordinate.getY(), (float)coordinate.getX() + squareWidth, (float)coordinate.getY() + squareHeight, Path.Direction.CW);
         if (paths.size() != 0) {
             for (Path path : paths) {
                 paint.setColor(Color.BLUE);
@@ -328,14 +283,12 @@ public class MapActivity extends AppCompatActivity {
         mPath.addCircle(center[0], center[1], 15, Path.Direction.CW);
 
         canvas.drawPath(mPath, paint);
-//                    Toast.makeText(MapActivity.this, "drawn", Toast.LENGTH_SHORT).show();
         Log.d("right", "drawn: " + (float) coordinate.getX() + ", " + (float) coordinate.getY());
-//                    canvas.drawPath(mPath, paint);
 
     }
 
     public float[] centerOfRect(Coordinate coordinate, int squareWidth, int squareHeight) {
-//        ( (x1 + x2) / 2, (y1 + y2) / 2 )
+        //        ( (x1 + x2) / 2, (y1 + y2) / 2 )
         float[] center = new float[2];
         center[0] = (float) (2 * coordinate.getX() + squareWidth) / 2;
         center[1] = (float) (2 * coordinate.getY() + squareHeight) / 2;
@@ -343,7 +296,6 @@ public class MapActivity extends AppCompatActivity {
         return center;
 
     }
-
 
     // Define class to listen to broadcasts
     class WifiBroadcastReceiver extends BroadcastReceiver {

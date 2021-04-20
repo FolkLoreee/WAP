@@ -100,7 +100,6 @@ public class TestingActivityUser extends AppCompatActivity {
         // Initialise hashmaps
         availableLocations = new HashMap<>();
 
-
         // Retrieve all the locations
         WAPFirebase<Location> locationWAPFirebase = new WAPFirebase<>(Location.class,"locations");
         locationWAPFirebase.getCollection().addOnSuccessListener(new OnSuccessListener<ArrayList<Location>>() {
