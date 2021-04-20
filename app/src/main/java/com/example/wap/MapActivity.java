@@ -272,6 +272,7 @@ public class MapActivity extends AppCompatActivity {
                         allSignals = new HashMap<>();
                         ssids = new HashMap<>();
                         WifiScan.askAndStartScanWifi(LOG_TAG, MY_REQUEST_CODE, MapActivity.this);
+                        Log.d(LOG_TAG, "LOCATION: " + currentLocation.getLocationID());
                         wifiManager.startScan();
                     }
                 });
@@ -424,8 +425,6 @@ public class MapActivity extends AppCompatActivity {
                         @Override
                         public void onSuccess(Void aVoid) {
                             Log.d("FIREBASE", "map point successfully posted");
-                            currentLocation.incrementMapPointCounts();
-                            currentLocation.addMapPointID(point.getPointID());
                             locationWAPFirebase.update(currentLocation, currentLocation.getLocationID()).addOnSuccessListener(new OnSuccessListener<Void>() {
                                 @Override
                                 public void onSuccess(Void aVoid) {
@@ -434,6 +433,9 @@ public class MapActivity extends AppCompatActivity {
                             });
                         }
                     });
+
+                    currentLocation.incrementMapPointCounts();
+                    currentLocation.addMapPointID(point.getPointID());
 //                    for (Signal signal : signals) {
 //                        Log.d("FIREBASE", "signalID: " + signal.getSignalID());
 //                        signalWAPFirebase.create(signal, signal.getSignalID()).addOnSuccessListener(new OnSuccessListener<Void>() {
