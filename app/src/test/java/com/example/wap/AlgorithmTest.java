@@ -10,6 +10,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -21,34 +22,7 @@ public class AlgorithmTest{
     public void runBeforeEachTest()
     {
         System.out.println("setting up");
-        /*
-         *inputs
-         * * fingerprintOriginalAvgSignal = HashMap<fingerprintCoordinate, HashMap<macAddress, originalAverageWifiSignal>>
-         * fingerprintAvgSignal = HashMap<fingerprintCoordinate, HashMap<macAddress, averageWifiSignal>>
-         * fingerprintStdDevSignal = HashMap<fingerprintCoordinate, HashMap<macAddress, standardDeviationSignal>>
-         * fingerprintCoordinate = list of filtered fingerprints
-         *
-         * targetMacAdd = list of mac address received at target location
-         * targetStdDev = list of wifi signal standard deviation values for each mac address
-         * targetData = list of average wifi signal values for each mac address
-         * targetDataOriginal = list of original average wifi signal values for each mac address (FOR NOW, THESE HAVE THE SAME VALUES AS THE PROCESSED ONES)
-         */
-        //data for fingerprintOriginalAvgSignal
-        /*
-        HashMap<String, HashMap<String, Double>> fingerprintOriginalAvgSignal =
-        HashMap<String, HashMap<String, Double>> fingerprintAvgSignal
-        HashMap<String, HashMap<String, Double>> fingerprintStdDevSignal = ;
-        ArrayList<Coordinate> fingerprintCoordinate = new ArrayList<>();
-        Coordinate X = new Coordinate(10, 10);
-        Coordinate Y = new Coordinate(20, 20);
-        Coordinate Z = new Coordinate(25, 220);
-        fingerprintCoordinate.add(X);
-        fingerprintCoordinate.add(Y);
-        fingerprintCoordinate.add(Z);
 
-        // Algorithm algo = new Algorithm()
-
-         */
         ArrayList<Coordinate> fingerprintCoordinate = new ArrayList<>();
         fingerprintCoordinate.add(new Coordinate(1,1));
         fingerprintCoordinate.add(new Coordinate(2, 5));
@@ -113,12 +87,6 @@ public class AlgorithmTest{
         fingerprintStdDevSignal.put("(6,7)", subfingerprintStdDevSignalCoor05);
         fingerprintStdDevSignal.put("(3,8)", subfingerprintStdDevSignalCoor06);
 
-
-        /**
-         * Currently, our processed avg values and original average values are the same
-         */
-
-        //HashMap<macAddress, originalAverageWifiSignal>, data necesscary for fingerprintOriginalAvgSignal
         HashMap<String, Double> subfingerprintOriginalAvgSignalCoor01 = new HashMap<>();
         subfingerprintOriginalAvgSignalCoor01.put("wifi-signal-1", 75.0);
         subfingerprintOriginalAvgSignalCoor01.put("wifi-signal-3", 15.5);
@@ -181,6 +149,34 @@ public class AlgorithmTest{
      */
 
     @Test
+    public void filterWifiByFlag() {
+        ArrayList<Double> targetData = new ArrayList<>();
+        targetData.add(-80.0);
+        targetData.add(-57.3);
+        targetData.add(-89.3);
+        targetData.add(-67.1);
+        targetData.add(-53.2);
+
+        double FLAG = -67.2;
+
+        ArrayList<String> targetMacAdd = new ArrayList<>();
+        targetMacAdd.add("12:34:56:78:90");
+        targetMacAdd.add("34:56:78:90:12");
+        targetMacAdd.add("56:78:90:12:34");
+        targetMacAdd.add("78:90:12:34:56");
+        targetMacAdd.add("90:12:34:56:78");
+
+        ArrayList<String> actualFilteredMac = algo.filterWifiByFlag(targetData, FLAG, targetMacAdd);
+
+        ArrayList<String> expectedFilteredMac = new ArrayList<>();
+        expectedFilteredMac.add("34:56:78:90:12");
+        expectedFilteredMac.add("78:90:12:34:56");
+        expectedFilteredMac.add("90:12:34:56:78");
+
+        assertEquals(actualFilteredMac, expectedFilteredMac);
+    }
+
+    @Test
     public void calculateFlagTestIfEmpty() {
         ArrayList<Double> testData = new ArrayList<>();
         double flagValue = algo.calculateFlag(testData);
@@ -197,6 +193,184 @@ public class AlgorithmTest{
         testData.add(-78.6);
         double flagValue = algo.calculateFlag(testData);
         assertEquals(-49.0, flagValue, DELTA);
+    }
+
+    @Test
+    public void checkPercentageMatchIfNull() {
+        ArrayList<String> filteredMacNull = new ArrayList<>();
+        HashMap<String, ArrayList<String>> pointsFB = new HashMap<>();
+        HashMap<String, String> signalBSSIDFB = new HashMap<>();
+        double match = algo.checkPercentageMatch("", filteredMacNull, pointsFB, signalBSSIDFB);
+        assertEquals(match, 0.0, DELTA);
+    }
+
+    @Test
+    public void checkPercentageMatch() {
+        ArrayList<String> filteredMac = new ArrayList<>();
+        filteredMac.add("12:34:56:78:90");
+        filteredMac.add("34:56:78:90:12");
+        filteredMac.add("56:78:90:12:34");
+        filteredMac.add("78:90:12:34:56");
+        filteredMac.add("90:12:34:56:78");
+
+        HashMap<String, ArrayList<String>> pointsFB = new HashMap<>();
+        ArrayList<String> signalsIDs = new ArrayList<>();
+        signalsIDs.add("signal-1");
+        signalsIDs.add("signal-2");
+        signalsIDs.add("signal-3");
+        pointsFB.put("point-1", signalsIDs);
+
+        HashMap<String, String> signalBSSIDFB = new HashMap<>();
+        signalBSSIDFB.put("signal-1", "12:34:56:78:90");
+        signalBSSIDFB.put("signal-2", "34:56:78:90:12");
+        signalBSSIDFB.put("signal-3", "56:78:90:12:34");
+
+        double match = algo.checkPercentageMatch("point-1", filteredMac, pointsFB, signalBSSIDFB);
+
+        assertEquals(match, 0.6, DELTA);
+    }
+
+    @Test
+    public void stringifyCoordinatesIfCoordinatesNull() {
+        Coordinate coord = null;
+
+        String output = algo.stringifyCoordinates(coord);
+
+        assertEquals(output, "");
+    }
+
+    @Test
+    public void stringifyCoordinates() {
+        Coordinate coord = new Coordinate(2, 4);
+
+        String output = algo.stringifyCoordinates(coord);
+
+        assertEquals(output, "2.0, 4.0");
+    }
+
+    @Test
+    public void preMatchingK() {
+        ArrayList<Double> targetData = new ArrayList<>();
+        targetData.add(-80.0);
+        targetData.add(-57.3);
+        targetData.add(-89.3);
+        targetData.add(-67.1);
+        targetData.add(-53.2);
+
+        ArrayList<String> targetMacAdd = new ArrayList<>();
+        targetMacAdd.add("12:34:56:78:90");
+        targetMacAdd.add("34:56:78:90:12");
+        targetMacAdd.add("56:78:90:12:34");
+        targetMacAdd.add("78:90:12:34:56");
+        targetMacAdd.add("90:12:34:56:78");
+
+        HashMap<String, ArrayList<String>> pointsFB = new HashMap<>();
+        HashMap<String, Coordinate> pointsCoordinatesFB = new HashMap<>();
+
+        for (int i = 0; i < 5; i++) {
+            ArrayList<String> signalsIDs = new ArrayList<>();
+            signalsIDs.add("signal-" + i);
+            signalsIDs.add("signal-" + (i+1));
+            signalsIDs.add("signal-" + (i+1));
+            pointsFB.put("point-" + i, signalsIDs);
+            pointsCoordinatesFB.put("point-" + i, new Coordinate(2*i, 2*i+2));
+        }
+
+        HashMap<String, Double> signalStrengthFB = new HashMap<>();
+        HashMap<String, Double> signalStrengthOriginalFB = new HashMap<>();
+        HashMap<String, String> signalBSSIDFB = new HashMap<>();
+        HashMap<String, Double> signalStrengthSDFB = new HashMap<>();
+
+        String[] fakeBSSIDs = { "12:34:56:78:90", "90:12:34:56:78", "78:90:12:34:56", "56:78:90:12:34", "34:56:78:90:12", "21:34:56:78:90", "21:43:56:78:90"};
+        double[] signalStrengths = {-89.32, -45.04, -54.796, -63.95, -73.43, -78.43, -67.85};
+        double[] signalStrengthsOriginal = {-83.90, -43.21, -53.32, -67.78, -74.83, -76.494, -69.24};
+        for (int i = 0; i < 7; i ++) {
+            signalStrengthFB.put("signal-" + i, signalStrengths[i]);
+            signalStrengthOriginalFB.put("signal-" + i, signalStrengthsOriginal[i]);
+            signalBSSIDFB.put("signal-" + i, fakeBSSIDs[i]);
+            signalStrengthSDFB.put("signal-" + i, 1.0);
+        }
+
+        algo = new Algorithm(pointsFB, pointsCoordinatesFB, signalStrengthFB, signalStrengthOriginalFB, signalBSSIDFB, signalStrengthSDFB);
+        algo.preMatchingK(targetData, targetMacAdd);
+
+        HashMap<String, HashMap<String, Double>> actualOriginalAvgSignal = new HashMap<>();
+        HashMap<String, HashMap<String, Double>> actualAvgSignal = new HashMap<>();
+        HashMap<String, HashMap<String, Double>> actualStdDevSignal = new HashMap<>();
+        HashMap<String, Double> data = new HashMap<>();
+        data.put("90:12:34:56:78", -43.21);
+        data.put("78:90:12:34:56", -53.32);
+        actualOriginalAvgSignal.put("2.0, 4.0", data);
+        HashMap<String, Double> data2 = new HashMap<>();
+        data2.put("90:12:34:56:78", -45.04);
+        data2.put("78:90:12:34:56", -54.796);
+        actualAvgSignal.put("2.0, 4.0", data2);
+        HashMap<String, Double> data3 = new HashMap<>();
+        data3.put("90:12:34:56:78", 1.0);
+        data3.put("78:90:12:34:56", 1.0);
+        actualStdDevSignal.put("2.0, 4.0", data3);
+        HashMap<String, Double> data4 = new HashMap<>();
+        data4.put("12:34:56:78:90", -83.9);
+        data4.put("90:12:34:56:78", -43.21);
+        actualOriginalAvgSignal.put("0.0, 2.0", data4);
+        HashMap<String, Double> data5 = new HashMap<>();
+        data5.put("12:34:56:78:90", -89.32);
+        data5.put("90:12:34:56:78", -45.04);
+        actualAvgSignal.put("0.0, 2.0", data5);
+        HashMap<String, Double> data6 = new HashMap<>();
+        data6.put("12:34:56:78:90", 1.0);
+        data6.put("90:12:34:56:78", 1.0);
+        actualStdDevSignal.put("0.0, 2.0", data6);
+
+        assertEquals(algo.fingerprintOriginalAvgSignal, actualOriginalAvgSignal);
+        assertEquals(algo.fingerprintAvgSignal, actualAvgSignal);
+        assertEquals(algo.fingerprintStdDevSignal, actualStdDevSignal);
+    }
+
+    @Test
+    public void preMatchingKIfNoMatches() {
+        ArrayList<Double> targetData = new ArrayList<>();
+        targetData.add(-80.0);
+        targetData.add(-57.3);
+        targetData.add(-89.3);
+        targetData.add(-67.1);
+
+        ArrayList<String> targetMacAdd = new ArrayList<>();
+        targetMacAdd.add("12:43:56:78:90");
+        targetMacAdd.add("34:56:87:90:12");
+        targetMacAdd.add("56:78:09:12:34");
+        targetMacAdd.add("78:90:12:34:65");
+
+        HashMap<String, ArrayList<String>> pointsFB = new HashMap<>();
+        HashMap<String, Coordinate> pointsCoordinatesFB = new HashMap<>();
+
+        for (int i = 0; i < 5; i++) {
+            ArrayList<String> signalsIDs = new ArrayList<>();
+            signalsIDs.add("signal-" + i);
+            signalsIDs.add("signal-" + (i+1));
+            signalsIDs.add("signal-" + (i+1));
+            pointsFB.put("point-" + i, signalsIDs);
+            pointsCoordinatesFB.put("point-" + i, new Coordinate(2*i, 2*i+2));
+        }
+
+        HashMap<String, Double> signalStrengthFB = new HashMap<>();
+        HashMap<String, Double> signalStrengthOriginalFB = new HashMap<>();
+        HashMap<String, String> signalBSSIDFB = new HashMap<>();
+        HashMap<String, Double> signalStrengthSDFB = new HashMap<>();
+
+        String[] fakeBSSIDs = { "12:34:56:78:90", "90:12:34:56:78", "78:90:12:34:56", "56:78:90:12:34", "34:56:78:90:12", "21:34:56:78:90", "21:43:56:78:90"};
+        double[] signalStrengths = {-89.32, -45.04, -54.796, -63.95, -73.43, -78.43, -67.85};
+        double[] signalStrengthsOriginal = {-83.90, -43.21, -53.32, -67.78, -74.83, -76.494, -69.24};
+        for (int i = 0; i < 7; i ++) {
+            signalStrengthFB.put("signal-" + i, signalStrengths[i]);
+            signalStrengthOriginalFB.put("signal-" + i, signalStrengthsOriginal[i]);
+            signalBSSIDFB.put("signal-" + i, fakeBSSIDs[i]);
+            signalStrengthSDFB.put("signal-" + i, 1.0);
+        }
+
+        algo = new Algorithm(pointsFB, pointsCoordinatesFB, signalStrengthFB, signalStrengthOriginalFB, signalBSSIDFB, signalStrengthSDFB);
+        algo.preMatchingK(targetData, targetMacAdd);
+        assertEquals(algo.filteredFailed, true);
     }
 
     @Test

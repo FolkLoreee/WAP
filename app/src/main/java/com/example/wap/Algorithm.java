@@ -34,7 +34,6 @@ public class Algorithm {
     // create an arraylist to store the jointprob i values
     ArrayList<Double> jointProbArray;
 
-
     boolean filteredFailed = false;
 
     // data from firebase
@@ -85,6 +84,25 @@ public class Algorithm {
 
     }
 
+    public Algorithm(HashMap<String, ArrayList<String>> pointsFB, HashMap<String, Coordinate> pointsCoordinatesFB, HashMap<String, Double> signalStrengthFB, HashMap<String, Double> signalStrengthOriginalFB, HashMap<String, String> signalBSSIDFB, HashMap<String, Double> signalStrengthSDFB) {
+        this.pointsFB = pointsFB;
+        this.pointsCoordinatesFB = pointsCoordinatesFB;
+        this.signalStrengthFB = signalStrengthFB;
+        this.signalBSSIDFB = signalBSSIDFB;
+        this.signalStrengthSDFB = signalStrengthSDFB;
+        this.signalStrengthOriginalFB = signalStrengthOriginalFB;
+
+        fingerprintData = new ArrayList<>();
+        fingerprintCoordinate = new ArrayList<>();
+
+        fingerprintOriginalAvgSignal = new HashMap<>();
+        fingerprintAvgSignal = new HashMap<>();
+        fingerprintStdDevSignal = new HashMap<>();
+
+        euclideanArray = new ArrayList<>();
+        jointProbArray = new ArrayList<>();
+    }
+
     public Algorithm(HashMap<String, HashMap<String, Double>> fingerprintOriginalAvgSignal, HashMap<String, HashMap<String, Double>> fingerprintAvgSignal, HashMap<String, HashMap<String, Double>> fingerprintStdDevSignal, ArrayList<Coordinate> fingerprintCoordinate) {
         this.fingerprintOriginalAvgSignal = fingerprintOriginalAvgSignal;
         this.fingerprintAvgSignal = fingerprintAvgSignal;
@@ -121,7 +139,8 @@ public class Algorithm {
                             String bssid = signal.getWifiBSSID();
                             double signalStrengthSD = signal.getSignalStrengthSD();
                             double signalStrength = signal.getSignalStrength();
-                            signalStrengthFB.put(signalID, signalStrength);
+                            double processedSignalStrength = signal.getSignalStrengthProcessed();
+                            signalStrengthFB.put(signalID, processedSignalStrength);
                             signalStrengthOriginalFB.put(signalID, signalStrength);
                             signalStrengthSDFB.put(signalID, signalStrengthSD);
                             signalBSSIDFB.put(signalID, bssid);
@@ -132,8 +151,14 @@ public class Algorithm {
         });
     }
 
-    private String stringifyCoordinates(Coordinate coordinates) {
+    public String stringifyCoordinates(Coordinate coordinates) {
         // convert coordinates to string to store as key values for the hashmaps
+
+        // if coordinates are null, return an empty string
+        if (coordinates == null) {
+            return "";
+        }
+
         StringBuilder str = new StringBuilder();
         str.append(coordinates.getX());
         str.append(", ");
@@ -165,12 +190,12 @@ public class Algorithm {
         return total / numOfSignals;
     }
 
-    private ArrayList<String> filterWifiByFlag(ArrayList<Double> targetData, double FLAG, ArrayList<String> targetMacAdd) {
+    public ArrayList<String> filterWifiByFlag(ArrayList<Double> targetData, double FLAG, ArrayList<String> targetMacAdd) {
         // get a list of mac address where the signal strength pass the FLAG value
         ArrayList<String> filteredMac = new ArrayList<>();
         for (int i = 0; i < targetData.size(); i++) {
             double strength = targetData.get(i);
-            if (Math.abs(strength) > Math.abs(FLAG)) {
+            if (strength > FLAG) {
                 filteredMac.add(targetMacAdd.get(i));
             }
         }
@@ -178,7 +203,23 @@ public class Algorithm {
         return filteredMac;
     }
 
-    private double checkPercentageMatch(String pointID, ArrayList<String> filteredMac) {
+    // OLD CODE THAT IS INCORRECT
+    /*
+    public ArrayList<String> filterWifiByFlag(ArrayList<Double> targetData, double FLAG, ArrayList<String> targetMacAdd) {
+        // get a list of mac address where the signal strength pass the FLAG value
+        ArrayList<String> filteredMac = new ArrayList<>();
+        for (int i = 0; i < targetData.size(); i++) {
+            double strength = targetData.get(i);
+            if (Math.abs(strength) > Maths.abs(FLAG)) {
+                filteredMac.add(targetMacAdd.get(i));
+            }
+        }
+
+        return filteredMac;
+    }
+     */
+
+    public double checkPercentageMatch(String pointID, ArrayList<String> filteredMac, HashMap<String, ArrayList<String>> pointsFB, HashMap<String, String> signalBSSIDFB) {
         // cover for the edge case where filteredMac is empty
         if (filteredMac.size() == 0) {
             return 0.0;
@@ -237,7 +278,7 @@ public class Algorithm {
         // compare bssid in each fingerprint with the list of bssid from wifi scan at target location
         for (String pointID: pointsFB.keySet()) {
             // calculating the percentage match
-            double percentMatch = checkPercentageMatch(pointID, filteredMac);
+            double percentMatch = checkPercentageMatch(pointID, filteredMac, pointsFB, signalBSSIDFB);
             // System.out.println(pointID + ": " + percentMatch);
             if (percentMatch > threshold) {
                 storeFingerprint(pointID);
@@ -259,7 +300,7 @@ public class Algorithm {
 
         // compare bssid in each fingerprint with the list of bssid from wifi scan at target location
         for (String pointID: pointsFB.keySet()) {
-            double percentMatch = checkPercentageMatch(pointID, filteredMac);
+            double percentMatch = checkPercentageMatch(pointID, filteredMac, pointsFB, signalBSSIDFB);
             // filters out fingerprints that do not even contain any of the bssid at the target location
             if (percentMatch > 0.0) {
                 fingerprintsMatch.put(pointID, percentMatch);
@@ -274,7 +315,13 @@ public class Algorithm {
         System.out.println("matches: " + matches);
 
         if (matches.size() > 0) {
-            for (int i = 0; i < k; i++) {
+            int limit = 0;
+            if (matches.size() < k) {
+                limit = matches.size();
+            } else {
+                limit = k;
+            }
+            for (int i = 0; i < limit; i++) {
                 // retrieve the pointID of the fingerprint
                 String fingerprintID = "";
                 for (Map.Entry<String, Double> fingerprint: fingerprintsMatch.entrySet()) {
