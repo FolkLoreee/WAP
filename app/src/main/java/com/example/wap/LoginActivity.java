@@ -2,6 +2,7 @@ package com.example.wap;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -13,11 +14,15 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.wap.firebase.WAPFirebase;
+import com.example.wap.models.Authorization;
 import com.example.wap.models.User;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+
+import java.util.ArrayList;
 
 import static com.example.wap.R.layout.activity_login;
 
@@ -29,8 +34,11 @@ public class LoginActivity extends AppCompatActivity {
     EditText etEmail, etPassword;
     TextView tvClickToRegister;
     ImageButton loginBtn;
+
     FirebaseAuth firebaseAuth;
     WAPFirebase<User> userWAPFirebase;
+
+    Authorization userAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,8 +94,38 @@ public class LoginActivity extends AppCompatActivity {
                             AlertDialog alertDialog = builder.create();
                             alertDialog.show();
 
-                            startActivity(new Intent(LoginActivity.this, ChooseMapActivity.class));
-                            finish();
+                            userWAPFirebase.query(firebaseAuth.getCurrentUser().getUid()).addOnSuccessListener(new OnSuccessListener<User>() {
+                                @Override
+                                public void onSuccess(User user) {
+                                    try {
+                                        userAuth = user.getAuth();
+//                                        Log.d(TAG, "LoginActivity:" + String.valueOf(userAuth));
+                                        if(userAuth.equals(Authorization.ADMIN)){
+                                            startActivity(new Intent(LoginActivity.this, ChooseMapActivity.class));
+                                            finish();
+                                        }
+                                        else{
+                                            Log.d(TAG, "LoginActivity:" + String.valueOf(userAuth) + "   " +String.valueOf(Authorization.ADMIN));
+                                            startActivity(new Intent(LoginActivity.this, TestingActivityUser.class));
+                                            finish();
+                                        }
+                                    }
+                                    catch (Exception e){
+                                        Log.d(TAG, "LoginActivity: userAuth Fail");
+                                        e.printStackTrace();
+                                    }
+
+
+                                }
+                            }).addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Log.d(TAG, "LoginActivity: Here fail here");
+                                }
+                            });
+
+
+
                         }
                     }).addOnFailureListener(new OnFailureListener() {
                         @Override

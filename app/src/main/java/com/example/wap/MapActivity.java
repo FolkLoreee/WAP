@@ -177,7 +177,6 @@ public class MapActivity extends AppCompatActivity {
         paint.setColor(Color.RED);
         paint.setStrokeWidth(10);
 
-
         float[] center = centerOfRect(coordinate, squareWidth, squareHeight);
         coordinatesText.setText("( " + center[0] + " ," + center[1] + ")");
         mPath.addCircle(center[0], center[1], 15, Path.Direction.CW);

@@ -47,8 +47,6 @@ public class ImageSelectActivityTest extends TestCase {
         }
     }
 
-
-
     //test that fragments are transitioning properly
     @Test
     public void tabPass_imageSelectActivity(){
@@ -82,7 +80,7 @@ public class ImageSelectActivityTest extends TestCase {
         try{
             imageSelectActivity = new ImageSelectActivity();
             imageSelectActivity.onListItemClick(imageSelectActivity.getListView(), imageSelectActivity.getView(), 0, android.R.id.list);
-            assertEquals(imageSelectActivity.locationName, );
+            assertEquals(imageSelectActivity.locationName, "");
         }
         catch (Exception e){
             e.printStackTrace();

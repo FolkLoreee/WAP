@@ -35,8 +35,6 @@ import static android.graphics.Bitmap.createBitmap;
 
 public class ImageSelectActivity extends ListFragment  {
 
-    public static final String KEY_User_Document1 = "doc1";
-    private final String TAG = "Image Upload Activity";
     FirebaseStorage storage;
     StorageReference storageRef;
     String locationName;
@@ -47,12 +45,7 @@ public class ImageSelectActivity extends ListFragment  {
     ImageView imageView;
     ArrayList<Location> locationList = new ArrayList<Location>();
     ArrayAdapter<Location> locationArrayAdapter;
-    LayoutInflater inflater;
     Bitmap bitmap = null;
-
-    private final int PICK_IMAGE_REQUEST = 71;
-
-    private String Document_img1 = "";
 
     public static Context contextOfApplication;
 
