@@ -4,11 +4,9 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,7 +20,6 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import com.example.wap.firebase.WAPFirebase;
-import com.example.wap.models.Coordinate;
 import com.example.wap.models.Location;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -34,16 +31,13 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.IOException;
-import java.util.ArrayList;
 
 import static android.app.Activity.RESULT_OK;
-import static android.graphics.Bitmap.createBitmap;
 
 //import androidx.appcompat.app.AppCompatActivity;
 
 public class ImageUploadAcitivity extends Fragment {
 
-    public static final String KEY_User_Document1 = "doc1";
     private final String TAG = "Image Upload Activity";
     FirebaseStorage storage;
     StorageReference storageRef;
@@ -56,8 +50,6 @@ public class ImageUploadAcitivity extends Fragment {
     Bitmap bitmap;
     Uri filePath;
     private final int PICK_IMAGE_REQUEST = 71;
-
-    private String Document_img1 = "";
 
     public static Context contextOfApplication;
 
@@ -86,10 +78,6 @@ public class ImageUploadAcitivity extends Fragment {
         locationNameText = view.findViewById(R.id.locationNameEditText);
 
         contextOfApplication = getActivity().getApplicationContext();
-
-        DisplayMetrics displayMetrics = new DisplayMetrics();
-        int height = displayMetrics.heightPixels;
-        int width = displayMetrics.widthPixels;
 
         uploadImg.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -144,55 +132,7 @@ public class ImageUploadAcitivity extends Fragment {
 
 
 
-    private ArrayList<Bitmap> makeDeepCopyInteger(ArrayList<Bitmap> old){
-        ArrayList<Bitmap> copy = new ArrayList<Bitmap>(old.size());
-        for(Bitmap i : old){
-            Bitmap deepCopy = createBitmap(i);
-            copy.add(deepCopy);
-        }
-        return copy;
-    }
-
-
     private void splitImage(Bitmap bitmap) {
-//
-//        //For the number of rows and columns of the grid to be displayed
-//        int rows, cols;
-//        //For height and width of the small image chunks
-//        int chunkHeight, chunkWidth;
-//        //To store all the small image chunks in bitmap format in this list
-//        //To store all the xy coordinate of the image chunks
-//        ArrayList<Bitmap> chunkedImages = new ArrayList<Bitmap>();
-//        ArrayList<Coordinate> coordImages = new ArrayList<Coordinate>();
-//
-//        //Getting the scaled bitmap of the source image
-//        BitmapDrawable drawable = (BitmapDrawable) image.getDrawable();
-//        Bitmap bitmap = drawable.getBitmap();
-//        Bitmap scaledBitmap = Bitmap.createScaledBitmap(bitmap, bitmap.getWidth(), bitmap.getHeight(), true);
-//        rows = cols = (int) Math.sqrt(16);
-//        chunkHeight = bitmap.getHeight() / rows;
-//        chunkWidth = bitmap.getWidth() / cols;
-//
-//        //xCoord and yCoord are the pixel positions of the image chunks
-//        int yCoord = 0;
-//        for (int x = 0; x < rows; x++) {
-//            int xCoord = 0;
-//            for (int y = 0; y < cols; y++) {
-//                chunkedImages.add(createBitmap(scaledBitmap, xCoord, yCoord, chunkWidth, chunkHeight));
-//                xCoord += chunkWidth;
-//                coordImages.add(new Coordinate(xCoord, yCoord));
-//
-//            }
-//            yCoord += chunkHeight;
-//        }
-//        uploadMapImage();
-//        MapViewActivity.imageChunks = chunkedImages;
-//        MapViewActivity.imageChunksCopy = makeDeepCopyInteger(chunkedImages);
-//
-//        MapViewActivity.imageCoords = coordImages;
-//
-////        MapViewActivity.locationID = locationIDText.getText().toString();
-//        MapViewActivity.locationName = locationNameText.getText().toString();
         if (filePath == null) {
             Toast.makeText(ImageUploadAcitivity.getContextOfApplication(), "Upload an image", Toast.LENGTH_SHORT).show();
         } else {
@@ -218,7 +158,6 @@ public class ImageUploadAcitivity extends Fragment {
                         Log.e("error", "null here");
                         throw task.getException();
                     }
-
                     // Continue with the task to get the download URL
                     return ref.getDownloadUrl();
                 }
@@ -255,14 +194,5 @@ public class ImageUploadAcitivity extends Fragment {
             }
         });
     }
-
-//    class CoordImages {
-//        int xcoord;
-//        int ycoord;
-//        CoordImages(int xcoord, int ycoord){
-//            this.xcoord = xcoord;
-//            this.ycoord = ycoord;
-//        }
-//    }
 
 }

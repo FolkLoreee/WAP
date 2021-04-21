@@ -118,4 +118,11 @@ dependencies {
     debugImplementation 'androidx.test:rules:1.2.0'
     debugImplementation 'androidx.test:runner:1.2.0'
 
+    //powerMock tools
+
+    testImplementation 'org.powermock:powermock-api-mockito:1.6.2'
+    testImplementation 'org.powermock:powermock-module-junit4-rule-agent:1.6.2'
+    testImplementation 'org.powermock:powermock-module-junit4-rule:1.6.2'
+    testImplementation 'org.powermock:powermock-module-junit4:1.6.2'
+
 }

@@ -1,6 +1,7 @@
 package com.example.wap;
 
 import android.content.Context;
+import android.net.Uri;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -24,6 +25,7 @@ import org.junit.runner.RunWith;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+//import static org.powermock.api.support.membermodification.MemberModifier.suppress;
 
 /**
  * Example local unit test, which will execute on the development machine (host).
@@ -55,6 +57,20 @@ public class ImageUploadActivityTest {
         if (activityScenario != null) activityScenario.close();
     }
 
+//    @Test
+//    public void splitImageTest(){
+//        suppress(method(Activity.class, "onCreate", Bundle.class));
+//        try{
+//            imageUploadAcitivity.locationIDText.setText("TestLocation1");
+//            imageUploadAcitivity.locationNameText.setText("TestLocation1");
+//            Uri uri = Uri.parse("android.resource://com.example.wap/drawable/testMap");
+//            imageUploadAcitivity.filePath = uri;
+//            imageUploadAcitivity.uploadBtn.callOnClick();
+//        }
+//        catch (NullPointerException e){
+//            e.printStackTrace();
+//        }
+//    }
 
     @Test
     public void imageUploadFailNoImage(){

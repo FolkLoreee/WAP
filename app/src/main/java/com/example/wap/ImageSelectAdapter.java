@@ -1,8 +1,6 @@
 package com.example.wap;
 
 import android.content.Context;
-import android.content.Intent;
-import android.graphics.Bitmap;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,13 +9,9 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
-import com.example.wap.R;
-import com.example.wap.models.Coordinate;
 import com.example.wap.models.Location;
 
 import java.util.ArrayList;
-
-import static android.graphics.Bitmap.createBitmap;
 
 public class ImageSelectAdapter extends ArrayAdapter<Location> {
     private int layoutResource;
