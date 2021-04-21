@@ -11,6 +11,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
@@ -21,6 +22,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -32,14 +34,17 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.wap.firebase.WAPFirebase;
 import com.example.wap.models.Coordinate;
 import com.example.wap.models.Location;
+import com.example.wap.models.Signal;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class TestingActivityUser extends AppCompatActivity {
 
@@ -69,7 +74,7 @@ public class TestingActivityUser extends AppCompatActivity {
     ArrayList<Double> targetStdDev;
     ArrayList<String> targetMacAdd;
 
-    // private final String locationID = "CCLvl1";
+    private ArrayList<String> approvedWifiSignals = new ArrayList<>(Arrays.asList(new String[]{"eduroam", "SUTD_Wifi", "SUTD_Lab", "SUTD_Guest", "SUTD_Test"}));
 
     Algorithm algorithm;
 
@@ -91,6 +96,7 @@ public class TestingActivityUser extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_testing_user);
 
+
         // Initialise XML elements
         calculatedPointData = findViewById(R.id.calculatedPointData);
         mapImageView = findViewById(R.id.mapImageView);
@@ -99,6 +105,17 @@ public class TestingActivityUser extends AppCompatActivity {
 
         // Initialise hashmaps
         availableLocations = new HashMap<>();
+
+        // delete signal records
+//        WAPFirebase<Signal> deleteSignals = new WAPFirebase<>(Signal.class,"signals");
+//        deleteSignals.compoundQuery("locationID", locationID).addOnSuccessListener(new OnSuccessListener<ArrayList<Signal>>() {
+//            @Override
+//            public void onSuccess(ArrayList<Signal> signals) {
+//                for (Signal s: signals) {
+//                    deleteSignals.delete(s.getSignalID());
+//                }
+//            }
+//        });
 
         // Retrieve all the locations
         WAPFirebase<Location> locationWAPFirebase = new WAPFirebase<>(Location.class,"locations");
@@ -112,8 +129,9 @@ public class TestingActivityUser extends AppCompatActivity {
                     ArrayList<String> info = new ArrayList<>();
                     info.add(l.getLocationID());
                     info.add(l.getMapImage());
-                    info.add(Integer.toString(l.getPointCounter()));
-                    info.add(Integer.toString(l.getSignalCounter()));
+                    // TODO: Remove signal counts after remapping
+                    info.add(Integer.toString(l.getMapPointCounts()));
+                    info.add(Integer.toString(l.getSignalCounts()));
                     // if location name is null, it will save the location ID instead
                     if (l.getName() != null) {
                         availableLocations.put(l.getName(), info);
@@ -182,7 +200,7 @@ public class TestingActivityUser extends AppCompatActivity {
                                 }
                             }
                             // check if location has already mapped
-                            // TODO: Need to edit once pointCounter is updated
+                            // TODO: Edit after remapping
                             if (availableLocations.get(selectedLocation).get(3).equals("0")) {
                                 locationMapped = false;
                                 Toast.makeText(TestingActivityUser.this, "Location has not been mapped, unable to locate user", Toast.LENGTH_SHORT).show();
@@ -229,7 +247,8 @@ public class TestingActivityUser extends AppCompatActivity {
                     algorithm = new Algorithm();
 
                     // retrieve data from firebase
-                    algorithm.retrievefromFirebase(locationID);
+                    // algorithm.retrievefromFirebase(locationID);
+                    algorithm.retrievefromFirebase2(locationID);
 
                     // collect wifi signals at target location
                     numOfScans = 0;
@@ -296,10 +315,12 @@ public class TestingActivityUser extends AppCompatActivity {
                         double averageSignalProcessed = WifiScan.calculateProcessedAverage(averageSignal);
 
                         // store these values into the data variables for wifi scan
-                        targetDataOriginal.add(averageSignal);
-                        targetData.add(averageSignalProcessed);
-                        targetMacAdd.add(macAddress);
-                        targetStdDev.add(stdDevSignal);
+                        if (approvedWifiSignals.contains(ssids.get(macAddress))) {
+                            targetDataOriginal.add(averageSignal);
+                            targetData.add(averageSignalProcessed);
+                            targetMacAdd.add(macAddress);
+                            targetStdDev.add(stdDevSignal);
+                        }
                     }
 
                     Coordinate position = calculatePosition();

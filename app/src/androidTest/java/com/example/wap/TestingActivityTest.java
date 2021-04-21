@@ -60,7 +60,7 @@ public class TestingActivityTest {
     ArrayList<Double> targetData;
     ArrayList<Double> targetStdDev;
     ArrayList<String> targetMacAdd;
-    final String locationID = "CCLvl1";
+    final String locationID = "CCLvl2";
 
     Context appContext;
 
@@ -155,19 +155,9 @@ public class TestingActivityTest {
         assertNotNull(pointWAPFirebase);
     }
 
-    //Testing compoundquery for signals
-    @Test
-    public void testCompoundQuerySignals() {
-        WAPFirebase<Signal> wapFirebaseSignal = new WAPFirebase<>(Signal.class, "signals");
-        wapFirebaseSignal.compoundQuery("locationID", locationID).addOnSuccessListener(new OnSuccessListener<ArrayList<Signal>>() {
-            @Override
-            public void onSuccess(ArrayList<Signal> signals) {
-                assertFalse(signals.isEmpty());
-            }
-        });
-    }
-
     //Testing compoundquery for MapPoints
+    //TODO: uncomment and change the location ID once we add the loca
+
     @Test
     public void testCompoundQueryMapPoints() {
         WAPFirebase<MapPoint> wapFirebasePoints = new WAPFirebase<>(MapPoint.class, "points");
@@ -250,7 +240,7 @@ public class TestingActivityTest {
         ActivityScenario activityscenario = ActivityScenario.launch(TestingActivity.class);
         onView(withId(R.id.selectLocationText)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
         onView(withId(R.id.locationSpinner)).perform(click());
-        onView(withText("CC Lvl 1")).perform(click());
+        onView(withText("Campus Centre Lv 2")).perform(click());
         onView(withId(R.id.mapImageView)).check(matches(isDisplayed()));
 
 

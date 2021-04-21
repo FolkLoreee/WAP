@@ -415,4 +415,10 @@ public class MapActivity extends AppCompatActivity {
 
         }
     }
+
+    @Override
+    protected void onStop() {
+        this.unregisterReceiver(this.wifiReceiver);
+        super.onStop();
+    }
 }

@@ -88,7 +88,7 @@ public class LoginActivity extends AppCompatActivity {
                             builder.setMessage("welcome to WAP");
 
                             AlertDialog alertDialog = builder.create();
-                            alertDialog.show();
+//                            alertDialog.show();
 
                             userWAPFirebase.query(firebaseAuth.getCurrentUser().getUid()).addOnSuccessListener(new OnSuccessListener<User>() {
                                 @Override

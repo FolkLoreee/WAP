@@ -108,7 +108,8 @@ public class ImageUploadActivityTest {
     public void create_location_class() {
         String locationID = "TestLocation1";
         String locationName = "Testing Location";
-        testLocation = new Location(locationID, locationName);
+        String locationURL = "heko";
+        testLocation = new Location(locationID, locationName, locationURL);
         assertNotNull("Location created", testLocation);
     }
     @Test
@@ -125,7 +126,8 @@ public class ImageUploadActivityTest {
     public void create_and_delete_location_firebase() {
         String locationID = "TestLocation1";
         String locationName = "Testing Location";
-        testLocation = new Location(locationID, locationName);
+        String locationURL = "url";
+        testLocation = new Location(locationID, locationName,locationURL);
         activityScenario = ActivityScenario.launch(ChooseMapActivity.class);
         activityScenario.onActivity(activity -> {
             activityContext = activity.getApplicationContext();
