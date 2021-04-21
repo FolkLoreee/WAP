@@ -41,6 +41,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withContentDescription;
 import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
+import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -247,9 +248,11 @@ public class TestingActivityTest {
     public void test_IsItemsDisplayed(){
         ActivityScenario activityscenario = ActivityScenario.launch(TestingActivity.class);
         onView(withId(R.id.selectLocationText)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
+        onView(withId(R.id.locationSpinner)).perform(click());
+        onView(withText("CC Lvl 1")).perform(click());
         onView(withId(R.id.mapImageView)).check(matches(isDisplayed()));
-        onView(withId(R.id.calculatedPointData)).check(matches(isDisplayed()));
-        ;
+
+
     }
     //test Navigation on bottomnavbar
     @Test
