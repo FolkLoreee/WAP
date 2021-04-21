@@ -18,7 +18,7 @@
     <ListView
         android:id="@android:id/list"
         android:layout_width="match_parent"
-        android:layout_height="250dp"
+        android:layout_height="201dp"
         android:layout_below="@+id/imageSelect"
         android:layout_marginTop="10dp"
         android:divider="@android:color/transparent"
@@ -33,7 +33,6 @@
         android:layout_below="@android:id/list"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="10dp"
-        android:layout_marginBottom="0dp"
         android:src="@drawable/selectbutton" />
 
 </RelativeLayout>
