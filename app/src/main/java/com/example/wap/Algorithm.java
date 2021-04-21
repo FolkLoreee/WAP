@@ -114,7 +114,6 @@ public class Algorithm {
     }
 
     public void retrievefromFirebase(String locationID) {
-        // just to add another layer of security, in case user misclicks
         WAPFirebase<MapPoint> wapFirebasePoints = new WAPFirebase<>(MapPoint.class,"points");
         WAPFirebase<Signal> wapFirebaseSignal = new WAPFirebase<>(Signal.class,"signals");
 
@@ -147,6 +146,43 @@ public class Algorithm {
                         }
                     }
                 });
+            }
+        });
+    }
+
+    // New Firebase Retrieval
+    public void retrievefromFirebase2(String locationID) {
+        WAPFirebase<MapPoint> wapFirebasePoints = new WAPFirebase<>(MapPoint.class,"points");
+
+        wapFirebasePoints.compoundQuery("locationID", locationID).addOnSuccessListener(new OnSuccessListener<ArrayList<MapPoint>>() {
+            @Override
+            public void onSuccess(ArrayList<MapPoint> mapPoints) {
+                for (MapPoint point: mapPoints) {
+                    String pointID = point.getPointID();
+                    ArrayList<String> signalsIDs = new ArrayList<>();
+                    pointsCoordinatesFB.put(pointID, point.getCoordinate());
+                    ArrayList<Signal> signals = point.getSignals();
+                    for (Signal signal: signals) {
+                        String signalID = signal.getSignalID();
+                        signalsIDs.add(signalID);
+                        String bssid = signal.getWifiBSSID();
+                        double signalStrengthSD = signal.getSignalStrengthSD();
+                        double signalStrength = signal.getSignalStrength();
+                        double processedSignalStrength = signal.getSignalStrengthProcessed();
+                        signalStrengthFB.put(signalID, processedSignalStrength);
+                        signalStrengthOriginalFB.put(signalID, signalStrength);
+                        signalStrengthSDFB.put(signalID, signalStrengthSD);
+                        signalBSSIDFB.put(signalID, bssid);
+                    }
+                    pointsFB.put(pointID, signalsIDs);
+                }
+//                System.out.println("PRINTING FIREBASE RECORDS");
+//                System.out.println("all points" + pointsFB);
+//                System.out.println("coordinates of all points" + pointsCoordinatesFB);
+//                System.out.println("processed signal strength: " + signalStrengthFB);
+//                System.out.println("original signal strength: " + signalStrengthOriginalFB);
+//                System.out.println("standard deviation of signal strength: " + signalStrengthSDFB);
+//                System.out.println("BSSIDs: " + signalBSSIDFB);
             }
         });
     }

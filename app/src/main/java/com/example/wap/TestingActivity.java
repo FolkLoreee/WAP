@@ -146,6 +146,7 @@ public class TestingActivity extends AppCompatActivity {
                     ArrayList<String> info = new ArrayList<>();
                     info.add(l.getLocationID());
                     info.add(l.getMapImage());
+                    // TODO: Remove signal counts after remapping
                     info.add(Integer.toString(l.getMapPointCounts()));
                     info.add(Integer.toString(l.getSignalCounts()));
                     // if location name is null, it will save the location ID instead
@@ -216,7 +217,7 @@ public class TestingActivity extends AppCompatActivity {
                                 }
                             }
                             // check if location has already mapped
-                            // TODO: Need to edit once pointCounter is updated
+                            // TODO: Edit after remapping
                             if (availableLocations.get(selectedLocation).get(3).equals("0")) {
                                 locationMapped = false;
                                 Toast.makeText(TestingActivity.this, "Location has not been mapped, unable to locate user", Toast.LENGTH_SHORT).show();
@@ -264,6 +265,7 @@ public class TestingActivity extends AppCompatActivity {
 
                     // retrieve data from firebase
                     algorithm.retrievefromFirebase(locationID);
+                    // algorithm.retrievefromFirebase2(locationID);
 
                     // collect wifi signals at target location
                     numOfScans = 0;
