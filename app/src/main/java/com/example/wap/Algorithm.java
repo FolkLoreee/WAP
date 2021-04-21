@@ -45,11 +45,12 @@ public class Algorithm {
     HashMap<String, Double> signalStrengthSDFB;
 
     // constants
-    private final double weightEuclidDist = 0.75;
-    private final double weightJointProb = 0.25;
+    private final double weightEuclidDist = 0.50;
+    private final double weightJointProb = 0.50;
     private final int k = 4;
     private final double threshold = 0.7;
     private final int wifiThreshold = -60;
+    private final int proximityThreshold = 8;
 
     /**
      * fingerprintOriginalAvgSignal = HashMap<fingerprintCoordinate, HashMap<macAddress, originalAverageWifiSignal>>
@@ -138,8 +139,8 @@ public class Algorithm {
                             String bssid = signal.getWifiBSSID();
                             double signalStrengthSD = signal.getSignalStrengthSD();
                             double signalStrength = signal.getSignalStrength();
-                            double processedSignalStrength = signal.getSignalStrengthProcessed();
-                            signalStrengthFB.put(signalID, processedSignalStrength);
+                            // double processedSignalStrength = signal.getSignalStrengthProcessed();
+                            signalStrengthFB.put(signalID, signalStrength);
                             signalStrengthOriginalFB.put(signalID, signalStrength);
                             signalStrengthSDFB.put(signalID, signalStrengthSD);
                             signalBSSIDFB.put(signalID, bssid);
@@ -226,13 +227,13 @@ public class Algorithm {
         return total / numOfSignals;
     }
 
-    public ArrayList<String> filterWifiByFlag(ArrayList<Double> targetData, double FLAG, ArrayList<String> targetMacAdd) {
+    public HashMap<String, Double> filterWifiByFlag(ArrayList<Double> targetData, double FLAG, ArrayList<String> targetMacAdd) {
         // get a list of mac address where the signal strength pass the FLAG value
-        ArrayList<String> filteredMac = new ArrayList<>();
+        HashMap<String, Double> filteredMac = new HashMap<>();
         for (int i = 0; i < targetData.size(); i++) {
             double strength = targetData.get(i);
-            if (strength > FLAG) {
-                filteredMac.add(targetMacAdd.get(i));
+            if (Math.abs(strength) < Math.abs(FLAG)) {
+                filteredMac.put(targetMacAdd.get(i), targetData.get(i));
             }
         }
 
@@ -255,7 +256,7 @@ public class Algorithm {
     }
      */
 
-    public double checkPercentageMatch(String pointID, ArrayList<String> filteredMac, HashMap<String, ArrayList<String>> pointsFB, HashMap<String, String> signalBSSIDFB) {
+    public double checkPercentageMatch(String pointID, HashMap<String, Double> filteredMac, HashMap<String, ArrayList<String>> pointsFB, HashMap<String, String> signalBSSIDFB) {
         // cover for the edge case where filteredMac is empty
         if (filteredMac.size() == 0) {
             return 0.0;
@@ -263,17 +264,23 @@ public class Algorithm {
 
         int count = 0;
 
-        ArrayList<String> listOfBSSID = new ArrayList<>();
+        // ArrayList<String> listOfBSSID = new ArrayList<>();
+        HashMap<String, Double> listOfSignalStrengths = new HashMap<>();
 
         // for each signal, retrieve the corresponding bssid
         for (String signalID: pointsFB.get(pointID)) {
-            listOfBSSID.add(signalBSSIDFB.get(signalID));
+            listOfSignalStrengths.put(signalBSSIDFB.get(signalID), signalStrengthFB.get(signalID));
         }
 
         // compare the bssid between fingerprint and target location
-        for (String bssid : filteredMac) {
-            if (listOfBSSID.contains(bssid)) {
-                count++;
+        for (String bssid : filteredMac.keySet()) {
+            if (listOfSignalStrengths.get(bssid) != null) {
+                double signalStrengthTarget = filteredMac.get(bssid);
+                double signalStrength = listOfSignalStrengths.get(bssid);
+                double difference = Math.abs(signalStrengthTarget - signalStrength);
+                if (difference < proximityThreshold) {
+                    count++;
+                }
             }
         }
 
@@ -304,6 +311,7 @@ public class Algorithm {
         fingerprintStdDevSignal.put(coordinatesStr, stdDevSignalFingerprint);
     }
 
+    /*
     public void preMatching(ArrayList<Double> targetData, ArrayList<String> targetMacAdd) {
         // obtain FLAG value to filter out weak wifi signals
         final double FLAG = calculateFlag(targetData);
@@ -321,6 +329,7 @@ public class Algorithm {
             }
         }
     }
+     */
 
     public void preMatchingK (ArrayList<Double> targetData, ArrayList<String> targetMacAdd) {
 
@@ -328,7 +337,7 @@ public class Algorithm {
         final double FLAG = calculateFlag(targetData);;
 
         // get a list of mac address where the signal strength pass the FLAG value
-        ArrayList<String> filteredMac = filterWifiByFlag(targetData, FLAG, targetMacAdd);
+        HashMap<String, Double> filteredMac = filterWifiByFlag(targetData, FLAG, targetMacAdd);
 
         // Hashmap to store the percentMatch to each fingerprint
         HashMap<String, Double> fingerprintsMatch = new HashMap<>();
@@ -336,8 +345,10 @@ public class Algorithm {
 
         // compare bssid in each fingerprint with the list of bssid from wifi scan at target location
         for (String pointID: pointsFB.keySet()) {
+            System.out.println("pointID: " + pointID);
             double percentMatch = checkPercentageMatch(pointID, filteredMac, pointsFB, signalBSSIDFB);
             // filters out fingerprints that do not even contain any of the bssid at the target location
+            System.out.println("percentMatch: " + percentMatch);
             if (percentMatch > 0.0) {
                 fingerprintsMatch.put(pointID, percentMatch);
                 matches.add(percentMatch);
@@ -380,6 +391,9 @@ public class Algorithm {
             // if all fingerprints don't match i.e. user is out of the location selected, this will be set to true
             filteredFailed = true;
         }
+
+        System.out.println("signal strengths: " + fingerprintAvgSignal);
+        System.out.println("standard deviations: " + fingerprintStdDevSignal);
     }
 
     public Coordinate euclideanDistance(ArrayList<Double> targetData, ArrayList<Double> targetStdDev, ArrayList<String> targetMacAdd) {

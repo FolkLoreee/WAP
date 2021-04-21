@@ -41,6 +41,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -73,7 +74,7 @@ public class TestingActivity extends AppCompatActivity {
     ArrayList<Double> targetStdDev;
     ArrayList<String> targetMacAdd;
 
-    // private final String locationID = "CCLvl1";
+    private ArrayList<String> approvedWifiSignals = new ArrayList<>(Arrays.asList(new String[]{"eduroam", "SUTD_Wifi", "SUTD_Lab", "SUTD_Guest", "SUTD_Test"}));
 
     Algorithm algorithm;
 
@@ -264,8 +265,8 @@ public class TestingActivity extends AppCompatActivity {
                     algorithm = new Algorithm();
 
                     // retrieve data from firebase
-                    algorithm.retrievefromFirebase(locationID);
-                    // algorithm.retrievefromFirebase2(locationID);
+                    // algorithm.retrievefromFirebase(locationID);
+                    algorithm.retrievefromFirebase2(locationID);
 
                     // collect wifi signals at target location
                     numOfScans = 0;
@@ -332,10 +333,12 @@ public class TestingActivity extends AppCompatActivity {
                         double averageSignalProcessed = WifiScan.calculateProcessedAverage(averageSignal);
 
                         // store these values into the data variables for wifi scan
-                        targetDataOriginal.add(averageSignal);
-                        targetData.add(averageSignalProcessed);
-                        targetMacAdd.add(macAddress);
-                        targetStdDev.add(stdDevSignal);
+                        if (approvedWifiSignals.contains(ssids.get(macAddress))) {
+                            targetDataOriginal.add(averageSignal);
+                            targetData.add(averageSignalProcessed);
+                            targetMacAdd.add(macAddress);
+                            targetStdDev.add(stdDevSignal);
+                        }
                     }
 
                     Coordinate position = calculatePosition();
