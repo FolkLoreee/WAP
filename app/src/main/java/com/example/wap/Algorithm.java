@@ -45,12 +45,12 @@ public class Algorithm {
     HashMap<String, Double> signalStrengthSDFB;
 
     // constants
-    private final double weightEuclidDist = 0.50;
-    private final double weightJointProb = 0.50;
+    private final double weightEuclidDist = 0.75;
+    private final double weightJointProb = 0.25;
     private final int k = 4;
     private final double threshold = 0.7;
     private final int wifiThreshold = -60;
-    private final int proximityThreshold = 8;
+    private final int proximityThreshold = 10;
 
     /**
      * fingerprintOriginalAvgSignal = HashMap<fingerprintCoordinate, HashMap<macAddress, originalAverageWifiSignal>>
@@ -345,10 +345,12 @@ public class Algorithm {
 
         // compare bssid in each fingerprint with the list of bssid from wifi scan at target location
         for (String pointID: pointsFB.keySet()) {
-            System.out.println("pointID: " + pointID);
+            System.out.println();
             double percentMatch = checkPercentageMatch(pointID, filteredMac, pointsFB, signalBSSIDFB);
             // filters out fingerprints that do not even contain any of the bssid at the target location
-            System.out.println("percentMatch: " + percentMatch);
+            if (percentMatch == 1.0) {
+                System.out.println("pointID: " + pointID + ", " + "percentMatch: " + percentMatch);
+            }
             if (percentMatch > 0.0) {
                 fingerprintsMatch.put(pointID, percentMatch);
                 matches.add(percentMatch);
