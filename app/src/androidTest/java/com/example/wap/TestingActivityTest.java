@@ -12,6 +12,9 @@ import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.StrictMode;
+import android.util.Log;
+import android.view.View;
+import android.widget.Toast;
 
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.espresso.matcher.ViewMatchers;
@@ -71,7 +74,6 @@ public class TestingActivityTest {
         assertEquals("com.example.wap", appContext.getPackageName());
     }
 
-
     //Instantiating Firebase Test
     @Test
     public void testInstantiateWAPFirebaseLocationNotNull() {
@@ -79,12 +81,43 @@ public class TestingActivityTest {
         assertNotNull(locationWAPFirebase);
     }
 
-    // TODO: Update this testing as code has been changed to display map based on chosen location
     //Testing compound query
     @Test
     public void testCompoundQueryNotNull() {
+        HashMap<String, ArrayList<String>> availableLocations = new HashMap<>();
         WAPFirebase<Location> locationWAPFirebase = new WAPFirebase<>(Location.class, "locations");
-        locationWAPFirebase.compoundQuery("locationID", locationID).addOnSuccessListener(new OnSuccessListener<ArrayList<Location>>() {
+        locationWAPFirebase.compoundQuery("locationID", "CCL2Z1").addOnSuccessListener(new OnSuccessListener<ArrayList<Location>>() {
+            @Override
+            public void onSuccess(ArrayList<Location> locations) {
+                ArrayList<String> locationsNames = new ArrayList<>();
+                locationsNames.add("No Selection");
+
+                for (Location l: locations) {
+                    ArrayList<String> info = new ArrayList<>();
+                    info.add(l.getLocationID());
+                    info.add(l.getMapImage());
+                    info.add(Integer.toString(l.getMapPointCounts()));
+                    // if location name is null, it will save the location ID instead
+                    if (l.getName() != null) {
+                        availableLocations.put(l.getName(), info);
+                        locationsNames.add(l.getName());
+                    }
+                    else {
+                        availableLocations.put(l.getLocationID(), info);
+                        locationsNames.add(l.getLocationID());
+                    }
+                }
+                assertNotNull(availableLocations);
+            }
+        });
+    }
+
+    @Test
+    public void testDrawingMap() {
+        String mapImage = "https://firebasestorage.googleapis.com/v0/b/wapsutd-e0016.appspot.com/o/maps%2FCCL2Z1?alt=media&token=76267543-f6e0-4a35-aec5-66a996253a5c";
+
+        WAPFirebase<Location> locationWAPFirebase = new WAPFirebase<>(Location.class, "locations");
+        locationWAPFirebase.compoundQuery("locationID", "CCL2Z1").addOnSuccessListener(new OnSuccessListener<ArrayList<Location>>() {
             @Override
             public void onSuccess(ArrayList<Location> locations) {
                 assertNotNull(locations);
@@ -92,6 +125,7 @@ public class TestingActivityTest {
                     if (l.getLocationID().equals(locationID)) {
                         String mapImageAdd = l.getMapImage();
                         assertNotNull(mapImageAdd);
+                        assertEquals(mapImageAdd, mapImage);
                         if (Build.VERSION.SDK_INT > 9) {
                             StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
                             StrictMode.setThreadPolicy(policy);
@@ -161,7 +195,7 @@ public class TestingActivityTest {
     @Test
     public void testCompoundQueryMapPoints() {
         WAPFirebase<MapPoint> wapFirebasePoints = new WAPFirebase<>(MapPoint.class, "points");
-        wapFirebasePoints.compoundQuery("locationID", locationID).addOnSuccessListener(new OnSuccessListener<ArrayList<MapPoint>>() {
+        wapFirebasePoints.compoundQuery("locationID", "CCL2Z1").addOnSuccessListener(new OnSuccessListener<ArrayList<MapPoint>>() {
             @Override
             public void onSuccess(ArrayList<MapPoint> mapPoints) {
                 assertFalse(mapPoints.isEmpty());
@@ -234,6 +268,7 @@ public class TestingActivityTest {
         ActivityScenario activityScenario = ActivityScenario.launch(TestingActivity.class);
         onView(withId(R.id.testingActivity)).check(matches(isDisplayed()));
     }
+
     //testing elements display correctly
     @Test
     public void test_IsItemsDisplayed(){
@@ -242,9 +277,8 @@ public class TestingActivityTest {
         onView(withId(R.id.locationSpinner)).perform(click());
         onView(withText("Campus Centre Lv 2")).perform(click());
         onView(withId(R.id.mapImageView)).check(matches(isDisplayed()));
-
-
     }
+
     //test Navigation on bottomnavbar
     @Test
     public void test_navTestingactivity(){
@@ -253,6 +287,4 @@ public class TestingActivityTest {
         onView(withContentDescription(R.string.mapping)).perform(click());
         onView(withId(R.id.mappingActivity)).check(matches(isDisplayed()));
     }
-
-
 }

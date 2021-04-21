@@ -37,6 +37,7 @@ import com.example.wap.models.Location;
 import com.example.wap.models.Signal;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.firestore.model.Values;
 
 import java.io.IOException;
 import java.net.URL;
@@ -54,7 +55,8 @@ public class TestingActivity extends AppCompatActivity {
     // Bitmap
     Bitmap mapImage;
     Canvas canvas;
-    Paint paint;
+    Paint pointPaint;
+    Paint radiusPaint;
     Path mPath;
 
     // Wifi
@@ -135,6 +137,11 @@ public class TestingActivity extends AppCompatActivity {
 //            }
 //        });
 
+        // initialise the paint
+        radiusPaint = new Paint();
+        radiusPaint.setColor(Color.BLUE);
+        radiusPaint.setAlpha(50);
+
         // Retrieve all the locations
         WAPFirebase<Location> locationWAPFirebase = new WAPFirebase<>(Location.class,"locations");
         locationWAPFirebase.getCollection().addOnSuccessListener(new OnSuccessListener<ArrayList<Location>>() {
@@ -147,9 +154,7 @@ public class TestingActivity extends AppCompatActivity {
                     ArrayList<String> info = new ArrayList<>();
                     info.add(l.getLocationID());
                     info.add(l.getMapImage());
-                    // TODO: Remove signal counts after remapping
                     info.add(Integer.toString(l.getMapPointCounts()));
-                    info.add(Integer.toString(l.getSignalCounts()));
                     // if location name is null, it will save the location ID instead
                     if (l.getName() != null) {
                         availableLocations.put(l.getName(), info);
@@ -171,6 +176,8 @@ public class TestingActivity extends AppCompatActivity {
                     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                         // set the image to be invisible
                         mapImageView.setVisibility(View.INVISIBLE);
+                        // Reset the coordinates display text to default whenever map changes
+                        calculatedPointData.setText("Calculated Coordinates will appear here");
 
                         // retrieve the selection location
                         String selectedLocation = (String) parent.getItemAtPosition(position);
@@ -185,7 +192,7 @@ public class TestingActivity extends AppCompatActivity {
                         // proceed get the image link of the map for that location
                         else {
                             locationID = availableLocations.get(selectedLocation).get(0);
-                            System.out.println("selectedLocationID: " + locationID);
+                            // System.out.println("selectedLocationID: " + locationID);
                             String mapImageAdd = availableLocations.get(selectedLocation).get(1);
 
                             if (android.os.Build.VERSION.SDK_INT > 9) {
@@ -201,8 +208,8 @@ public class TestingActivity extends AppCompatActivity {
                                         canvas = new Canvas(bitmap);
                                         mPath = new Path();
                                         canvas.drawBitmap(mapImage, 0, 0, null);
-                                        paint = new Paint();
-                                        paint.setColor(Color.RED);
+                                        pointPaint = new Paint();
+                                        pointPaint.setColor(Color.RED);
                                         mapImageView.setImageBitmap(bitmap);
                                         calculatedPointData.setVisibility(View.VISIBLE);
                                     }
@@ -218,8 +225,7 @@ public class TestingActivity extends AppCompatActivity {
                                 }
                             }
                             // check if location has already mapped
-                            // TODO: Edit after remapping
-                            if (availableLocations.get(selectedLocation).get(3).equals("0")) {
+                            if (availableLocations.get(selectedLocation).get(2).equals("0")) {
                                 locationMapped = false;
                                 Toast.makeText(TestingActivity.this, "Location has not been mapped, unable to locate user", Toast.LENGTH_SHORT).show();
                             } else {
@@ -351,7 +357,8 @@ public class TestingActivity extends AppCompatActivity {
                         canvas.drawBitmap(mapImage, 0, 0, null);
 
                         // draw the dot on the bitmap
-                        canvas.drawCircle(doubleToFloat(position.getX()), doubleToFloat(position.getY()), 10, paint);
+                        canvas.drawCircle(doubleToFloat(position.getX()), doubleToFloat(position.getY()), 100, radiusPaint);
+                        canvas.drawCircle(doubleToFloat(position.getX()), doubleToFloat(position.getY()), 10, pointPaint);
 
                         // display the calculated coordinates
                         calculatedPointData.setText(stringifyPosition(position));

@@ -15,6 +15,6 @@
     <string name="email">Email</string>
     <string name="username">Username</string>
     <string name="sign_up">Sign up</string>
-
+    <string name="coordinates_display_text_default">Calculated Coordinates will appear here</string>
 
 </resources>
