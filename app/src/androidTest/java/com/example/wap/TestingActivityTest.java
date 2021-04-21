@@ -41,6 +41,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withContentDescription;
 import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
+import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -59,7 +60,7 @@ public class TestingActivityTest {
     ArrayList<Double> targetData;
     ArrayList<Double> targetStdDev;
     ArrayList<String> targetMacAdd;
-    final String locationID = "CCLvl1";
+    final String locationID = "CCLvl2";
 
     Context appContext;
 
@@ -78,6 +79,7 @@ public class TestingActivityTest {
         assertNotNull(locationWAPFirebase);
     }
 
+    // TODO: Update this testing as code has been changed to display map based on chosen location
     //Testing compound query
     @Test
     public void testCompoundQueryNotNull() {
@@ -153,19 +155,9 @@ public class TestingActivityTest {
         assertNotNull(pointWAPFirebase);
     }
 
-    //Testing compoundquery for signals
-    @Test
-    public void testCompoundQuerySignals() {
-        WAPFirebase<Signal> wapFirebaseSignal = new WAPFirebase<>(Signal.class, "signals");
-        wapFirebaseSignal.compoundQuery("locationID", locationID).addOnSuccessListener(new OnSuccessListener<ArrayList<Signal>>() {
-            @Override
-            public void onSuccess(ArrayList<Signal> signals) {
-                assertFalse(signals.isEmpty());
-            }
-        });
-    }
-
     //Testing compoundquery for MapPoints
+    //TODO: uncomment and change the location ID once we add the loca
+
     @Test
     public void testCompoundQueryMapPoints() {
         WAPFirebase<MapPoint> wapFirebasePoints = new WAPFirebase<>(MapPoint.class, "points");
@@ -247,9 +239,11 @@ public class TestingActivityTest {
     public void test_IsItemsDisplayed(){
         ActivityScenario activityscenario = ActivityScenario.launch(TestingActivity.class);
         onView(withId(R.id.selectLocationText)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
+        onView(withId(R.id.locationSpinner)).perform(click());
+        onView(withText("Campus Centre Lv 2")).perform(click());
         onView(withId(R.id.mapImageView)).check(matches(isDisplayed()));
-        onView(withId(R.id.calculatedPointData)).check(matches(isDisplayed()));
-        ;
+
+
     }
     //test Navigation on bottomnavbar
     @Test

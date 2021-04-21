@@ -134,6 +134,7 @@ public class ImageSelectActivityTest extends TestCase {
                     tabLayout.performItemClick(view, position, android.R.id.list);
                 }
             }
+            
         };
     }
 

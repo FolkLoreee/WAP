@@ -11,10 +11,11 @@ public class MapPoint {
     private String pointID;
     private Coordinate coordinate;
     private String locationID;
+    private ArrayList<Signal> signals;
+    private  ArrayList<String> signalIDs;
     private int signalCount;
 
 
-    public ArrayList<String> signalIDs;
 
     public MapPoint(){}
 
@@ -24,6 +25,7 @@ public class MapPoint {
         //id is MP-locationID-location.pointCounter
         this.pointID = pointID;
         this.signalIDs = new ArrayList<>();
+        this.signals = new ArrayList<>();
     }
 
     public String getPointID() {
@@ -54,12 +56,10 @@ public class MapPoint {
         return signalIDs;
     }
 
-    public void addSignalID(String signalID) {
-        this.signalIDs.add(signalID);
-    }
-
     public void setSignalIDs(ArrayList<String> signalIDs) {
         this.signalIDs = signalIDs;
     }
+    public ArrayList<Signal> getSignals(){return signals;}
+    public void addSignal(Signal signal){signals.add(signal);}
 
 }

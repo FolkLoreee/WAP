@@ -33,6 +33,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -57,14 +58,15 @@ public class MapActivity extends AppCompatActivity {
     TextView coordinatesText;
 
     //TODO: locationID will follow the locationID from the previous screen
-    public static String locationID;
-   public static String locationName;
+
+    String locationID;
+    String locationName;
+    String locationURL;
 
     Location currentLocation;
     static Coordinate coordinate;
 
     //Firebase
-    WAPFirebase<Signal> signalWAPFirebase;
     WAPFirebase<MapPoint> pointWAPFirebase;
      WAPFirebase<Location> locationWAPFirebase;
 
@@ -90,14 +92,14 @@ public class MapActivity extends AppCompatActivity {
     int numOfScans;
     HashMap<String, ArrayList> allSignals;
     HashMap<String, String> ssids;
-
+    private ArrayList<String> approvedWifiSignals = new ArrayList<>(Arrays.asList(new String[]{"eduroam", "SUTD_Wifi", "SUTD_Lab", "SUTD_Guest", "SUTD_Test"}));
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
 
-        signalWAPFirebase = new WAPFirebase<>(Signal.class, "signals");
+
         pointWAPFirebase = new WAPFirebase<>(MapPoint.class, "points");
         locationWAPFirebase = new WAPFirebase<>(Location.class, "locations");
 
@@ -145,10 +147,12 @@ public class MapActivity extends AppCompatActivity {
         mapImage.setScaleType(ImageView.ScaleType.FIT_CENTER);
 
         Intent intent = getIntent();
-        locationID = intent.getStringExtra("locationID");
+        locationID = intent.getStringExtra(ImageSelectActivity.LOCATION_ID_KEY);
+        locationName = intent.getStringExtra(ImageSelectActivity.LOCATION_NAME_KEY);
+        locationURL = intent.getStringExtra(ImageSelectActivity.LOCATION_URL_KEY);
+
         Log.d(LOG_TAG, "LOCATION IS: " + locationID);
 
-        currentLocation = new Location(locationID, locationName);
         wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
 
         // Instantiate broadcast receiver
@@ -212,40 +216,48 @@ public class MapActivity extends AppCompatActivity {
         scan.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                //Update the currentLocation details every time user wants to scan
+                //This ensures one-source-of-truth
+                locationWAPFirebase.query(locationID).addOnSuccessListener(new OnSuccessListener<Location>() {
+                    @Override
+                    public void onSuccess(Location location) {
+                        currentLocation = location;
 
-                String pointID = "MP-" + currentLocation.getLocationID() + "-" + (int) pointToUpload[0] + "-" + (int) pointToUpload[1];
-                point = new MapPoint(pointID, new Coordinate(pointToUpload[0], pointToUpload[1]), currentLocation.getLocationID());
+                        String pointID = "MP-" + currentLocation.getLocationID() + "-" + (int) pointToUpload[0] + "-" + (int) pointToUpload[1];
+                        point = new MapPoint(pointID, new Coordinate(pointToUpload[0], pointToUpload[1]), currentLocation.getLocationID());
 
-                numOfScans = 0;
-                // re-initialise hash map each time the button is pressed
-                allSignals = new HashMap<>();
-                ssids = new HashMap<>();
-                WifiScan.askAndStartScanWifi(LOG_TAG, MY_REQUEST_CODE, MapActivity.this);
-                wifiManager.startScan();
+                        numOfScans = 0;
+                        // re-initialise hash map each time the button is pressed
+
+                        allSignals = new HashMap<>();
+                        ssids = new HashMap<>();
+                        WifiScan.askAndStartScanWifi(LOG_TAG, MY_REQUEST_CODE, MapActivity.this);
+                        wifiManager.startScan();
+                    }
+                });
             }
         });
         mappinghelp.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        startActivity(new Intent(MapActivity.this, Popupactivity.class));
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MapActivity.this, Popupactivity.class));
 
-                    }
-                });
-
+            }
+        });
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_nav_bar);
         bottomNavigationView.setSelectedItemId(R.id.choosemapactivity);
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @SuppressLint("NonConstantResourceId")
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                switch(item.getItemId()){
+                switch (item.getItemId()) {
                     case R.id.testingActivity:
-                        startActivity(new Intent(getApplicationContext(),TestingActivity.class));
-                        overridePendingTransition(0,0);
+                        startActivity(new Intent(getApplicationContext(), TestingActivity.class));
+                        overridePendingTransition(0, 0);
                         return true;
                     case R.id.mappingActivity:
-                        startActivity(new Intent(getApplicationContext(),ChooseMapActivity.class));
-                        overridePendingTransition(0,0);
+                        startActivity(new Intent(getApplicationContext(), ChooseMapActivity.class));
+                        overridePendingTransition(0, 0);
                         return true;
                 }
                 return false;
@@ -286,7 +298,7 @@ public class MapActivity extends AppCompatActivity {
     }
 
     public float[] centerOfRect(Coordinate coordinate, int squareWidth, int squareHeight) {
-        //        ( (x1 + x2) / 2, (y1 + y2) / 2 )
+//        ( (x1 + x2) / 2, (y1 + y2) / 2 )
         float[] center = new float[2];
         center[0] = (float) (2 * coordinate.getX() + squareWidth) / 2;
         center[1] = (float) (2 * coordinate.getY() + squareHeight) / 2;
@@ -335,7 +347,6 @@ public class MapActivity extends AppCompatActivity {
                     paths.add(mPath);
 
                     // initialise for firebase
-                    WAPFirebase<Signal> signalWAPFirebase = new WAPFirebase<>(Signal.class, "signals");
                     WAPFirebase<MapPoint> pointWAPFirebase = new WAPFirebase<>(MapPoint.class, "points");
                     ArrayList<Signal> signals = new ArrayList<>();
                     WAPFirebase<Location> locationWAPFirebase = new WAPFirebase<>(Location.class, "locations");
@@ -352,33 +363,42 @@ public class MapActivity extends AppCompatActivity {
                         Log.d(LOG_TAG, "MAC Address: " + macAddress + " , Wifi Signal: " + averageSignal + " , Wifi Signal (SD): " + stdDevSignal);
 
                         // posting the result to firebase
-                        String signalID = "SG-" + locationID + "-" + (int) (pointToUpload[0]) + "-" + (int) (pointToUpload[1]) + "-" + signalCounter;
-                        Signal signal = new Signal(signalID, locationID, macAddress, ssids.get(macAddress), stdDevSignal, averageSignal, averageSignalProcessed, 10);
-                        signals.add(signal);
-                        point.addSignalID(signalID);
-                        signalCounter++;
+                        // only store wifi signals that are approved, filters out random hotspots
+                        if (approvedWifiSignals.contains(ssids.get(macAddress))) {
+                            String signalID = "SG-" + locationID + "-" + (int) (pointToUpload[0]) + "-" + (int) (pointToUpload[1]) + "-" + signalCounter;
+                            Signal signal = new Signal(signalID, locationID, macAddress, ssids.get(macAddress), stdDevSignal, averageSignal, averageSignalProcessed, 10);
+                            signals.add(signal);
+                            point.addSignal(signal);
+                            currentLocation.incrementSignalCounts();
+                            signalCounter++;
+                        }
                     }
 
                     pointWAPFirebase.create(point, point.getPointID()).addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
                             Log.d("FIREBASE", "map point successfully posted");
+                            currentLocation.incrementMapPointCounts();
+                            currentLocation.addMapPointID(point.getPointID());
+                            locationWAPFirebase.update(currentLocation, currentLocation.getLocationID()).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    Log.d("FIREBASE", "location updated");
+                                }
+                            });
                         }
                     });
-                    for (Signal signal : signals) {
-                        Log.d("FIREBASE", "signalID: " + signal.getSignalID());
-                        signalWAPFirebase.create(signal, signal.getSignalID()).addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void aVoid) {
-
-                                currentLocation.incrementSignalCounter();
-                                Log.d("FIREBASE", "signal successfully posted");
-                                Log.d("Location ID", locationID);
-                                Log.d("FIREBASE", "location: " + locationID);
-                                locationWAPFirebase.update(currentLocation, locationID);
-                            }
-                        });
-                    }
+//                    for (Signal signal : signals) {
+//                        Log.d("FIREBASE", "signalID: " + signal.getSignalID());
+//                        signalWAPFirebase.create(signal, signal.getSignalID()).addOnSuccessListener(new OnSuccessListener<Void>() {
+//                            @Override
+//                            public void onSuccess(Void aVoid) {
+//                                Log.d("FIREBASE", "signal successfully posted");
+//                                Log.d("Location ID", locationID);
+//                                Log.d("FIREBASE", "location: " + locationID);
+//                            }
+//                        });
+//                    }
                 }
             } else {
                 Toast.makeText(MapActivity.this, "Scan failed! Wait for a while and try again.", Toast.LENGTH_SHORT).show();
@@ -394,5 +414,11 @@ public class MapActivity extends AppCompatActivity {
             }
 
         }
+    }
+
+    @Override
+    protected void onStop() {
+        this.unregisterReceiver(this.wifiReceiver);
+        super.onStop();
     }
 }
