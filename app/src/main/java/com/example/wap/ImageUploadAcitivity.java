@@ -240,8 +240,8 @@ public class ImageUploadAcitivity extends Fragment {
     private void addToFirestore(String storageLocation) {
         // Retrieve Location Details
 
-        final Location location = new Location(locationID,locationName);
-        location.setMapImage(storageLocation);
+        final Location location = new Location(locationID, locationName, storageLocation);
+        // location.setMapImage(storageLocation);
         locationWAPFirebase.create(location,locationID).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {

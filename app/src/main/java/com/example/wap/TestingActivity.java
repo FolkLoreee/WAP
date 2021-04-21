@@ -41,6 +41,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -73,7 +74,7 @@ public class TestingActivity extends AppCompatActivity {
     ArrayList<Double> targetStdDev;
     ArrayList<String> targetMacAdd;
 
-    // private final String locationID = "CCLvl1";
+    private ArrayList<String> approvedWifiSignals = new ArrayList<>(Arrays.asList(new String[]{"eduroam", "SUTD_Wifi", "SUTD_Lab", "SUTD_Guest", "SUTD_Test"}));
 
     Algorithm algorithm;
 
@@ -146,8 +147,9 @@ public class TestingActivity extends AppCompatActivity {
                     ArrayList<String> info = new ArrayList<>();
                     info.add(l.getLocationID());
                     info.add(l.getMapImage());
-                    info.add(Integer.toString(l.getPointCounter()));
-                    info.add(Integer.toString(l.getSignalCounter()));
+                    // TODO: Remove signal counts after remapping
+                    info.add(Integer.toString(l.getMapPointCounts()));
+                    info.add(Integer.toString(l.getSignalCounts()));
                     // if location name is null, it will save the location ID instead
                     if (l.getName() != null) {
                         availableLocations.put(l.getName(), info);
@@ -216,7 +218,7 @@ public class TestingActivity extends AppCompatActivity {
                                 }
                             }
                             // check if location has already mapped
-                            // TODO: Need to edit once pointCounter is updated
+                            // TODO: Edit after remapping
                             if (availableLocations.get(selectedLocation).get(3).equals("0")) {
                                 locationMapped = false;
                                 Toast.makeText(TestingActivity.this, "Location has not been mapped, unable to locate user", Toast.LENGTH_SHORT).show();
@@ -263,7 +265,8 @@ public class TestingActivity extends AppCompatActivity {
                     algorithm = new Algorithm();
 
                     // retrieve data from firebase
-                    algorithm.retrievefromFirebase(locationID);
+                    // algorithm.retrievefromFirebase(locationID);
+                    algorithm.retrievefromFirebase2(locationID);
 
                     // collect wifi signals at target location
                     numOfScans = 0;
@@ -330,10 +333,12 @@ public class TestingActivity extends AppCompatActivity {
                         double averageSignalProcessed = WifiScan.calculateProcessedAverage(averageSignal);
 
                         // store these values into the data variables for wifi scan
-                        targetDataOriginal.add(averageSignal);
-                        targetData.add(averageSignalProcessed);
-                        targetMacAdd.add(macAddress);
-                        targetStdDev.add(stdDevSignal);
+                        if (approvedWifiSignals.contains(ssids.get(macAddress))) {
+                            targetDataOriginal.add(averageSignal);
+                            targetData.add(averageSignalProcessed);
+                            targetMacAdd.add(macAddress);
+                            targetStdDev.add(stdDevSignal);
+                        }
                     }
 
                     Coordinate position = calculatePosition();
