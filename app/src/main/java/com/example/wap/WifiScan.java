@@ -46,8 +46,9 @@ public class WifiScan {
         for (Integer reading : readings) {
             //RANDOM ERROR handling
             if (reading == null){
-                //do not calculate the null values
-                continue;
+                Double temporary = Math.abs(-100 - average);
+                sum += Math.pow(temporary, 2);
+
             }else{
                 //square the absolute value of reading - average
                 Double temporary = Math.abs(reading - average);

@@ -7,6 +7,7 @@ import junit.framework.TestCase;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -206,6 +207,12 @@ public class AlgorithmTest{
     }
 
     @Test
+    public void omegaJointProbZeroTest(){
+        double output = algo.omegaJointProb(0);
+        assertEquals(Math.log10(1), output, DELTA);
+    }
+
+    @Test
     public void calculateYJointProbTest(){
         double output = algo.calculateYJointProb(5.9, new Coordinate(7, 5.9));
         //for easy testing
@@ -214,12 +221,30 @@ public class AlgorithmTest{
     }
 
     @Test
+    public void calculateYJointProbTestFalse(){
+        double output = algo.calculateYJointProb(5.9, new Coordinate(7, 5.9));
+        //for easy testing
+        output = (double) Math.round(output * 100) / 100;
+        assertFalse(100.456 == output);
+    }
+
+
+    @Test
     public void calculateXJointProbTest(){
         double output = algo.calculateXJointProb(5.9, new Coordinate(7, 5.9));
         //for easy testing
         output = (double) Math.round(output * 100) / 100;
         //5.395964081
         assertEquals(5.40, output, DELTA);
+    }
+
+
+    @Test
+    public void calculateXJointProbTestFalse(){
+        double output = algo.calculateXJointProb(5.9, new Coordinate(7, 5.9));
+        //for easy testing
+        output = (double) Math.round(output * 100) / 100;
+        assertFalse(49.008 == output);
     }
 
     @Test
@@ -340,6 +365,35 @@ public class AlgorithmTest{
         assertEquals(5.863858525140664, output.getY(), DELTA);
     }
 
+    @Test
+    public void calculateEuclideanCoordinateTestXFalse(){
+        ArrayList<Double> euclideanArray = new ArrayList<>();
+        euclideanArray.add(5.5);
+        euclideanArray.add(3.9);
+        euclideanArray.add(8.8031);
+        euclideanArray.add(4.132);
+        euclideanArray.add(3.15);
+        euclideanArray.add(1.001);
+
+        Coordinate output = algo.calculateEuclideanCoordinate(euclideanArray);
+        assertNotEquals(4.558, output.getX(), DELTA);
+        assertEquals(5.863858525140664, output.getY(), DELTA);
+    }
+
+    @Test
+    public void calculateEuclideanCoordinateTestYFalse(){
+        ArrayList<Double> euclideanArray = new ArrayList<>();
+        euclideanArray.add(5.5);
+        euclideanArray.add(3.9);
+        euclideanArray.add(8.8031);
+        euclideanArray.add(4.132);
+        euclideanArray.add(3.15);
+        euclideanArray.add(1.001);
+
+        Coordinate output = algo.calculateEuclideanCoordinate(euclideanArray);
+        assertEquals( 3.8455745350405257, output.getX(), DELTA);
+        assertNotEquals(4.66336784344, output.getY(), DELTA);
+    }
 
 
     @Test
@@ -374,11 +428,81 @@ public class AlgorithmTest{
     }
 
     @Test
+    public void euclideanDistanceTestXFalse(){
+        ArrayList<Double> targetData = new ArrayList<>();
+        targetData.add(5.2);
+        targetData.add(20.3);
+        targetData.add(40.5);
+        targetData.add(51.5);
+        targetData.add(79.4);
+        targetData.add(45.7);
+
+        ArrayList<Double> targetStdDev = new ArrayList<>();
+        targetStdDev.add(3.5);
+        targetStdDev.add(5.2);
+        targetStdDev.add(12.3);
+        targetStdDev.add(7.4);
+        targetStdDev.add(6.2);
+        targetStdDev.add(1.5);
+
+        ArrayList<String> targetMacAddress = new ArrayList<>();
+        targetMacAddress.add("wifi-signal-1");
+        targetMacAddress.add("wifi-signal-2");
+        targetMacAddress.add("wifi-signal-3");
+        targetMacAddress.add("wifi-signal-4");
+        targetMacAddress.add("wifi-signal-5");
+        targetMacAddress.add("wifi-signal-6");
+
+        Coordinate output = algo.euclideanDistance(targetData,  targetStdDev,  targetMacAddress);
+        assertNotEquals( 4.283169849490053, output.getX(), DELTA);
+        assertEquals(3.305941790539165, output.getY(), DELTA);
+    }
+
+    @Test
+    public void euclideanDistanceTestYFalse(){
+        ArrayList<Double> targetData = new ArrayList<>();
+        targetData.add(5.2);
+        targetData.add(20.3);
+        targetData.add(40.5);
+        targetData.add(51.5);
+        targetData.add(79.4);
+        targetData.add(45.7);
+
+        ArrayList<Double> targetStdDev = new ArrayList<>();
+        targetStdDev.add(3.5);
+        targetStdDev.add(5.2);
+        targetStdDev.add(12.3);
+        targetStdDev.add(7.4);
+        targetStdDev.add(6.2);
+        targetStdDev.add(1.5);
+
+        ArrayList<String> targetMacAddress = new ArrayList<>();
+        targetMacAddress.add("wifi-signal-1");
+        targetMacAddress.add("wifi-signal-2");
+        targetMacAddress.add("wifi-signal-3");
+        targetMacAddress.add("wifi-signal-4");
+        targetMacAddress.add("wifi-signal-5");
+        targetMacAddress.add("wifi-signal-6");
+
+        Coordinate output = algo.euclideanDistance(targetData,  targetStdDev,  targetMacAddress);
+        assertEquals( 4.341365146377838, output.getX(), DELTA);
+        assertNotEquals(2.4589835473, output.getY(), DELTA);
+    }
+
+    @Test
     public void subDEuclideanDisTest(){
         double output = algo.subDEuclideanDis(4.5, 2.2, 3.3, 1.3);
         //for easy testing, round off to 2 decimal places
         output = (double) Math.round(output * 100) / 100;
         assertEquals(22.09, output, DELTA);
+    }
+
+    @Test
+    public void subDEuclideanDisTestFalse(){
+        double output = algo.subDEuclideanDis(0.0, 2.2, 3.3, 1.3);
+        //for easy testing, round off to 2 decimal places
+        output = (double) Math.round(output * 100) / 100;
+        assertNotEquals(22.09, output, DELTA);
     }
 
     @Test
@@ -402,5 +526,20 @@ public class AlgorithmTest{
         Coordinate output = algo.weightedFusion(new Coordinate(415.667, 31.2), new Coordinate(433.524, 34.12));
         assertEquals(420.13125, output.getX(), DELTA);
         assertEquals(31.93, output.getY(), DELTA);
+    }
+
+    @Test
+    public void weightedFusionTestXFalse(){
+        Coordinate output = algo.weightedFusion(new Coordinate(415.667, 31.2), new Coordinate(433.524, 34.12));
+        assertNotEquals(112.4546, output.getX(), DELTA);
+        assertEquals(31.93, output.getY(), DELTA);
+    }
+
+    @Test
+    public void weightedFusionTestYFalse(){
+        Coordinate output = algo.weightedFusion(new Coordinate(125.322, 31.2), new Coordinate(100.524, 34.12));
+        assertEquals(119.1225, output.getX(), DELTA);
+        assertNotEquals(112.4546, output.getY(), DELTA);
+
     }
 }
