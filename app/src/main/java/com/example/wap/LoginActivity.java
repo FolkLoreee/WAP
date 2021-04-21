@@ -47,7 +47,6 @@ public class LoginActivity extends AppCompatActivity {
         loginBtn = findViewById(R.id.login_button);
 
         tvClickToRegister = findViewById(R.id.tvClickToRegister);
-
         //Firebase Auth
         firebaseAuth = FirebaseAuth.getInstance();
 
