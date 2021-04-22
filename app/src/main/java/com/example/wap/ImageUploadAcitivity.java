@@ -108,7 +108,7 @@ public class ImageUploadAcitivity extends Fragment {
 
                         Intent intent = new Intent(getActivity(), MapActivity.class);
                         intent.putExtra("locationID", locationID);
-                        intent.putExtra("BitmapImage", bitmap);
+
                         startActivity(intent);
                     }
                 }
