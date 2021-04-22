@@ -2,6 +2,7 @@ package com.example.wap;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -12,6 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.wap.firebase.WAPFirebase;
+import com.example.wap.models.Authorization;
 import com.example.wap.models.User;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -28,8 +30,11 @@ public class LoginActivity extends AppCompatActivity {
     EditText etEmail, etPassword;
     TextView tvClickToRegister;
     ImageButton loginBtn;
+
     FirebaseAuth firebaseAuth;
     WAPFirebase<User> userWAPFirebase;
+
+    Authorization userAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,7 +46,6 @@ public class LoginActivity extends AppCompatActivity {
         loginBtn = findViewById(R.id.login_button);
 
         tvClickToRegister = findViewById(R.id.tvClickToRegister);
-
         //Firebase Auth
         firebaseAuth = FirebaseAuth.getInstance();
 
@@ -82,8 +86,6 @@ public class LoginActivity extends AppCompatActivity {
                             Toast.makeText(LoginActivity.this, "Welcome to WAP", Toast.LENGTH_SHORT).show();
 
 
-                            startActivity(new Intent(LoginActivity.this, ChooseMapActivity.class));
-                            finish();
                         }
                     }).addOnFailureListener(new OnFailureListener() {
                         @Override

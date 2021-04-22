@@ -23,7 +23,7 @@ public class SignUpActivityTest {
         onView(withId(R.id.UserType)).check(matches(isCompletelyDisplayed()));
     }
 
-    @Test
+   /* @Test
     public void duplicate_Email() {
         ActivityScenario activityScenario = ActivityScenario.launch(SignUpActivity.class);
         onView(withId(R.id.etEmailSignup)).perform(click(), typeText("wes0903@gmail.com"));
@@ -31,5 +31,5 @@ public class SignUpActivityTest {
         onView(withId(R.id.etPasswordSignup)).perform(click(),typeText("123456"));
 //        onView(withId(R.id.signupButton)).perform(click());
         onView(withId(R.id.loginActivity)).check(ViewAssertions.doesNotExist());
-    }
+    }*/
 }

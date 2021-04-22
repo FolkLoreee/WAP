@@ -46,7 +46,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-public class TestingActivity extends AppCompatActivity {
+public class TestingActivityUser extends AppCompatActivity {
 
     TextView calculatedPointData;
     ImageView mapImageView;
@@ -61,7 +61,7 @@ public class TestingActivity extends AppCompatActivity {
     private static final int MY_REQUEST_CODE = 123;
     private final static String LOG_TAG = "Testing Activity";
     WifiManager wifiManager;
-    TestingActivity.WifiBroadcastReceiver wifiReceiver;
+    TestingActivityUser.WifiBroadcastReceiver wifiReceiver;
 
     // Wifi Scan
     int numOfScans;
@@ -94,26 +94,8 @@ public class TestingActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_testing);
+        setContentView(R.layout.activity_testing_user);
 
-        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_nav_bar);
-        bottomNavigationView.setSelectedItemId(R.id.testingActivity);
-        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-            @SuppressLint("NonConstantResourceId")
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                switch(item.getItemId()){
-                    case R.id.testingActivity:
-                        return true;
-                    case R.id.mappingActivity:
-                        startActivity(new Intent(getApplicationContext(),ChooseMapActivity.class));
-                        overridePendingTransition(0,0);
-                        return true;
-
-                }
-                return false;
-            }
-        });
 
         // Initialise XML elements
         calculatedPointData = findViewById(R.id.calculatedPointData);
@@ -162,7 +144,7 @@ public class TestingActivity extends AppCompatActivity {
                 }
 
                 // Populate the spinner
-                ArrayAdapter<String> adapter = new ArrayAdapter<String>(TestingActivity.this, android.R.layout.simple_spinner_item, locationsNames);
+                ArrayAdapter<String> adapter = new ArrayAdapter<String>(TestingActivityUser.this, android.R.layout.simple_spinner_item, locationsNames);
 
                 locationSpinner.setAdapter(adapter);
 
@@ -209,7 +191,7 @@ public class TestingActivity extends AppCompatActivity {
                                     // else, if there is no map, load the default drawble and indicate to user that there is no map
                                     else {
                                         mapNotFound = true;
-                                        Toast.makeText(TestingActivity.this, "No map found, please upload a map for this location", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(TestingActivityUser.this, "No map found, please upload a map for this location", Toast.LENGTH_SHORT).show();
                                         mapImageView.setImageBitmap(null);
                                         mapImageView.setImageDrawable(getResources().getDrawable(R.drawable.image_here));
                                     }
@@ -221,7 +203,7 @@ public class TestingActivity extends AppCompatActivity {
                             // TODO: Edit after remapping
                             if (availableLocations.get(selectedLocation).get(3).equals("0")) {
                                 locationMapped = false;
-                                Toast.makeText(TestingActivity.this, "Location has not been mapped, unable to locate user", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(TestingActivityUser.this, "Location has not been mapped, unable to locate user", Toast.LENGTH_SHORT).show();
                             } else {
                                 locationMapped = true;
                             }
@@ -253,7 +235,7 @@ public class TestingActivity extends AppCompatActivity {
                 // only if map is found and the location has been mapped before then it will proceed to relocate user
                 if (!mapNotFound && locationMapped) {
                     handler.postDelayed(runnable, delay);
-                    Toast.makeText(TestingActivity.this, "Locating user, please do not click anything...", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(TestingActivityUser.this, "Locating user, please do not click anything...", Toast.LENGTH_SHORT).show();
 
                     // Initialise hashmaps
                     targetMacAdd = new ArrayList<>();
@@ -274,7 +256,7 @@ public class TestingActivity extends AppCompatActivity {
                     // re-initialise hash map each time the button is pressed
                     allSignals = new HashMap<>();
                     ssids = new HashMap<>();
-                    WifiScan.askAndStartScanWifi(LOG_TAG, MY_REQUEST_CODE, TestingActivity.this);
+                    WifiScan.askAndStartScanWifi(LOG_TAG, MY_REQUEST_CODE, TestingActivityUser.this);
                     wifiManager.startScan();
                 }
             }
@@ -303,7 +285,7 @@ public class TestingActivity extends AppCompatActivity {
             boolean resultsReceived = intent.getBooleanExtra(WifiManager.EXTRA_RESULTS_UPDATED, false);
 
             if (resultsReceived) {
-                Toast.makeText(TestingActivity.this, "Processing Wifi Scan " + (numOfScans+1), Toast.LENGTH_SHORT).show();
+                Toast.makeText(TestingActivityUser.this, "Processing Wifi Scan " + (numOfScans+1), Toast.LENGTH_SHORT).show();
 
                 List<ScanResult> list = wifiManager.getScanResults();
 
@@ -323,7 +305,7 @@ public class TestingActivity extends AppCompatActivity {
 
                 // all scans completed
                 if (numOfScans == 3) {
-                    Toast.makeText(TestingActivity.this, "Wifi Scan Complete", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(TestingActivityUser.this, "Wifi Scan Complete", Toast.LENGTH_SHORT).show();
                     for (String macAddress: allSignals.keySet()) {
 
                         // get the average wifi signal if the BSSID exists
@@ -358,7 +340,7 @@ public class TestingActivity extends AppCompatActivity {
                     }
                 }
             } else {
-                Toast.makeText(TestingActivity.this, "Wifi scan failed", Toast.LENGTH_SHORT).show();
+                Toast.makeText(TestingActivityUser.this, "Wifi scan failed", Toast.LENGTH_SHORT).show();
             }
 
             // continue scanning if it has not reached 12 scans + increase numOfScans
@@ -398,7 +380,7 @@ public class TestingActivity extends AppCompatActivity {
             finalPoint = algorithm.weightedFusion(calculatedPoint1, calculatedPoint2);
         }
         else {
-            Toast.makeText(TestingActivity.this, "You are likely out of the area, please move closer to the location shown in the map and try again", Toast.LENGTH_SHORT).show();
+            Toast.makeText(TestingActivityUser.this, "You are likely out of the area, please move closer to the location shown in the map and try again", Toast.LENGTH_SHORT).show();
             calculatedPointData.setText("Coordinates cannot be calculated");
         }
 

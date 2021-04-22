@@ -1,10 +1,17 @@
 package com.example.wap;
 
+import android.app.Activity;
+import android.app.Instrumentation;
+import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.res.Resources;
+import android.net.Uri;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.test.core.app.ActivityScenario;
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.example.wap.firebase.WAPFirebase;
@@ -24,6 +31,7 @@ import org.junit.runner.RunWith;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+//import static org.powermock.api.support.membermodification.MemberModifier.suppress;
 
 /**
  * Example local unit test, which will execute on the development machine (host).
@@ -54,7 +62,6 @@ public class ImageUploadActivityTest {
     public void teardown() {
         if (activityScenario != null) activityScenario.close();
     }
-
 
     @Test
     public void imageUploadFailNoImage(){
@@ -92,9 +99,11 @@ public class ImageUploadActivityTest {
     public void create_location_class() {
         String locationID = "TestLocation1";
         String locationName = "Testing Location";
-        testLocation = new Location(locationID, locationName);
+        String locationURL = "heko";
+        testLocation = new Location(locationID, locationName, locationURL);
         assertNotNull("Location created", testLocation);
     }
+
     @Test
     public void test_setup_firebase_storage() {
         activityScenario = ActivityScenario.launch(ChooseMapActivity.class);
@@ -105,11 +114,13 @@ public class ImageUploadActivityTest {
             assertNotNull(storageRef);
         });
     }
+
     @Test
     public void create_and_delete_location_firebase() {
         String locationID = "TestLocation1";
         String locationName = "Testing Location";
-        testLocation = new Location(locationID, locationName);
+        String locationURL = "url";
+        testLocation = new Location(locationID, locationName,locationURL);
         activityScenario = ActivityScenario.launch(ChooseMapActivity.class);
         activityScenario.onActivity(activity -> {
             activityContext = activity.getApplicationContext();
@@ -143,6 +154,7 @@ public class ImageUploadActivityTest {
         });
 
     }
+
 
     //UI testing
 

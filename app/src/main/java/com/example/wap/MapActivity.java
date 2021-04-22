@@ -6,12 +6,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
-import android.graphics.PointF;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
@@ -34,9 +33,16 @@ import com.example.wap.models.Signal;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 //firebase stuff
 public class MapActivity extends AppCompatActivity {
@@ -59,78 +65,48 @@ public class MapActivity extends AppCompatActivity {
     TextView coordinatesText;
 
     //TODO: locationID will follow the locationID from the previous screen
-    public static String locationID;
-   public static String locationName;
+
+    String locationID;
+    String locationName;
+    String locationURL;
 
     Location currentLocation;
-    static Coordinate coordinate;
+    public static Coordinate coordinate;
 
     //Firebase
-    WAPFirebase<Signal> signalWAPFirebase;
     WAPFirebase<MapPoint> pointWAPFirebase;
      WAPFirebase<Location> locationWAPFirebase;
-    // These matrices will be used to move and zoom image
-    Matrix matrix = new Matrix();
-    Matrix savedMatrix = new Matrix();
 
     // We can be in one of these 3 states
-    static final int NONE = 0;
-    // --Commented out by Inspection (15/4/2021 6:14 PM):static final int DRAG = 1;
-    static final int ZOOM = 2;
-    int mode = NONE;
-
-    // Remember some things for zooming
-    PointF start = new PointF();
-    PointF mid = new PointF();
-    float oldDist = 1f;
 
     // Bitmap
     public static Bitmap bitmapImg;
-    // --Commented out by Inspection (15/4/2021 6:14 PM):Bitmap bitmap;
+    URL urlBitmap;
     Canvas canvas;
     Paint paint;
     ArrayList<Path> paths = new ArrayList<Path>();
-    ArrayList<Path> undonePaths = new ArrayList<Path>();
 
-    public float[] pointToUpload = new float[2];
+    public static float[] pointToUpload = new float[2];
 
     Path mPath;
-    // --Commented out by Inspection (15/4/2021 6:14 PM):boolean drag = false;
-    // --Commented out by Inspection (15/4/2021 6:14 PM):boolean hasPath = false;
     int intrinsicHeight;
     int intrinsicWidth;
     int row = 20;
     int col = 20;
-    // --Commented out by Inspection (15/4/2021 6:14 PM):int[] displaySize = new int[2];
     int squareWidth, squareHeight;
-//    int floor = R.drawable.floor_wap_1;
-//    Drawable drawable;
+
 
     // Wifi Data and Scans
     int numOfScans;
     HashMap<String, ArrayList> allSignals;
     HashMap<String, String> ssids;
-
-
-// --Commented out by Inspection START (15/4/2021 6:14 PM):
-//    @SuppressWarnings("deprecation")
-//    private static int[] getDisplaySizeV9(Display display) {
-//        int x = display.getWidth();
-//        int y = display.getHeight();
-//        int[] displaySize = new int[2];
-//        displaySize[0] = x;
-//        displaySize[1] = y;
-//        return displaySize;
-//    }
-// --Commented out by Inspection STOP (15/4/2021 6:14 PM)
+    private ArrayList<String> approvedWifiSignals = new ArrayList<>(Arrays.asList(new String[]{"eduroam", "SUTD_Wifi", "SUTD_Lab", "SUTD_Guest", "SUTD_Test"}));
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
 
-
-        signalWAPFirebase = new WAPFirebase<>(Signal.class, "signals");
         pointWAPFirebase = new WAPFirebase<>(MapPoint.class, "points");
         locationWAPFirebase = new WAPFirebase<>(Location.class, "locations");
 
@@ -143,23 +119,40 @@ public class MapActivity extends AppCompatActivity {
         scan = (ImageButton) findViewById(R.id.scan);
         mappinghelp = (ImageButton) findViewById(R.id.mappinghelp);
 
+        Intent intent = getIntent();
+        locationID = intent.getStringExtra(ImageSelectActivity.LOCATION_ID_KEY);
+        locationName = intent.getStringExtra(ImageSelectActivity.LOCATION_NAME_KEY);
+        locationURL = intent.getStringExtra(ImageSelectActivity.LOCATION_URL_KEY);
         //set coordinate as (0,0) on creation
         coordinate = new Coordinate(0, 0);
 
-
         // Set up the map
         mapImage = (ImageView) findViewById(R.id.mapImage);
-//        mapImage.setImageBitmap(bitmapImg);
+        if(locationURL != null){
+            try {
+                urlBitmap = new URL(locationURL);
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            }
+            try {
+                bitmapImg = Utils.getBitmap(urlBitmap);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            //original height and width of the bitmap
+            intrinsicHeight = bitmapImg.getHeight();
+            intrinsicWidth = bitmapImg.getWidth();
+
+        }
+
+        else{
+            bitmapImg = BitmapFactory.decodeResource(getResources(),R.drawable.image_here);
+            intrinsicHeight = bitmapImg.getHeight();
+            intrinsicWidth = bitmapImg.getWidth();
+        }
 
 
-//        mapImage.setBackground(getResources().getDrawable(R.drawable.black));
-
-
-        //original height and width of the bitmap
-
-        intrinsicHeight = bitmapImg.getHeight();
-
-        intrinsicWidth = bitmapImg.getWidth();
 
         //get the height and width of the square drawn
         squareHeight = intrinsicHeight / row;
@@ -177,7 +170,6 @@ public class MapActivity extends AppCompatActivity {
         paint.setColor(Color.RED);
         paint.setStrokeWidth(10);
 
-
         float[] center = centerOfRect(coordinate, squareWidth, squareHeight);
         coordinatesText.setText("( " + center[0] + " ," + center[1] + ")");
         mPath.addCircle(center[0], center[1], 15, Path.Direction.CW);
@@ -186,11 +178,11 @@ public class MapActivity extends AppCompatActivity {
         mapImage.setImageBitmap(bitmap);
         mapImage.setScaleType(ImageView.ScaleType.FIT_CENTER);
 
-        Intent intent = getIntent();
-        locationID = intent.getStringExtra("locationID");
+
+
+
         Log.d(LOG_TAG, "LOCATION IS: " + locationID);
 
-        currentLocation = new Location(locationID, locationName);
         wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
 
         // Instantiate broadcast receiver
@@ -205,6 +197,7 @@ public class MapActivity extends AppCompatActivity {
             public void onClick(View view) {
                 if (coordinate.getY() == 0) {
                     Log.d("right", "out of screen alrdy");
+                    Toast.makeText(MapActivity.this, "up: out of screen", Toast.LENGTH_SHORT).show();
                 } else {
                     coordinate.setY(coordinate.getY() - squareHeight);
                     drawFunction(coordinate, squareHeight, squareWidth, intrinsicHeight, intrinsicWidth, mapImage, paths, coordinatesText);
@@ -218,6 +211,7 @@ public class MapActivity extends AppCompatActivity {
             public void onClick(View view) {
                 if ((coordinate.getY() + 2 * squareHeight) > canvas.getHeight()) {
                     Log.d("right", "out of screen alrdy");
+                    Toast.makeText(MapActivity.this, "down: out of screen", Toast.LENGTH_SHORT).show();
                 } else {
                     coordinate.setY(coordinate.getY() + squareHeight);
                     drawFunction(coordinate, squareHeight, squareWidth, intrinsicHeight, intrinsicWidth, mapImage, paths, coordinatesText);
@@ -230,6 +224,7 @@ public class MapActivity extends AppCompatActivity {
             public void onClick(View view) {
                 if ((coordinate.getX() + squareWidth) >= canvas.getWidth()) {
                     Log.d("right", "out of screen alrdy");
+                    Toast.makeText(MapActivity.this, "right: out of screen", Toast.LENGTH_SHORT).show();
                 } else {
                     coordinate.setX(coordinate.getX() + squareWidth);
                     drawFunction(coordinate, squareHeight, squareWidth, intrinsicHeight, intrinsicWidth, mapImage, paths, coordinatesText);
@@ -245,6 +240,7 @@ public class MapActivity extends AppCompatActivity {
                 if (centerOfRect(coordinate, squareWidth, squareHeight)[0] < 0) {
                     coordinate.setX(coordinate.getX() + squareWidth);
                     Log.d("right", "out of screen alrdy");
+                    Toast.makeText(MapActivity.this, "left: out of screen", Toast.LENGTH_SHORT).show();
                 } else {
                     drawFunction(coordinate, squareHeight, squareWidth, intrinsicHeight, intrinsicWidth, mapImage, paths, coordinatesText);
                 }
@@ -254,88 +250,92 @@ public class MapActivity extends AppCompatActivity {
         scan.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                //Update the currentLocation details every time user wants to scan
+                //This ensures one-source-of-truth
+                locationWAPFirebase.query(locationID).addOnSuccessListener(new OnSuccessListener<Location>() {
+                    @Override
+                    public void onSuccess(Location location) {
+                        currentLocation = location;
 
-                String pointID = "MP-" + currentLocation.getLocationID() + "-" + (int) pointToUpload[0] + "-" + (int) pointToUpload[1];
-                point = new MapPoint(pointID, new Coordinate(pointToUpload[0], pointToUpload[1]), currentLocation.getLocationID());
+                        String pointID = "MP-" + currentLocation.getLocationID() + "-" + (int) pointToUpload[0] + "-" + (int) pointToUpload[1];
+                        point = new MapPoint(pointID, new Coordinate(pointToUpload[0], pointToUpload[1]), currentLocation.getLocationID());
 
-                numOfScans = 0;
-                // re-initialise hash map each time the button is pressed
+                        numOfScans = 0;
+                        // re-initialise hash map each time the button is pressed
 
-                allSignals = new HashMap<>();
-                ssids = new HashMap<>();
-                WifiScan.askAndStartScanWifi(LOG_TAG, MY_REQUEST_CODE, MapActivity.this);
-                wifiManager.startScan();
+                        allSignals = new HashMap<>();
+                        ssids = new HashMap<>();
+                        WifiScan.askAndStartScanWifi(LOG_TAG, MY_REQUEST_CODE, MapActivity.this);
+                        wifiManager.startScan();
+                    }
+                });
             }
         });
         mappinghelp.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        startActivity(new Intent(MapActivity.this, Popupactivity.class));
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MapActivity.this, Popupactivity.class));
 
-                    }
-                });
+            }
+        });
+
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_nav_bar);
         bottomNavigationView.setSelectedItemId(R.id.choosemapactivity);
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @SuppressLint("NonConstantResourceId")
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                switch(item.getItemId()){
+                switch (item.getItemId()) {
                     case R.id.testingActivity:
-                        startActivity(new Intent(getApplicationContext(),TestingActivity.class));
-                        overridePendingTransition(0,0);
+                        startActivity(new Intent(getApplicationContext(), TestingActivity.class));
+                        overridePendingTransition(0, 0);
                         return true;
                     case R.id.mappingActivity:
-                        startActivity(new Intent(getApplicationContext(),ChooseMapActivity.class));
-                        overridePendingTransition(0,0);
+                        startActivity(new Intent(getApplicationContext(), ChooseMapActivity.class));
+                        overridePendingTransition(0, 0);
                         return true;
-//                    case R.id.mainActivity:
-//                        startActivity(new Intent(getApplicationContext(),MainActivity.class));
-//                        overridePendingTransition(0,0);
-//                        return true;
                 }
                 return false;
             }
         });
     }
 
+    public static void drawFunction(Coordinate coordinate, int squareHeight, int squareWidth, int intrinsicHeight, int intrinsicWidth, ImageView mapImage, ArrayList<Path> paths, TextView coordinatesText) {
+        if(mapImage != null && squareHeight !=0 && squareWidth !=0 && intrinsicHeight !=0 && intrinsicWidth !=0 && coordinate !=null){
+            Bitmap bitmap = Bitmap.createBitmap((int) intrinsicWidth, (int) intrinsicHeight, Bitmap.Config.ARGB_8888);
+            Canvas canvas = new Canvas(bitmap);
+            Path mPath = new Path();
+            canvas.drawBitmap(bitmapImg, 0, 0, null);
+            Paint paint = new Paint();
+            paint.setColor(Color.RED);
 
-    public void drawFunction(Coordinate coordinate, int squareHeight, int squareWidth, int intrinsicHeight, int intrinsicWidth, ImageView mapImage, ArrayList<Path> paths, TextView coordinatesText) {
-
-//        bitmap = bitmapImg.copy(bitmapImg.getConfig(), true);
-        Bitmap bitmap = Bitmap.createBitmap((int) intrinsicWidth, (int) intrinsicHeight, Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(bitmap);
-        Path mPath = new Path();
-        canvas.drawBitmap(bitmapImg, 0, 0, null);
-        Paint paint = new Paint();
-        paint.setColor(Color.RED);
-//        paint.setStyle(Paint.Style.STROKE);
-        paint.setStrokeWidth(10);
-        mapImage.setImageBitmap(bitmap);
-//        mPath.addRect((float)coordinate.getX(), (float) coordinate.getY(), (float)coordinate.getX() + squareWidth, (float)coordinate.getY() + squareHeight, Path.Direction.CW);
-        if (paths.size() != 0) {
-            for (Path path : paths) {
-                paint.setColor(Color.BLUE);
-                canvas.drawPath(path, paint);
+            paint.setStrokeWidth(10);
+            mapImage.setImageBitmap(bitmap);
+            if (paths.size() != 0) {
+                for (Path path : paths) {
+                    paint.setColor(Color.BLUE);
+                    canvas.drawPath(path, paint);
+                }
             }
+            paint.setColor(Color.RED);
+            float[] center = centerOfRect(coordinate, squareWidth, squareHeight);
+            coordinatesText.setText("( " + center[0] + " ," + center[1] + ")");
+
+            pointToUpload[0] = center[0];
+            pointToUpload[1] = center[1];
+
+            mPath.addCircle(center[0], center[1], 15, Path.Direction.CW);
+            canvas.drawPath(mPath, paint);
+            Log.d("right", "drawn: " + (float) coordinate.getX() + ", " + (float) coordinate.getY());
         }
-        paint.setColor(Color.RED);
-        float[] center = centerOfRect(coordinate, squareWidth, squareHeight);
-        coordinatesText.setText("( " + center[0] + " ," + center[1] + ")");
 
-        pointToUpload[0] = center[0];
-        pointToUpload[1] = center[1];
-
-        mPath.addCircle(center[0], center[1], 15, Path.Direction.CW);
-
-        canvas.drawPath(mPath, paint);
-//                    Toast.makeText(MapActivity.this, "drawn", Toast.LENGTH_SHORT).show();
-        Log.d("right", "drawn: " + (float) coordinate.getX() + ", " + (float) coordinate.getY());
-//                    canvas.drawPath(mPath, paint);
+        else{
+            Log.d("MapActivity", "drawFunction: something not working lol");
+        }
 
     }
 
-    public float[] centerOfRect(Coordinate coordinate, int squareWidth, int squareHeight) {
+    public static float[] centerOfRect(Coordinate coordinate, int squareWidth, int squareHeight) {
 //        ( (x1 + x2) / 2, (y1 + y2) / 2 )
         float[] center = new float[2];
         center[0] = (float) (2 * coordinate.getX() + squareWidth) / 2;
@@ -344,7 +344,6 @@ public class MapActivity extends AppCompatActivity {
         return center;
 
     }
-
 
     // Define class to listen to broadcasts
     class WifiBroadcastReceiver extends BroadcastReceiver {
@@ -386,7 +385,6 @@ public class MapActivity extends AppCompatActivity {
                     paths.add(mPath);
 
                     // initialise for firebase
-                    WAPFirebase<Signal> signalWAPFirebase = new WAPFirebase<>(Signal.class, "signals");
                     WAPFirebase<MapPoint> pointWAPFirebase = new WAPFirebase<>(MapPoint.class, "points");
                     ArrayList<Signal> signals = new ArrayList<>();
                     WAPFirebase<Location> locationWAPFirebase = new WAPFirebase<>(Location.class, "locations");
@@ -403,33 +401,42 @@ public class MapActivity extends AppCompatActivity {
                         Log.d(LOG_TAG, "MAC Address: " + macAddress + " , Wifi Signal: " + averageSignal + " , Wifi Signal (SD): " + stdDevSignal);
 
                         // posting the result to firebase
-                        String signalID = "SG-" + locationID + "-" + (int) (pointToUpload[0]) + "-" + (int) (pointToUpload[1]) + "-" + signalCounter;
-                        Signal signal = new Signal(signalID, locationID, macAddress, ssids.get(macAddress), stdDevSignal, averageSignal, averageSignalProcessed, 10);
-                        signals.add(signal);
-                        point.addSignalID(signalID);
-                        signalCounter++;
+                        // only store wifi signals that are approved, filters out random hotspots
+                        if (approvedWifiSignals.contains(ssids.get(macAddress))) {
+                            String signalID = "SG-" + locationID + "-" + (int) (pointToUpload[0]) + "-" + (int) (pointToUpload[1]) + "-" + signalCounter;
+                            Signal signal = new Signal(signalID, locationID, macAddress, ssids.get(macAddress), stdDevSignal, averageSignal, averageSignalProcessed, 10);
+                            signals.add(signal);
+                            point.addSignal(signal);
+                            currentLocation.incrementSignalCounts();
+                            signalCounter++;
+                        }
                     }
 
                     pointWAPFirebase.create(point, point.getPointID()).addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
                             Log.d("FIREBASE", "map point successfully posted");
+                            currentLocation.incrementMapPointCounts();
+                            currentLocation.addMapPointID(point.getPointID());
+                            locationWAPFirebase.update(currentLocation, currentLocation.getLocationID()).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    Log.d("FIREBASE", "location updated");
+                                }
+                            });
                         }
                     });
-                    for (Signal signal : signals) {
-                        Log.d("FIREBASE", "signalID: " + signal.getSignalID());
-                        signalWAPFirebase.create(signal, signal.getSignalID()).addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void aVoid) {
-
-                                currentLocation.incrementSignalCounter();
-                                Log.d("FIREBASE", "signal successfully posted");
-                                Log.d("Location ID", locationID);
-                                Log.d("FIREBASE", "location: " + locationID);
-                                locationWAPFirebase.update(currentLocation, locationID);
-                            }
-                        });
-                    }
+//                    for (Signal signal : signals) {
+//                        Log.d("FIREBASE", "signalID: " + signal.getSignalID());
+//                        signalWAPFirebase.create(signal, signal.getSignalID()).addOnSuccessListener(new OnSuccessListener<Void>() {
+//                            @Override
+//                            public void onSuccess(Void aVoid) {
+//                                Log.d("FIREBASE", "signal successfully posted");
+//                                Log.d("Location ID", locationID);
+//                                Log.d("FIREBASE", "location: " + locationID);
+//                            }
+//                        });
+//                    }
                 }
             } else {
                 Toast.makeText(MapActivity.this, "Scan failed! Wait for a while and try again.", Toast.LENGTH_SHORT).show();
@@ -445,5 +452,11 @@ public class MapActivity extends AppCompatActivity {
             }
 
         }
+    }
+
+    @Override
+    protected void onStop() {
+        this.unregisterReceiver(this.wifiReceiver);
+        super.onStop();
     }
 }

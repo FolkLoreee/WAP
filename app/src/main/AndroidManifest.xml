@@ -28,6 +28,7 @@
         </activity>
         <activity android:name=".TrackingActivity"></activity>
         <activity android:name=".TestingActivity"></activity>
+        <activity android:name=".TestingActivityUser"></activity>
         <activity android:name=".SignUpActivity"></activity>
         <activity android:name=".MapActivity" />
         <activity
