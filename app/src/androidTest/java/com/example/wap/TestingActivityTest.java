@@ -277,10 +277,11 @@ public class TestingActivityTest {
     @Test
     public void test_IsItemsDisplayed(){
         ActivityScenario activityscenario = ActivityScenario.launch(TestingActivity.class);
+        onView(withId(R.id.testingActivity)).check(matches(isDisplayed()));
+        onView(withId(R.id.mapImageView)).check(matches(isDisplayed()));
         onView(withId(R.id.selectLocationText)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
         onView(withId(R.id.locationSpinner)).perform(click());
         onData(allOf(is(instanceOf(String.class)), is("Campus Centre Lv 2"))).perform(click());
-        onView(withId(R.id.mapImageView)).check(matches(isDisplayed()));
     }
 
     //test Navigation on bottomnavbar
