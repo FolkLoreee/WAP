@@ -336,11 +336,15 @@ public class MapActivity extends AppCompatActivity {
     public static float[] centerOfRect(Coordinate coordinate, int squareWidth, int squareHeight) {
 //        ( (x1 + x2) / 2, (y1 + y2) / 2 )
         float[] center = new float[2];
-        center[0] = (float) (2 * coordinate.getX() + squareWidth) / 2;
-        center[1] = (float) (2 * coordinate.getY() + squareHeight) / 2;
-
+        if(coordinate != null && squareHeight > 0 && squareWidth > 0 ){
+            center[0] = (float) (2 * coordinate.getX() + squareWidth) / 2;
+            center[1] = (float) (2 * coordinate.getY() + squareHeight) / 2;
+        }
+        else{
+            center[0] = 0;
+            center[1] = 0;
+        }
         return center;
-
     }
 
     // Define class to listen to broadcasts
