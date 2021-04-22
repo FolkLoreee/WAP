@@ -174,9 +174,30 @@ public class AlgorithmTest{
         expectedFilteredMac.put("78:90:12:34:56", -67.1);
         expectedFilteredMac.put("90:12:34:56:78", -53.2);
 
-        assertEquals(actualFilteredMac, expectedFilteredMac);
+        assertEquals(expectedFilteredMac, actualFilteredMac);
     }
 
+    @Test
+    public void filterWifiByFlagIfFLAGZero() {
+        ArrayList<Double> targetData = new ArrayList<>();
+        targetData.add(-80.0);
+        targetData.add(-57.3);
+        targetData.add(-89.3);
+        targetData.add(-67.1);
+        targetData.add(-53.2);
+
+        ArrayList<String> targetMacAdd = new ArrayList<>();
+        targetMacAdd.add("12:34:56:78:90");
+        targetMacAdd.add("34:56:78:90:12");
+        targetMacAdd.add("56:78:90:12:34");
+        targetMacAdd.add("78:90:12:34:56");
+        targetMacAdd.add("90:12:34:56:78");
+
+        HashMap<String, Double> actualFilteredMac = algo.filterWifiByFlag(targetData, 0.0, targetMacAdd);
+        HashMap<String, Double> expectedFilteredMac = new HashMap<>();
+
+        assertEquals(expectedFilteredMac, actualFilteredMac);
+    }
 
     @Test
     public void calculateFlagTestIfEmpty() {
@@ -204,7 +225,7 @@ public class AlgorithmTest{
         HashMap<String, String> signalBSSIDFB = new HashMap<>();
         HashMap<String, Double> signalStrengthFB = new HashMap<>();
         double match = algo.checkPercentageMatch("", filteredMacNull, pointsFB, signalBSSIDFB, signalStrengthFB);
-        assertEquals(match, 0.0, DELTA);
+        assertEquals(0.0, match, DELTA);
     }
 
     @Test
@@ -235,9 +256,8 @@ public class AlgorithmTest{
         System.out.println(signalStrengthFB);
 
         double match = algo.checkPercentageMatch("point-1", filteredMac, pointsFB, signalBSSIDFB, signalStrengthFB);
-        System.out.println(match);
 
-        assertEquals(match, 0.6, DELTA);
+        assertEquals(0.6, match, DELTA);
     }
 
     @Test
@@ -246,7 +266,7 @@ public class AlgorithmTest{
 
         String output = algo.stringifyCoordinates(coord);
 
-        assertEquals(output, "");
+        assertEquals("", output);
     }
 
     @Test
@@ -255,7 +275,7 @@ public class AlgorithmTest{
 
         String output = algo.stringifyCoordinates(coord);
 
-        assertEquals(output, "2.0, 4.0");
+        assertEquals("2.0, 4.0", output);
     }
 
     @Test
@@ -332,9 +352,9 @@ public class AlgorithmTest{
         data6.put("90:12:34:56:78", 1.0);
         actualStdDevSignal.put("0.0, 2.0", data6);
 
-        assertEquals(algo.fingerprintOriginalAvgSignal, actualOriginalAvgSignal);
-        assertEquals(algo.fingerprintAvgSignal, actualAvgSignal);
-        assertEquals(algo.fingerprintStdDevSignal, actualStdDevSignal);
+        assertEquals(actualOriginalAvgSignal, algo.fingerprintOriginalAvgSignal);
+        assertEquals(actualAvgSignal, algo.fingerprintAvgSignal);
+        assertEquals(actualStdDevSignal, algo.fingerprintStdDevSignal);
     }
 
     @Test
@@ -380,7 +400,7 @@ public class AlgorithmTest{
 
         algo = new Algorithm(pointsFB, pointsCoordinatesFB, signalStrengthFB, signalStrengthOriginalFB, signalBSSIDFB, signalStrengthSDFB);
         algo.preMatchingK(targetData, targetMacAdd);
-        assertEquals(algo.filteredFailed, true);
+        assertEquals(true, algo.filteredFailed);
     }
 
     @Test
@@ -493,8 +513,6 @@ public class AlgorithmTest{
         Coordinate output = algo.jointProbability(targetDataOriginal, targetMacAddress);
         assertEquals(4.002195680812009, output.getX(), DELTA);
         assertEquals(3.6850819739876397, output.getY(), DELTA);
-
-
     }
 
     //ALL NON-ZEROS JOINT PROB
@@ -511,7 +529,6 @@ public class AlgorithmTest{
         Coordinate output = algo.calculateJointProbCoordinate(jointProbArray);
         assertEquals(4.783444809515455, output.getX(), DELTA);
         assertEquals(4.380983164837119, output.getY(), DELTA);
-
     }
 
     @Test

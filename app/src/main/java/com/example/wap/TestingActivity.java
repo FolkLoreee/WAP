@@ -273,8 +273,7 @@ public class TestingActivity extends AppCompatActivity {
                     algorithm = new Algorithm();
 
                     // retrieve data from firebase
-                    // algorithm.retrievefromFirebase(locationID);
-                    algorithm.retrievefromFirebase2(locationID);
+                    algorithm.retrievefromFirebase(locationID);
 
                     // collect wifi signals at target location
                     numOfScans = 0;

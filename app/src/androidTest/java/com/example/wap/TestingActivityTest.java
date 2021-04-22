@@ -85,7 +85,6 @@ public class TestingActivityTest {
         assertNotNull(locationWAPFirebase);
     }
 
-    // TODO: Update this testing as code has been changed to display map based on chosen location
     //Testing compound query
     @Test
     public void testCompoundQueryNotNull() {
