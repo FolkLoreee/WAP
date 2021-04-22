@@ -12,6 +12,9 @@ import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.StrictMode;
+import android.util.Log;
+import android.view.View;
+import android.widget.Toast;
 
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.espresso.matcher.ViewMatchers;
@@ -34,6 +37,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import static androidx.test.espresso.Espresso.onData;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
@@ -42,6 +46,9 @@ import static androidx.test.espresso.matcher.ViewMatchers.withContentDescription
 import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -64,27 +71,57 @@ public class TestingActivityTest {
 
     Context appContext;
 
-    /*@Test
+    @Test
     @Before
     public void useAppContext() {
         appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
         assertEquals("com.example.wap", appContext.getPackageName());
-    }*/
-
+    }
 
     //Instantiating Firebase Test
-    /*@Test
+    @Test
     public void testInstantiateWAPFirebaseLocationNotNull() {
         WAPFirebase<Location> locationWAPFirebase = new WAPFirebase<>(Location.class, "locations");
         assertNotNull(locationWAPFirebase);
-    }*/
+    }
 
-    // TODO: Update this testing as code has been changed to display map based on chosen location
     //Testing compound query
-    /*@Test
+    @Test
     public void testCompoundQueryNotNull() {
+        HashMap<String, ArrayList<String>> availableLocations = new HashMap<>();
         WAPFirebase<Location> locationWAPFirebase = new WAPFirebase<>(Location.class, "locations");
-        locationWAPFirebase.compoundQuery("locationID", locationID).addOnSuccessListener(new OnSuccessListener<ArrayList<Location>>() {
+        locationWAPFirebase.compoundQuery("locationID", "CCL2Z1").addOnSuccessListener(new OnSuccessListener<ArrayList<Location>>() {
+            @Override
+            public void onSuccess(ArrayList<Location> locations) {
+                ArrayList<String> locationsNames = new ArrayList<>();
+                locationsNames.add("No Selection");
+
+                for (Location l: locations) {
+                    ArrayList<String> info = new ArrayList<>();
+                    info.add(l.getLocationID());
+                    info.add(l.getMapImage());
+                    info.add(Integer.toString(l.getMapPointCounts()));
+                    // if location name is null, it will save the location ID instead
+                    if (l.getName() != null) {
+                        availableLocations.put(l.getName(), info);
+                        locationsNames.add(l.getName());
+                    }
+                    else {
+                        availableLocations.put(l.getLocationID(), info);
+                        locationsNames.add(l.getLocationID());
+                    }
+                }
+                assertNotNull(availableLocations);
+            }
+        });
+    }
+
+    @Test
+    public void testDrawingMap() {
+        String mapImage = "https://firebasestorage.googleapis.com/v0/b/wapsutd-e0016.appspot.com/o/maps%2FCCL2Z1?alt=media&token=76267543-f6e0-4a35-aec5-66a996253a5c";
+
+        WAPFirebase<Location> locationWAPFirebase = new WAPFirebase<>(Location.class, "locations");
+        locationWAPFirebase.compoundQuery("locationID", "CCL2Z1").addOnSuccessListener(new OnSuccessListener<ArrayList<Location>>() {
             @Override
             public void onSuccess(ArrayList<Location> locations) {
                 assertNotNull(locations);
@@ -92,6 +129,7 @@ public class TestingActivityTest {
                     if (l.getLocationID().equals(locationID)) {
                         String mapImageAdd = l.getMapImage();
                         assertNotNull(mapImageAdd);
+                        assertEquals(mapImageAdd, mapImage);
                         if (Build.VERSION.SDK_INT > 9) {
                             StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
                             StrictMode.setThreadPolicy(policy);
@@ -116,20 +154,20 @@ public class TestingActivityTest {
                 }
             }
         });
-    }*/
+    }
 
     //Testing setting up WifiManager
-    /*@Test
+    @Test
     public void testWifiManagerSetup() {
         wifiManager = (WifiManager) appContext.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
 
         // Instantiate broadcast receiver
         wifiReceiver = new WifiBroadcastReceiver();
         assertNotNull(wifiReceiver);
-    }*/
+    }
 
     //Testing scanning with wifi manager
-    /*@Test
+    @Test
     public void testWifiManagerScan() {
         wifiManager = (WifiManager) appContext.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
 
@@ -137,7 +175,7 @@ public class TestingActivityTest {
         wifiReceiver = new WifiBroadcastReceiver();
         wifiManager.startScan();
         assertTrue(true);
-    }*/
+    }
 
     //Deregister the wifimanager
 //    @After
@@ -146,6 +184,7 @@ public class TestingActivityTest {
 //            appContext.unregisterReceiver(wifiReceiver);
 //        }
 //    }
+
     //Testing WAPFirebase Signal and Point Instantiation
     @Test
     public void testInstantiateSignalAndPointFirebase() {
@@ -158,25 +197,25 @@ public class TestingActivityTest {
     //Testing compoundquery for MapPoints
     //TODO: uncomment and change the location ID once we add the loca
 
-   /* @Test
+    @Test
     public void testCompoundQueryMapPoints() {
         WAPFirebase<MapPoint> wapFirebasePoints = new WAPFirebase<>(MapPoint.class, "points");
-        wapFirebasePoints.compoundQuery("locationID", locationID).addOnSuccessListener(new OnSuccessListener<ArrayList<MapPoint>>() {
+        wapFirebasePoints.compoundQuery("locationID", "CCL2Z1").addOnSuccessListener(new OnSuccessListener<ArrayList<MapPoint>>() {
             @Override
             public void onSuccess(ArrayList<MapPoint> mapPoints) {
                 assertFalse(mapPoints.isEmpty());
             }
         });
-    }*/
+    }
 
     //TODO: Fix the URL
 
-   /* @Test
+    @Test
     public void testUtilsGetBitmapNotNull() throws IOException {
         String URL = "https://firebasestorage.googleapis.com/v0/b/wapsutd-e0016.appspot.com/o/maps%2FCCLvl1?alt=media&token=d882eab4-c435-4cb7-8b82-e13fc298629c";
         Bitmap bitmap = Utils.getBitmap(new URL(URL));
         assertNotNull(bitmap);
-    }*/
+    }
 
 
     class WifiBroadcastReceiver extends BroadcastReceiver {
@@ -234,25 +273,25 @@ public class TestingActivityTest {
         ActivityScenario activityScenario = ActivityScenario.launch(TestingActivity.class);
         onView(withId(R.id.testingActivity)).check(matches(isDisplayed()));
     }
+
     //testing elements display correctly
-    /*@Test
+    @Test
     public void test_IsItemsDisplayed(){
         ActivityScenario activityscenario = ActivityScenario.launch(TestingActivity.class);
         onView(withId(R.id.selectLocationText)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
         onView(withId(R.id.locationSpinner)).perform(click());
-        onView(withText("Campus Centre Lv 2")).perform(click());
+        onData(allOf(is(instanceOf(String.class)), is("Campus Centre Lv 2"))).perform(click());
         onView(withId(R.id.mapImageView)).check(matches(isDisplayed()));
+    }
 
-
-    }*/
     //test Navigation on bottomnavbar
-    /*@Test
+    @Test
     public void test_navTestingactivity(){
         ActivityScenario activityscenario = ActivityScenario.launch(TestingActivity.class);
         onView(withId(R.id.testingActivity)).check(matches(isDisplayed()));
         onView(withContentDescription(R.string.mapping)).perform(click());
         onView(withId(R.id.mappingActivity)).check(matches(isDisplayed()));
-    }*/
+    }
 
 
 }
