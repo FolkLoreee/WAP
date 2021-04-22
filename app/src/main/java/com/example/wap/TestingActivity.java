@@ -125,6 +125,8 @@ public class TestingActivity extends AppCompatActivity {
 
         // Initialise hashmaps
         availableLocations = new HashMap<>();
+        allSignals = new HashMap<>();
+        ssids = new HashMap<>();
 
         // delete signal records
 //        WAPFirebase<Signal> deleteSignals = new WAPFirebase<>(Signal.class,"signals");

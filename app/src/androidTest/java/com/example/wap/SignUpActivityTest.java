@@ -3,6 +3,7 @@ package com.example.wap;
 import androidx.annotation.NonNull;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.espresso.assertion.ViewAssertions;
+import androidx.test.ext.junit.rules.ActivityScenarioRule;
 
 import com.example.wap.firebase.WAPFirebase;
 import com.example.wap.models.Authorization;
@@ -15,6 +16,11 @@ import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 
 import org.junit.Test;
 
+import static androidx.test.espresso.Espresso.closeSoftKeyboard;
+import static androidx.test.espresso.Espresso.onData;
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
 
 import static androidx.test.espresso.Espresso.onView;
@@ -139,6 +145,32 @@ public class SignUpActivityTest {
         } else {
             fail();
         }
+    }
+
+    @Test
+    public void test_creating_user_UI() throws InterruptedException {
+        String email_test2 = "hello@gmail.com";
+        String pw_test2 = "hello_there";
+        String username_test2 = "hello";
+        ActivityScenario activityScenario = ActivityScenario.launch(SignUpActivity.class);
+        onView(withId(R.id.etEmailSignup)).perform(click(), typeText(email_test2));
+        onView(withId(R.id.etUsernameSignup)).perform(click(), typeText(username_test2));
+        onView(withId(R.id.etPasswordSignup)).perform(click(), typeText(pw_test2));
+        closeSoftKeyboard();
+        onView(withId(R.id.authSpinner)).perform(click());
+        onData(allOf(is(instanceOf(Authorization.class)), is(Authorization.USER))).perform(click());
+        onView(withId(R.id.signupButton)).perform(click());
+    }
+
+    @Test
+    public void test_invalid_password() {
+        ActivityScenario activityScenario = ActivityScenario.launch(SignUpActivity.class);
+        String pw_short = "123";
+        onView(withId(R.id.etEmailSignup)).perform(click(), typeText(email_user));
+        onView(withId(R.id.etUsernameSignup)).perform(click(), typeText("number"));
+        onView(withId(R.id.etPasswordSignup)).perform(click(), typeText(pw_short));
+        closeSoftKeyboard();
+        onView(withId(R.id.loginActivity)).check(ViewAssertions.doesNotExist());
     }
 
    /* @Test

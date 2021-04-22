@@ -11,6 +11,7 @@ import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.espresso.ViewAction;
@@ -21,8 +22,11 @@ import androidx.test.rule.ActivityTestRule;
 
 import com.example.wap.firebase.WAPFirebase;
 import com.example.wap.models.Coordinate;
+import com.example.wap.models.Location;
 import com.example.wap.models.MapPoint;
 import com.example.wap.models.Signal;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 
@@ -42,8 +46,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.hasBackground;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.RootMatchers.withDecorView;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
@@ -61,6 +64,7 @@ public class MapActivityTest {
 */
     static Intent intent;
     static Bitmap myLogo;
+
     static {
         Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
         intent = new Intent(context, MapActivity.class);
@@ -73,39 +77,40 @@ public class MapActivityTest {
     public ActivityScenarioRule<MapActivity> activityScenarioRule = new ActivityScenarioRule<>(intent);
 
     @Test
-    public void test_signal_indexing(){
+    public void test_signal_indexing() {
         int counter = 0;
         String pointID = "MP-LOCATION-";
         MapPoint point = new MapPoint();
         ArrayList<String> signalIDs = new ArrayList<>();
-        String signalID = "SG-"+pointID+"-"+counter;
+        String signalID = "SG-" + pointID + "-" + counter;
         Signal signal = new Signal();
         signal.setSignalID(signalID);
         signalIDs.add(signalID);
     }
 
     @Test
-    public void drawFunctionTestPass(){
+    public void drawFunctionTestPass() {
         ActivityScenario activityScenario = activityScenarioRule.getScenario();
         activityScenario.onActivity(activity -> {
-            ImageView imageViewTest = new ImageView(activity.getApplicationContext());;
+            ImageView imageViewTest = new ImageView(activity.getApplicationContext());
+            ;
             imageViewTest.setImageBitmap(myLogo);
-            Coordinate coordinateTest = new Coordinate(0,0);
+            Coordinate coordinateTest = new Coordinate(0, 0);
             ArrayList<Path> pathsTest = new ArrayList<>();
             TextView textViewTest = new TextView(activity.getApplicationContext());
-            MapActivity.drawFunction(coordinateTest, 5,5, 100, 100, imageViewTest, pathsTest, textViewTest);
+            MapActivity.drawFunction(coordinateTest, 5, 5, 100, 100, imageViewTest, pathsTest, textViewTest);
         });
     }
 
     @Test
-    public void drawFunctionTestMapImageNullFail(){
+    public void drawFunctionTestMapImageNullFail() {
         ActivityScenario activityScenario = activityScenarioRule.getScenario();
         activityScenario.onActivity(activity -> {
             ImageView imageViewTest = null;
-            Coordinate coordinateTest = new Coordinate(0,0);
+            Coordinate coordinateTest = new Coordinate(0, 0);
             ArrayList<Path> pathsTest = new ArrayList<>();
             TextView textViewTest = new TextView(activity.getApplicationContext());
-            MapActivity.drawFunction(coordinateTest, 5,5, 100, 100, imageViewTest, pathsTest, textViewTest);
+            MapActivity.drawFunction(coordinateTest, 5, 5, 100, 100, imageViewTest, pathsTest, textViewTest);
         });
     }
 
@@ -120,7 +125,7 @@ public class MapActivityTest {
     }*/
 
     @Test
-    public void drawFunctionTestMapCoordinateNullFail(){
+    public void drawFunctionTestMapCoordinateNullFail() {
         ActivityScenario activityScenario = activityScenarioRule.getScenario();
         activityScenario.onActivity(activity -> {
             ImageView imageViewTest = new ImageView(activity.getApplicationContext());
@@ -128,101 +133,143 @@ public class MapActivityTest {
             Coordinate coordinateTest = null;
             ArrayList<Path> pathsTest = new ArrayList<>();
             TextView textViewTest = new TextView(activity.getApplicationContext());
-            MapActivity.drawFunction(coordinateTest, 5,5, 100, 100, imageViewTest, pathsTest, textViewTest);
+            MapActivity.drawFunction(coordinateTest, 5, 5, 100, 100, imageViewTest, pathsTest, textViewTest);
         });
 
     }
 
     @Test
-    public void upButtonOutOfBoundTestFail(){
+    public void upButtonOutOfBoundTestFail() {
         ActivityScenario activityScenario = activityScenarioRule.getScenario();
         activityScenario.onActivity(activity -> {
-            MapActivity.coordinate = new Coordinate(0,0);
+            MapActivity.coordinate = new Coordinate(0, 0);
             activity.findViewById(R.id.up).performClick();
         });
     }
 
     @Test
-    public void leftButtonOutOfBoundTestFail(){
+    public void leftButtonOutOfBoundTestFail() {
         ActivityScenario activityScenario = activityScenarioRule.getScenario();
         activityScenario.onActivity(activity -> {
-            MapActivity.coordinate = new Coordinate(0,0);
+            MapActivity.coordinate = new Coordinate(0, 0);
             activity.findViewById(R.id.left).performClick();
         });
     }
 
     @Test
-    public void downButtonOutOfBoundTestFail(){
+    public void downButtonOutOfBoundTestFail() {
         ActivityScenario activityScenario = activityScenarioRule.getScenario();
         activityScenario.onActivity(activity -> {
             int bitmapImgHeight = MapActivity.bitmapImg.getHeight();
-            MapActivity.coordinate = new Coordinate(0,bitmapImgHeight);
+            MapActivity.coordinate = new Coordinate(0, bitmapImgHeight);
             activity.findViewById(R.id.down).performClick();
         });
     }
 
 
-
     @Test
-    public void rightButtonOutOfBoundTestFail(){
+    public void rightButtonOutOfBoundTestFail() {
         ActivityScenario activityScenario = activityScenarioRule.getScenario();
         activityScenario.onActivity(activity -> {
             int bitmapImgWidth = MapActivity.bitmapImg.getWidth();
-            MapActivity.coordinate = new Coordinate(bitmapImgWidth,0);
+            MapActivity.coordinate = new Coordinate(bitmapImgWidth, 0);
             activity.findViewById(R.id.right).performClick();
 
         });
     }
+
     @Test
-    public void drawFunctionTestsquareHeightZeroFail(){
+    public void drawFunctionTestsquareHeightZeroFail() {
         ActivityScenario activityScenario = activityScenarioRule.getScenario();
         activityScenario.onActivity(activity -> {
             ImageView imageViewTest = new ImageView(activity.getApplicationContext());
             imageViewTest.setImageBitmap(myLogo);
-            Coordinate coordinateTest = new Coordinate(0,0);
+            Coordinate coordinateTest = new Coordinate(0, 0);
             ArrayList<Path> pathsTest = new ArrayList<>();
             TextView textViewTest = new TextView(activity.getApplicationContext());
-            MapActivity.drawFunction(coordinateTest, 0,5, 100, 100, imageViewTest, pathsTest, textViewTest);
+            MapActivity.drawFunction(coordinateTest, 0, 5, 100, 100, imageViewTest, pathsTest, textViewTest);
         });
 
     }
 
     @Test
-    public void drawFunctionTestsquareWidthZeroFail(){
+    public void drawFunctionTestsquareWidthZeroFail() {
         ActivityScenario activityScenario = activityScenarioRule.getScenario();
         activityScenario.onActivity(activity -> {
             ImageView imageViewTest = new ImageView(activity.getApplicationContext());
             imageViewTest.setImageBitmap(myLogo);
-            Coordinate coordinateTest = new Coordinate(0,0);
+            Coordinate coordinateTest = new Coordinate(0, 0);
             ArrayList<Path> pathsTest = new ArrayList<>();
             TextView textViewTest = new TextView(activity.getApplicationContext());
-            MapActivity.drawFunction(coordinateTest, 5,0, 100, 100, imageViewTest, pathsTest, textViewTest);
+            MapActivity.drawFunction(coordinateTest, 5, 0, 100, 100, imageViewTest, pathsTest, textViewTest);
         });
     }
 
     @Test
-    public void drawFunctionTestintrinsicHeightZeroFail(){
+    public void drawFunctionTestintrinsicHeightZeroFail() {
         ActivityScenario activityScenario = activityScenarioRule.getScenario();
         activityScenario.onActivity(activity -> {
             ImageView imageViewTest = new ImageView(activity.getApplicationContext());
             imageViewTest.setImageBitmap(myLogo);
-            Coordinate coordinateTest = new Coordinate(0,0);
+            Coordinate coordinateTest = new Coordinate(0, 0);
             ArrayList<Path> pathsTest = new ArrayList<>();
             TextView textViewTest = new TextView(activity.getApplicationContext());
-            MapActivity.drawFunction(coordinateTest, 5,5, 0, 100, imageViewTest, pathsTest, textViewTest);
+            MapActivity.drawFunction(coordinateTest, 5, 5, 0, 100, imageViewTest, pathsTest, textViewTest);
         });
     }
 
     @Test
-    public void drawFunctionTestintrinsicWidthZeroFail(){
+    public void drawFunctionTestintrinsicWidthZeroFail() {
         ActivityScenario activityScenario = activityScenarioRule.getScenario();
         activityScenario.onActivity(activity -> {
             ImageView imageViewTest = new ImageView(activity.getApplicationContext());
             imageViewTest.setImageBitmap(myLogo);
-            Coordinate coordinateTest = new Coordinate(0,0);
+            Coordinate coordinateTest = new Coordinate(0, 0);
             ArrayList<Path> pathsTest = new ArrayList<>();
             TextView textViewTest = new TextView(activity.getApplicationContext());
-            MapActivity.drawFunction(coordinateTest, 5,5, 100, 0, imageViewTest, pathsTest, textViewTest);
+            MapActivity.drawFunction(coordinateTest, 5, 5, 100, 0, imageViewTest, pathsTest, textViewTest);
+        });
+    }
+
+    @Test
+    public void test_update_location() {
+        Location testLocation = new Location("testName", "testID", "testURL");
+        WAPFirebase<Location> locationWAPFirebase = new WAPFirebase<Location>(Location.class, "locations");
+        locationWAPFirebase.create(testLocation, testLocation.getLocationID()).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                //Mock adding a new point
+                MapPoint point = new MapPoint("testPointID", new Coordinate(1, 1), testLocation.getLocationID());
+                testLocation.incrementMapPointCounts();
+                testLocation.addMapPointID(point.getPointID());
+                locationWAPFirebase.update(testLocation, testLocation.getLocationID()).addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        assert true;
+                        locationWAPFirebase.delete(testLocation.getLocationID()).addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                assert true;
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                fail();
+                            }
+                        });
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        fail();
+                    }
+                });
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                fail();
+            }
         });
     }
 

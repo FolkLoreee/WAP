@@ -277,6 +277,8 @@ public class TestingActivityTest {
     @Test
     public void test_IsItemsDisplayed() throws InterruptedException {
         ActivityScenario activityscenario = ActivityScenario.launch(TestingActivity.class);
+        //wait to launch activity and fetch data
+        Thread.sleep(2500);
         onView(withId(R.id.testingActivity)).check(matches(isDisplayed()));
         onView(withId(R.id.mapImageView)).check(matches(isDisplayed()));
         onView(withId(R.id.selectLocationText)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
