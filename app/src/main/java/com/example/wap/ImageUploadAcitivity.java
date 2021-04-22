@@ -82,7 +82,10 @@ public class ImageUploadAcitivity extends Fragment {
         uploadImg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                chooseImage();
+                Intent intent = new Intent();
+                intent.setType("image/*");
+                intent.setAction(Intent.ACTION_GET_CONTENT);
+                startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
             }
         });
 
@@ -98,19 +101,22 @@ public class ImageUploadAcitivity extends Fragment {
                     Toast.makeText(ImageUploadAcitivity.getContextOfApplication(), "No Location Name", Toast.LENGTH_SHORT).show();
                 }
                 else {
-                    splitImage(bitmap);
+                    if (filePath == null) {
+                        Toast.makeText(ImageUploadAcitivity.getContextOfApplication(), "Upload an image", Toast.LENGTH_SHORT).show();
+                    } else {
+                        uploadMapImage();
+
+                        Intent intent = new Intent(getActivity(), MapActivity.class);
+                        intent.putExtra("locationID", locationID);
+                        intent.putExtra("BitmapImage", bitmap);
+                        startActivity(intent);
+                    }
                 }
 
             }
         });
     }
 
-    private void chooseImage() {
-        Intent intent = new Intent();
-        intent.setType("image/*");
-        intent.setAction(Intent.ACTION_GET_CONTENT);
-        startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
-    }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -130,20 +136,7 @@ public class ImageUploadAcitivity extends Fragment {
         }
     }
 
-
-
-    private void splitImage(Bitmap bitmap) {
-        if (filePath == null) {
-            Toast.makeText(ImageUploadAcitivity.getContextOfApplication(), "Upload an image", Toast.LENGTH_SHORT).show();
-        } else {
-            uploadMapImage();
-            MapActivity.bitmapImg = bitmap;
-            Intent intent = new Intent(getActivity(), MapActivity.class);
-            intent.putExtra("locationID", locationID);
-            startActivity(intent);
-        }
-    }
-
+    //TODO: test this function somehow
     private void uploadMapImage(){
 
         final StorageReference ref = storageRef.child("maps/" + locationID);

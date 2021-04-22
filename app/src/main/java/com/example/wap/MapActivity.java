@@ -37,6 +37,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 //firebase stuff
 public class MapActivity extends AppCompatActivity {
 
@@ -64,7 +67,7 @@ public class MapActivity extends AppCompatActivity {
     String locationURL;
 
     Location currentLocation;
-    static Coordinate coordinate;
+    public static Coordinate coordinate;
 
     //Firebase
     WAPFirebase<MapPoint> pointWAPFirebase;
@@ -78,7 +81,7 @@ public class MapActivity extends AppCompatActivity {
     Paint paint;
     ArrayList<Path> paths = new ArrayList<Path>();
 
-    public float[] pointToUpload = new float[2];
+    public static float[] pointToUpload = new float[2];
 
     Path mPath;
     int intrinsicHeight;
@@ -99,7 +102,6 @@ public class MapActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
 
-
         pointWAPFirebase = new WAPFirebase<>(MapPoint.class, "points");
         locationWAPFirebase = new WAPFirebase<>(Location.class, "locations");
 
@@ -112,11 +114,13 @@ public class MapActivity extends AppCompatActivity {
         scan = (ImageButton) findViewById(R.id.scan);
         mappinghelp = (ImageButton) findViewById(R.id.mappinghelp);
 
+        Intent intent = getIntent();
         //set coordinate as (0,0) on creation
         coordinate = new Coordinate(0, 0);
 
         // Set up the map
         mapImage = (ImageView) findViewById(R.id.mapImage);
+        bitmapImg = intent.getParcelableExtra("BitmapImage");
 
         //original height and width of the bitmap
         intrinsicHeight = bitmapImg.getHeight();
@@ -146,7 +150,7 @@ public class MapActivity extends AppCompatActivity {
         mapImage.setImageBitmap(bitmap);
         mapImage.setScaleType(ImageView.ScaleType.FIT_CENTER);
 
-        Intent intent = getIntent();
+
         locationID = intent.getStringExtra(ImageSelectActivity.LOCATION_ID_KEY);
         locationName = intent.getStringExtra(ImageSelectActivity.LOCATION_NAME_KEY);
         locationURL = intent.getStringExtra(ImageSelectActivity.LOCATION_URL_KEY);
@@ -244,6 +248,7 @@ public class MapActivity extends AppCompatActivity {
 
             }
         });
+
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_nav_bar);
         bottomNavigationView.setSelectedItemId(R.id.choosemapactivity);
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -265,39 +270,42 @@ public class MapActivity extends AppCompatActivity {
         });
     }
 
+    public static void drawFunction(Coordinate coordinate, int squareHeight, int squareWidth, int intrinsicHeight, int intrinsicWidth, ImageView mapImage, ArrayList<Path> paths, TextView coordinatesText) {
+        if(mapImage != null && squareHeight !=0 && squareWidth !=0 && intrinsicHeight !=0 && intrinsicWidth !=0 && coordinate !=null){
+            Bitmap bitmap = Bitmap.createBitmap((int) intrinsicWidth, (int) intrinsicHeight, Bitmap.Config.ARGB_8888);
+            Canvas canvas = new Canvas(bitmap);
+            Path mPath = new Path();
+            canvas.drawBitmap(bitmapImg, 0, 0, null);
+            Paint paint = new Paint();
+            paint.setColor(Color.RED);
 
-    public void drawFunction(Coordinate coordinate, int squareHeight, int squareWidth, int intrinsicHeight, int intrinsicWidth, ImageView mapImage, ArrayList<Path> paths, TextView coordinatesText) {
-
-        Bitmap bitmap = Bitmap.createBitmap((int) intrinsicWidth, (int) intrinsicHeight, Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(bitmap);
-        Path mPath = new Path();
-        canvas.drawBitmap(bitmapImg, 0, 0, null);
-        Paint paint = new Paint();
-        paint.setColor(Color.RED);
-
-        paint.setStrokeWidth(10);
-        mapImage.setImageBitmap(bitmap);
-        if (paths.size() != 0) {
-            for (Path path : paths) {
-                paint.setColor(Color.BLUE);
-                canvas.drawPath(path, paint);
+            paint.setStrokeWidth(10);
+            mapImage.setImageBitmap(bitmap);
+            if (paths.size() != 0) {
+                for (Path path : paths) {
+                    paint.setColor(Color.BLUE);
+                    canvas.drawPath(path, paint);
+                }
             }
+            paint.setColor(Color.RED);
+            float[] center = centerOfRect(coordinate, squareWidth, squareHeight);
+            coordinatesText.setText("( " + center[0] + " ," + center[1] + ")");
+
+            pointToUpload[0] = center[0];
+            pointToUpload[1] = center[1];
+
+            mPath.addCircle(center[0], center[1], 15, Path.Direction.CW);
+            canvas.drawPath(mPath, paint);
+            Log.d("right", "drawn: " + (float) coordinate.getX() + ", " + (float) coordinate.getY());
         }
-        paint.setColor(Color.RED);
-        float[] center = centerOfRect(coordinate, squareWidth, squareHeight);
-        coordinatesText.setText("( " + center[0] + " ," + center[1] + ")");
 
-        pointToUpload[0] = center[0];
-        pointToUpload[1] = center[1];
-
-        mPath.addCircle(center[0], center[1], 15, Path.Direction.CW);
-
-        canvas.drawPath(mPath, paint);
-        Log.d("right", "drawn: " + (float) coordinate.getX() + ", " + (float) coordinate.getY());
+        else{
+            Log.d("MapActivity", "drawFunction: something not working lol");
+        }
 
     }
 
-    public float[] centerOfRect(Coordinate coordinate, int squareWidth, int squareHeight) {
+    public static float[] centerOfRect(Coordinate coordinate, int squareWidth, int squareHeight) {
 //        ( (x1 + x2) / 2, (y1 + y2) / 2 )
         float[] center = new float[2];
         center[0] = (float) (2 * coordinate.getX() + squareWidth) / 2;

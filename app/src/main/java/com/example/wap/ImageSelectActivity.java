@@ -86,7 +86,13 @@ public class ImageSelectActivity extends ListFragment  {
                     Toast.makeText(ImageSelectActivity.getContextOfApplication(), "No Image", Toast.LENGTH_SHORT).show();
                 }
                 else{
-                    splitImage(bitmap);
+                    MapActivity.bitmapImg = bitmap;
+                    Intent intent = new Intent(getActivity(), MapActivity.class);
+                    intent.putExtra(LOCATION_ID_KEY,locationID);
+                    intent.putExtra(LOCATION_URL_KEY,locationURL);
+                    intent.putExtra(LOCATION_NAME_KEY,locationName);
+                    intent.putExtra("BitmapImage", bitmap);
+                    startActivity(intent);
                 }
 
             }
@@ -125,6 +131,7 @@ public class ImageSelectActivity extends ListFragment  {
 
     }
 
+    //TODO: test this function somehow
     @Override
     public void onListItemClick(@NonNull ListView l, @NonNull View v, int position, long id) {
         super.onListItemClick(l, v, position, id);
@@ -153,16 +160,6 @@ public class ImageSelectActivity extends ListFragment  {
             imageView.setImageResource(R.drawable.image_upload);
             Toast.makeText(getContext(), "No image", Toast.LENGTH_SHORT).show();
         }
-
-    }
-
-    private void splitImage(Bitmap bitmap) {
-        MapActivity.bitmapImg = bitmap;
-        Intent intent = new Intent(getActivity(), MapActivity.class);
-        intent.putExtra(LOCATION_ID_KEY,locationID);
-        intent.putExtra(LOCATION_URL_KEY,locationURL);
-        intent.putExtra(LOCATION_NAME_KEY,locationName);
-        startActivity(intent);
 
     }
 
