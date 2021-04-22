@@ -34,12 +34,22 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Map;
 
+
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.matcher.RootMatchers.withDecorView;
 import static androidx.test.espresso.matcher.ViewMatchers.hasBackground;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
+import static androidx.test.espresso.matcher.ViewMatchers.withText;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.matcher.RootMatchers.withDecorView;
+import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 
 
 public class MapActivityTest {
@@ -80,13 +90,17 @@ public class MapActivityTest {
         signalIDs.add(signalID);
     }
 
-    private static Intent createIntent(){
-        Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        Intent i = new Intent(context, MapActivity.class);
-        Bitmap myLogo = BitmapFactory.decodeResource(context.getResources(), R.drawable.image_here);
-        assertNotNull(myLogo);
-        i.putExtra("BitmapImage", myLogo);
-        return i;
+    @Test
+    public void drawFunctionTestPass(){
+        ActivityScenario activityScenario = activityScenarioRule.getScenario();
+        activityScenario.onActivity(activity -> {
+            ImageView imageViewTest = new ImageView(activity.getApplicationContext());;
+            imageViewTest.setImageBitmap(myLogo);
+            Coordinate coordinateTest = new Coordinate(0,0);
+            ArrayList<Path> pathsTest = new ArrayList<>();
+            TextView textViewTest = new TextView(activity.getApplicationContext());
+            MapActivity.drawFunction(coordinateTest, 5,5, 100, 100, imageViewTest, pathsTest, textViewTest);
+        });
     }
 
     @Test
@@ -125,10 +139,46 @@ public class MapActivityTest {
 
     }
 
+    @Test
+    public void upButtonOutOfBoundTestFail(){
+        ActivityScenario activityScenario = activityScenarioRule.getScenario();
+        activityScenario.onActivity(activity -> {
+            MapActivity.coordinate = new Coordinate(0,0);
+            activity.findViewById(R.id.up).performClick();
+        });
+    }
+
+    @Test
+    public void leftButtonOutOfBoundTestFail(){
+        ActivityScenario activityScenario = activityScenarioRule.getScenario();
+        activityScenario.onActivity(activity -> {
+            MapActivity.coordinate = new Coordinate(0,0);
+            activity.findViewById(R.id.left).performClick();
+        });
+    }
+
+    @Test
+    public void downButtonOutOfBoundTestFail(){
+        ActivityScenario activityScenario = activityScenarioRule.getScenario();
+        activityScenario.onActivity(activity -> {
+            int bitmapImgHeight = MapActivity.bitmapImg.getHeight();
+            MapActivity.coordinate = new Coordinate(0,bitmapImgHeight);
+            activity.findViewById(R.id.down).performClick();
+        });
+    }
 
 
 
+    @Test
+    public void rightButtonOutOfBoundTestFail(){
+        ActivityScenario activityScenario = activityScenarioRule.getScenario();
+        activityScenario.onActivity(activity -> {
+            int bitmapImgWidth = MapActivity.bitmapImg.getWidth();
+            MapActivity.coordinate = new Coordinate(bitmapImgWidth,0);
+            activity.findViewById(R.id.right).performClick();
 
+        });
+    }
     @Test
     public void drawFunctionTestsquareHeightZeroFail(){
         ActivityScenario activityScenario = activityScenarioRule.getScenario();

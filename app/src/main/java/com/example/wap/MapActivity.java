@@ -171,6 +171,7 @@ public class MapActivity extends AppCompatActivity {
             public void onClick(View view) {
                 if (coordinate.getY() == 0) {
                     Log.d("right", "out of screen alrdy");
+                    Toast.makeText(MapActivity.this, "up: out of screen", Toast.LENGTH_SHORT).show();
                 } else {
                     coordinate.setY(coordinate.getY() - squareHeight);
                     drawFunction(coordinate, squareHeight, squareWidth, intrinsicHeight, intrinsicWidth, mapImage, paths, coordinatesText);
@@ -184,6 +185,7 @@ public class MapActivity extends AppCompatActivity {
             public void onClick(View view) {
                 if ((coordinate.getY() + 2 * squareHeight) > canvas.getHeight()) {
                     Log.d("right", "out of screen alrdy");
+                    Toast.makeText(MapActivity.this, "down: out of screen", Toast.LENGTH_SHORT).show();
                 } else {
                     coordinate.setY(coordinate.getY() + squareHeight);
                     drawFunction(coordinate, squareHeight, squareWidth, intrinsicHeight, intrinsicWidth, mapImage, paths, coordinatesText);
@@ -196,6 +198,7 @@ public class MapActivity extends AppCompatActivity {
             public void onClick(View view) {
                 if ((coordinate.getX() + squareWidth) >= canvas.getWidth()) {
                     Log.d("right", "out of screen alrdy");
+                    Toast.makeText(MapActivity.this, "right: out of screen", Toast.LENGTH_SHORT).show();
                 } else {
                     coordinate.setX(coordinate.getX() + squareWidth);
                     drawFunction(coordinate, squareHeight, squareWidth, intrinsicHeight, intrinsicWidth, mapImage, paths, coordinatesText);
@@ -211,6 +214,7 @@ public class MapActivity extends AppCompatActivity {
                 if (centerOfRect(coordinate, squareWidth, squareHeight)[0] < 0) {
                     coordinate.setX(coordinate.getX() + squareWidth);
                     Log.d("right", "out of screen alrdy");
+                    Toast.makeText(MapActivity.this, "left: out of screen", Toast.LENGTH_SHORT).show();
                 } else {
                     drawFunction(coordinate, squareHeight, squareWidth, intrinsicHeight, intrinsicWidth, mapImage, paths, coordinatesText);
                 }

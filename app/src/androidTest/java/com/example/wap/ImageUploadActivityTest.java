@@ -1,11 +1,17 @@
 package com.example.wap;
 
+import android.app.Activity;
+import android.app.Instrumentation;
+import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.res.Resources;
 import android.net.Uri;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.test.core.app.ActivityScenario;
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.example.wap.firebase.WAPFirebase;
@@ -57,21 +63,6 @@ public class ImageUploadActivityTest {
         if (activityScenario != null) activityScenario.close();
     }
 
-//    @Test
-//    public void splitImageTest(){
-//        suppress(method(Activity.class, "onCreate", Bundle.class));
-//        try{
-//            imageUploadAcitivity.locationIDText.setText("TestLocation1");
-//            imageUploadAcitivity.locationNameText.setText("TestLocation1");
-//            Uri uri = Uri.parse("android.resource://com.example.wap/drawable/testMap");
-//            imageUploadAcitivity.filePath = uri;
-//            imageUploadAcitivity.uploadBtn.callOnClick();
-//        }
-//        catch (NullPointerException e){
-//            e.printStackTrace();
-//        }
-//    }
-
     @Test
     public void imageUploadFailNoImage(){
         try{
@@ -112,6 +103,7 @@ public class ImageUploadActivityTest {
         testLocation = new Location(locationID, locationName, locationURL);
         assertNotNull("Location created", testLocation);
     }
+
     @Test
     public void test_setup_firebase_storage() {
         activityScenario = ActivityScenario.launch(ChooseMapActivity.class);
@@ -122,6 +114,7 @@ public class ImageUploadActivityTest {
             assertNotNull(storageRef);
         });
     }
+
     @Test
     public void create_and_delete_location_firebase() {
         String locationID = "TestLocation1";
@@ -161,6 +154,7 @@ public class ImageUploadActivityTest {
         });
 
     }
+
 
     //UI testing
 
