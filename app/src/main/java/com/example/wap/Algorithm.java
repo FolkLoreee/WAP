@@ -115,7 +115,7 @@ public class Algorithm {
     }
 
     // new Firebase retrieval code
-    public void retrievefromFirebase2(String locationID) {
+    public void retrievefromFirebase(String locationID) {
         WAPFirebase<MapPoint> wapFirebasePoints = new WAPFirebase<>(MapPoint.class,"points");
 
         wapFirebasePoints.compoundQuery("locationID", locationID).addOnSuccessListener(new OnSuccessListener<ArrayList<MapPoint>>() {
@@ -186,10 +186,13 @@ public class Algorithm {
     public HashMap<String, Double> filterWifiByFlag(ArrayList<Double> targetData, double FLAG, ArrayList<String> targetMacAdd) {
         // get a list of mac address where the signal strength pass the FLAG value
         HashMap<String, Double> filteredMac = new HashMap<>();
-        for (int i = 0; i < targetData.size(); i++) {
-            double strength = targetData.get(i);
-            if (Math.abs(strength) < Math.abs(FLAG)) {
-                filteredMac.put(targetMacAdd.get(i), targetData.get(i));
+        // if FLAG value is computed correctly, it should not be 0.0
+        if (FLAG != 0.0) {
+            for (int i = 0; i < targetData.size(); i++) {
+                double strength = targetData.get(i);
+                if (Math.abs(strength) < Math.abs(FLAG)) {
+                    filteredMac.put(targetMacAdd.get(i), strength);
+                }
             }
         }
 
@@ -218,7 +221,7 @@ public class Algorithm {
                 double signalStrengthTarget = filteredMac.get(bssid);
                 double signalStrength = listOfSignalStrengths.get(bssid);
                 double difference = Math.abs(signalStrengthTarget - signalStrength);
-                System.out.println("difference: " + difference);
+                // System.out.println("difference: " + difference);
                 if (difference < proximityThreshold) {
                     count++;
                 }
@@ -286,7 +289,6 @@ public class Algorithm {
 
         // compare bssid in each fingerprint with the list of bssid from wifi scan at target location
         for (String pointID: pointsFB.keySet()) {
-            System.out.println();
             double percentMatch = checkPercentageMatch(pointID, filteredMac, pointsFB, signalBSSIDFB, signalStrengthFB);
             // filters out fingerprints that do not even contain any of the bssid at the target location
             if (percentMatch == 1.0) {
