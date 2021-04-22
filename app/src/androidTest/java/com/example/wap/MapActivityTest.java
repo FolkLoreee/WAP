@@ -53,12 +53,6 @@ import static org.hamcrest.Matchers.not;
 
 
 public class MapActivityTest {
-    private static final String TAG = "MapActivity Instrumented Testing";
-    Context activityContext;
-    FirebaseFirestore db;
-    FirebaseStorage storage;
-    ActivityScenario<MapActivity> activityScenario;
-    WAPFirebase<Signal> signalWAPFirebase;
 
     /*@Before
     public void setup(){
@@ -115,7 +109,7 @@ public class MapActivityTest {
         });
     }
 
-    @Test
+    /*@Test
     public void centerOfRectTest(){
 
         Coordinate coordinateTest = new Coordinate(0,0);
@@ -123,7 +117,7 @@ public class MapActivityTest {
         float centerTest[] = MapActivity.centerOfRect(coordinateTest, 5,5);
         assertEquals(2.5, centerTest[0], 1e-15);
         assertEquals(2.5, centerTest[1], 1e-15);
-    }
+    }*/
 
     @Test
     public void drawFunctionTestMapCoordinateNullFail(){
@@ -233,17 +227,17 @@ public class MapActivityTest {
     }
 
 
-    //ui Tests
-//    @Test
-//    public void test_IsItemsDisplayed(){
-//        ActivityScenario activityscenario = ActivityScenario.launch(MapActivity.class);
-//        onView(withId(R.id.bottom)).check(matches(isDisplayed()));
-//        onView(withId(R.id.right)).check(matches(isDisplayed()));
-//        onView(withId(R.id.left)).check(matches(isDisplayed()));
-//        onView(withId(R.id.down)).check(matches(isDisplayed()));
-//        onView(withId(R.id.bottom_nav_bar)).check(matches(isDisplayed()));
-//        onView(withId(R.id.scan)).check(matches(isDisplayed()));
-//        onView(withId(R.id.coordinatesText)).check(matches(isDisplayed()));
-//        onView(withId(R.id.mapImageView)).check(matches(isDisplayed()));
-//    }
+    /*ui Tests
+    @Test
+    public void test_IsItemsDisplayed(){
+        ActivityScenario activityscenario = ActivityScenario.launch(MapActivity.class);
+        onView(withId(R.id.bottom)).check(matches(isDisplayed()));
+        onView(withId(R.id.right)).check(matches(isDisplayed()));
+        onView(withId(R.id.left)).check(matches(isDisplayed()));
+        onView(withId(R.id.down)).check(matches(isDisplayed()));
+        onView(withId(R.id.bottom_nav_bar)).check(matches(isDisplayed()));
+        onView(withId(R.id.scan)).check(matches(isDisplayed()));
+        onView(withId(R.id.coordinatesText)).check(matches(isDisplayed()));
+        onView(withId(R.id.mapImageView)).check(matches(isDisplayed()));
+    }*/
 }
