@@ -121,6 +121,7 @@ public class MapActivity extends AppCompatActivity {
         locationID = intent.getStringExtra(ImageSelectActivity.LOCATION_ID_KEY);
         locationName = intent.getStringExtra(ImageSelectActivity.LOCATION_NAME_KEY);
         locationURL = intent.getStringExtra(ImageSelectActivity.LOCATION_URL_KEY);
+
         //set coordinate as (0,0) on creation
         coordinate = new Coordinate(0, 0);
 
@@ -142,6 +143,10 @@ public class MapActivity extends AppCompatActivity {
             intrinsicHeight = bitmapImg.getHeight();
             intrinsicWidth = bitmapImg.getWidth();
 
+        }
+        else if (bitmapImg != null){
+            intrinsicHeight = bitmapImg.getHeight();
+            intrinsicWidth = bitmapImg.getWidth();
         }
 
         else{

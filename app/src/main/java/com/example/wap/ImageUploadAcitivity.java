@@ -31,6 +31,7 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.IOException;
+import java.util.Map;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -39,10 +40,14 @@ import static android.app.Activity.RESULT_OK;
 public class ImageUploadAcitivity extends Fragment {
 
     private final String TAG = "Image Upload Activity";
+    public static final String LOCATION_ID_KEY = "locationID";
+    public static final String LOCATION_NAME_KEY = "locationName";
+    public static final String LOCATION_URL_KEY = "locationURL";
     FirebaseStorage storage;
     StorageReference storageRef;
     String locationName;
     String locationID;
+    String locationURL;
     WAPFirebase<Location> locationWAPFirebase;
     ImageView uploadImg;
     EditText locationIDText,locationNameText;
@@ -94,6 +99,7 @@ public class ImageUploadAcitivity extends Fragment {
             public void onClick(View v) {
                 locationID = locationIDText.getText().toString();
                 locationName = locationNameText.getText().toString();
+
                 if(locationID == "" || locationID == null){
                     Toast.makeText(ImageUploadAcitivity.getContextOfApplication(), "No location ID", Toast.LENGTH_SHORT).show();
                 }
@@ -107,7 +113,9 @@ public class ImageUploadAcitivity extends Fragment {
                         uploadMapImage();
 
                         Intent intent = new Intent(getActivity(), MapActivity.class);
-                        intent.putExtra("locationID", locationID);
+                        intent.putExtra(LOCATION_ID_KEY,locationID);
+                        intent.putExtra(LOCATION_NAME_KEY,locationName);
+                        MapActivity.bitmapImg = bitmap;
 
                         startActivity(intent);
                     }
