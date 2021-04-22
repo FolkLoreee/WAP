@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -32,13 +33,14 @@ import com.example.wap.models.Signal;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 //firebase stuff
 public class MapActivity extends AppCompatActivity {
@@ -77,6 +79,7 @@ public class MapActivity extends AppCompatActivity {
 
     // Bitmap
     public static Bitmap bitmapImg;
+    URL urlBitmap;
     Canvas canvas;
     Paint paint;
     ArrayList<Path> paths = new ArrayList<Path>();
@@ -115,16 +118,39 @@ public class MapActivity extends AppCompatActivity {
         mappinghelp = (ImageButton) findViewById(R.id.mappinghelp);
 
         Intent intent = getIntent();
+        locationID = intent.getStringExtra(ImageSelectActivity.LOCATION_ID_KEY);
+        locationName = intent.getStringExtra(ImageSelectActivity.LOCATION_NAME_KEY);
+        locationURL = intent.getStringExtra(ImageSelectActivity.LOCATION_URL_KEY);
         //set coordinate as (0,0) on creation
         coordinate = new Coordinate(0, 0);
 
         // Set up the map
         mapImage = (ImageView) findViewById(R.id.mapImage);
-        bitmapImg = intent.getParcelableExtra("BitmapImage");
+        if(locationURL != null){
+            try {
+                urlBitmap = new URL(locationURL);
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            }
+            try {
+                bitmapImg = Utils.getBitmap(urlBitmap);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
-        //original height and width of the bitmap
-        intrinsicHeight = bitmapImg.getHeight();
-        intrinsicWidth = bitmapImg.getWidth();
+            //original height and width of the bitmap
+            intrinsicHeight = bitmapImg.getHeight();
+            intrinsicWidth = bitmapImg.getWidth();
+
+        }
+
+        else{
+            bitmapImg = BitmapFactory.decodeResource(getResources(),R.drawable.image_here);
+            intrinsicHeight = bitmapImg.getHeight();
+            intrinsicWidth = bitmapImg.getWidth();
+        }
+
+
 
         //get the height and width of the square drawn
         squareHeight = intrinsicHeight / row;
@@ -151,9 +177,7 @@ public class MapActivity extends AppCompatActivity {
         mapImage.setScaleType(ImageView.ScaleType.FIT_CENTER);
 
 
-        locationID = intent.getStringExtra(ImageSelectActivity.LOCATION_ID_KEY);
-        locationName = intent.getStringExtra(ImageSelectActivity.LOCATION_NAME_KEY);
-        locationURL = intent.getStringExtra(ImageSelectActivity.LOCATION_URL_KEY);
+
 
         Log.d(LOG_TAG, "LOCATION IS: " + locationID);
 

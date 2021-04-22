@@ -27,6 +27,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -86,12 +87,12 @@ public class ImageSelectActivity extends ListFragment  {
                     Toast.makeText(ImageSelectActivity.getContextOfApplication(), "No Image", Toast.LENGTH_SHORT).show();
                 }
                 else{
-                    MapActivity.bitmapImg = bitmap;
+//                    MapActivity.bitmapImg = bitmap;
                     Intent intent = new Intent(getActivity(), MapActivity.class);
                     intent.putExtra(LOCATION_ID_KEY,locationID);
                     intent.putExtra(LOCATION_URL_KEY,locationURL);
                     intent.putExtra(LOCATION_NAME_KEY,locationName);
-                    intent.putExtra("BitmapImage", bitmap);
+
                     startActivity(intent);
                 }
 

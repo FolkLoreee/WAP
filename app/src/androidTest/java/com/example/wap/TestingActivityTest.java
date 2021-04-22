@@ -275,7 +275,7 @@ public class TestingActivityTest {
     }
     //testing elements display correctly
     @Test
-    public void test_IsItemsDisplayed(){
+    public void test_IsItemsDisplayed() throws InterruptedException {
         ActivityScenario activityscenario = ActivityScenario.launch(TestingActivity.class);
         onView(withId(R.id.testingActivity)).check(matches(isDisplayed()));
         onView(withId(R.id.mapImageView)).check(matches(isDisplayed()));
