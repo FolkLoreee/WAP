@@ -9,7 +9,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.wap.firebase.WAPFirebase;
@@ -79,12 +78,9 @@ public class LoginActivity extends AppCompatActivity {
                     firebaseAuth.signInWithEmailAndPassword(etEmail.getText().toString(), etPassword.getText().toString()).addOnSuccessListener(new OnSuccessListener<AuthResult>() {
                         @Override
                         public void onSuccess(AuthResult authResult) {
-                            AlertDialog.Builder builder = new AlertDialog.Builder(LoginActivity.this);
-                            builder.setTitle("Login Successful");
-                            builder.setMessage("welcome to WAP");
+                            Toast.makeText(LoginActivity.this, "Login Successful!", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(LoginActivity.this, "Welcome to WAP", Toast.LENGTH_SHORT).show();
 
-                            AlertDialog alertDialog = builder.create();
-                            alertDialog.show();
 
                             startActivity(new Intent(LoginActivity.this, ChooseMapActivity.class));
                             finish();
