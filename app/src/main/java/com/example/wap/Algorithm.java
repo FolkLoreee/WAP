@@ -49,7 +49,7 @@ public class Algorithm {
     private final double weightJointProb = 0.25;
     private final int k = 4;
     private final double threshold = 0.7;
-    private final int wifiThreshold = -60;
+    private final int wifiThreshold = -70;
     private final int proximityThreshold = 3;
 
     /**

@@ -22,6 +22,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Spinner;
@@ -51,6 +52,7 @@ public class TestingActivity extends AppCompatActivity {
 
     TextView calculatedPointData;
     ImageView mapImageView;
+    Button locateBtn;
 
     // Bitmap
     Bitmap mapImage;
@@ -87,9 +89,9 @@ public class TestingActivity extends AppCompatActivity {
     HashMap<String, ArrayList<String>> availableLocations;
 
     // Locating at regular interval
-    Handler handler = new Handler();
-    Runnable runnable;
-    int delay = 30000;
+//    Handler handler = new Handler();
+//    Runnable runnable;
+//    int delay = 30000;
     boolean mapNotFound;
     boolean locationMapped;
 
@@ -122,6 +124,7 @@ public class TestingActivity extends AppCompatActivity {
         mapImageView = findViewById(R.id.mapImageView);
         locationSpinner = findViewById(R.id.locationSpinner);
         selectLocationText = findViewById(R.id.selectLocationText);
+        locateBtn = findViewById(R.id.locateBtn);
 
         // Initialise hashmaps
         availableLocations = new HashMap<>();
@@ -214,6 +217,7 @@ public class TestingActivity extends AppCompatActivity {
                                         pointPaint.setColor(Color.RED);
                                         mapImageView.setImageBitmap(bitmap);
                                         calculatedPointData.setVisibility(View.VISIBLE);
+                                        locateBtn.setVisibility(View.VISIBLE);
                                     }
                                     // else, if there is no map, load the default drawble and indicate to user that there is no map
                                     else {
@@ -251,8 +255,41 @@ public class TestingActivity extends AppCompatActivity {
 
         // Register the receiver
         registerReceiver(wifiReceiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
+
+        locateBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                System.out.println("Checking boolean: mapNotFound - " + mapNotFound + ", locationMapped - " + locationMapped);
+                // only if map is found and the location has been mapped before then it will proceed to relocate user
+                if (!mapNotFound && locationMapped) {
+                    Toast.makeText(TestingActivity.this, "Locating user, please do not click anything...", Toast.LENGTH_SHORT).show();
+
+                    // Initialise hashmaps
+                    targetMacAdd = new ArrayList<>();
+                    targetData = new ArrayList<>();
+                    targetStdDev = new ArrayList<>();
+                    targetDataOriginal = new ArrayList<>();
+
+                    // re-initialise algorithm object for every scan
+                    algorithm = new Algorithm();
+
+                    // retrieve data from firebase
+                    algorithm.retrievefromFirebase(locationID);
+
+                    // collect wifi signals at target location
+                    numOfScans = 0;
+
+                    // re-initialise hash map each time the button is pressed
+                    allSignals = new HashMap<>();
+                    ssids = new HashMap<>();
+                    WifiScan.askAndStartScanWifi(LOG_TAG, MY_REQUEST_CODE, TestingActivity.this);
+                    wifiManager.startScan();
+                }
+            }
+        });
     }
 
+    /*
     @Override
     protected void onResume() {
         handler.postDelayed(runnable = new Runnable() {
@@ -294,6 +331,7 @@ public class TestingActivity extends AppCompatActivity {
         handler.removeCallbacks(runnable); //stop handler when activity not visible super.onPause();
         super.onPause();
     }
+     */
 
     @Override
     protected void onStop()  {
