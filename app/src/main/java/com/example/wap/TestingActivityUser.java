@@ -22,6 +22,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Spinner;
@@ -37,6 +38,7 @@ import com.example.wap.models.Location;
 import com.example.wap.models.Signal;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.firestore.model.Values;
 
 import java.io.IOException;
 import java.net.URL;
@@ -50,11 +52,13 @@ public class TestingActivityUser extends AppCompatActivity {
 
     TextView calculatedPointData;
     ImageView mapImageView;
+    Button locateBtn;
 
     // Bitmap
     Bitmap mapImage;
     Canvas canvas;
-    Paint paint;
+    Paint pointPaint;
+    Paint radiusPaint;
     Path mPath;
 
     // Wifi
@@ -85,9 +89,9 @@ public class TestingActivityUser extends AppCompatActivity {
     HashMap<String, ArrayList<String>> availableLocations;
 
     // Locating at regular interval
-    Handler handler = new Handler();
-    Runnable runnable;
-    int delay = 30000;
+//    Handler handler = new Handler();
+//    Runnable runnable;
+//    int delay = 30000;
     boolean mapNotFound;
     boolean locationMapped;
 
@@ -96,15 +100,17 @@ public class TestingActivityUser extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_testing_user);
 
-
         // Initialise XML elements
         calculatedPointData = findViewById(R.id.calculatedPointData);
         mapImageView = findViewById(R.id.mapImageView);
         locationSpinner = findViewById(R.id.locationSpinner);
         selectLocationText = findViewById(R.id.selectLocationText);
+        locateBtn = findViewById(R.id.locateBtn);
 
         // Initialise hashmaps
         availableLocations = new HashMap<>();
+        allSignals = new HashMap<>();
+        ssids = new HashMap<>();
 
         // delete signal records
 //        WAPFirebase<Signal> deleteSignals = new WAPFirebase<>(Signal.class,"signals");
@@ -116,6 +122,11 @@ public class TestingActivityUser extends AppCompatActivity {
 //                }
 //            }
 //        });
+
+        // initialise the paint
+        radiusPaint = new Paint();
+        radiusPaint.setColor(Color.BLUE);
+        radiusPaint.setAlpha(50);
 
         // Retrieve all the locations
         WAPFirebase<Location> locationWAPFirebase = new WAPFirebase<>(Location.class,"locations");
@@ -129,9 +140,7 @@ public class TestingActivityUser extends AppCompatActivity {
                     ArrayList<String> info = new ArrayList<>();
                     info.add(l.getLocationID());
                     info.add(l.getMapImage());
-                    // TODO: Remove signal counts after remapping
                     info.add(Integer.toString(l.getMapPointCounts()));
-                    info.add(Integer.toString(l.getSignalCounts()));
                     // if location name is null, it will save the location ID instead
                     if (l.getName() != null) {
                         availableLocations.put(l.getName(), info);
@@ -153,6 +162,8 @@ public class TestingActivityUser extends AppCompatActivity {
                     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                         // set the image to be invisible
                         mapImageView.setVisibility(View.INVISIBLE);
+                        // Reset the coordinates display text to default whenever map changes
+                        calculatedPointData.setText("Calculated Coordinates will appear here");
 
                         // retrieve the selection location
                         String selectedLocation = (String) parent.getItemAtPosition(position);
@@ -167,7 +178,7 @@ public class TestingActivityUser extends AppCompatActivity {
                         // proceed get the image link of the map for that location
                         else {
                             locationID = availableLocations.get(selectedLocation).get(0);
-                            System.out.println("selectedLocationID: " + locationID);
+                            // System.out.println("selectedLocationID: " + locationID);
                             String mapImageAdd = availableLocations.get(selectedLocation).get(1);
 
                             if (android.os.Build.VERSION.SDK_INT > 9) {
@@ -183,10 +194,11 @@ public class TestingActivityUser extends AppCompatActivity {
                                         canvas = new Canvas(bitmap);
                                         mPath = new Path();
                                         canvas.drawBitmap(mapImage, 0, 0, null);
-                                        paint = new Paint();
-                                        paint.setColor(Color.RED);
+                                        pointPaint = new Paint();
+                                        pointPaint.setColor(Color.RED);
                                         mapImageView.setImageBitmap(bitmap);
                                         calculatedPointData.setVisibility(View.VISIBLE);
+                                        locateBtn.setVisibility(View.VISIBLE);
                                     }
                                     // else, if there is no map, load the default drawble and indicate to user that there is no map
                                     else {
@@ -200,8 +212,7 @@ public class TestingActivityUser extends AppCompatActivity {
                                 }
                             }
                             // check if location has already mapped
-                            // TODO: Edit after remapping
-                            if (availableLocations.get(selectedLocation).get(3).equals("0")) {
+                            if (availableLocations.get(selectedLocation).get(2).equals("0")) {
                                 locationMapped = false;
                                 Toast.makeText(TestingActivityUser.this, "Location has not been mapped, unable to locate user", Toast.LENGTH_SHORT).show();
                             } else {
@@ -225,8 +236,41 @@ public class TestingActivityUser extends AppCompatActivity {
 
         // Register the receiver
         registerReceiver(wifiReceiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
+
+        locateBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                System.out.println("Checking boolean: mapNotFound - " + mapNotFound + ", locationMapped - " + locationMapped);
+                // only if map is found and the location has been mapped before then it will proceed to relocate user
+                if (!mapNotFound && locationMapped) {
+                    Toast.makeText(TestingActivityUser.this, "Locating user, please do not click anything...", Toast.LENGTH_SHORT).show();
+
+                    // Initialise hashmaps
+                    targetMacAdd = new ArrayList<>();
+                    targetData = new ArrayList<>();
+                    targetStdDev = new ArrayList<>();
+                    targetDataOriginal = new ArrayList<>();
+
+                    // re-initialise algorithm object for every scan
+                    algorithm = new Algorithm();
+
+                    // retrieve data from firebase
+                    algorithm.retrievefromFirebase(locationID);
+
+                    // collect wifi signals at target location
+                    numOfScans = 0;
+
+                    // re-initialise hash map each time the button is pressed
+                    allSignals = new HashMap<>();
+                    ssids = new HashMap<>();
+                    WifiScan.askAndStartScanWifi(LOG_TAG, MY_REQUEST_CODE, TestingActivityUser.this);
+                    wifiManager.startScan();
+                }
+            }
+        });
     }
 
+    /*
     @Override
     protected void onResume() {
         handler.postDelayed(runnable = new Runnable() {
@@ -247,7 +291,6 @@ public class TestingActivityUser extends AppCompatActivity {
                     algorithm = new Algorithm();
 
                     // retrieve data from firebase
-                    // algorithm.retrievefromFirebase(locationID);
                     algorithm.retrievefromFirebase(locationID);
 
                     // collect wifi signals at target location
@@ -269,6 +312,7 @@ public class TestingActivityUser extends AppCompatActivity {
         handler.removeCallbacks(runnable); //stop handler when activity not visible super.onPause();
         super.onPause();
     }
+     */
 
     @Override
     protected void onStop()  {
@@ -333,7 +377,8 @@ public class TestingActivityUser extends AppCompatActivity {
                         canvas.drawBitmap(mapImage, 0, 0, null);
 
                         // draw the dot on the bitmap
-                        canvas.drawCircle(doubleToFloat(position.getX()), doubleToFloat(position.getY()), 10, paint);
+                        canvas.drawCircle(doubleToFloat(position.getX()), doubleToFloat(position.getY()), 100, radiusPaint);
+                        canvas.drawCircle(doubleToFloat(position.getX()), doubleToFloat(position.getY()), 10, pointPaint);
 
                         // display the calculated coordinates
                         calculatedPointData.setText(stringifyPosition(position));

@@ -167,7 +167,9 @@ public class SignUpActivityTest {
         ActivityScenario activityScenario = ActivityScenario.launch(SignUpActivity.class);
         String pw_short = "123";
         onView(withId(R.id.etEmailSignup)).perform(click(), typeText(email_user));
+        closeSoftKeyboard();
         onView(withId(R.id.etUsernameSignup)).perform(click(), typeText("number"));
+        closeSoftKeyboard();
         onView(withId(R.id.etPasswordSignup)).perform(click(), typeText(pw_short));
         closeSoftKeyboard();
         onView(withId(R.id.loginActivity)).check(ViewAssertions.doesNotExist());

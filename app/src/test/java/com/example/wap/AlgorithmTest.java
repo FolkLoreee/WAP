@@ -215,7 +215,7 @@ public class AlgorithmTest{
         testData.add(-63.2);
         testData.add(-78.6);
         double flagValue = algo.calculateFlag(testData);
-        assertEquals(-49.0, flagValue, DELTA);
+        assertEquals(-53.73333333333333, flagValue, DELTA);
     }
 
     @Test
